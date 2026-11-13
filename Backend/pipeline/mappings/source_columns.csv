@@ -1,93 +1,232 @@
 table_id,column_name,role,target,source_unit,notes
 PSI-69::flex,flex_test,test_code,,,
-PSI-69::flex,flex_identifier,ignore,,,Identificador de grabación; flex_test es el ID del ensayo
-PSI-69::flex,test_gmt,ignore,,,Hora GMT del ensayo
-PSI-69::flex,test_date,test_date,,,Formato M/D/YYYY o M/D/YY
+PSI-69::flex,flex_identifier,ignore,,,Recording identifier; flex_test is the test ID
+PSI-69::flex,test_gmt,ignore,,,Test time (GMT)
+PSI-69::flex,test_date,test_date,,,Format M/D/YYYY or M/D/YY
 PSI-69::flex,fuel,material,,,
-PSI-69::flex,ambient_pressure,measure,pressure,mmHg,0 mmHg = dato inválido
-PSI-69::flex,o2_initial_ambient_composition,measure,o2_mole_fraction,mol/mol,
-PSI-69::flex,n2_initial_ambient_composition,measure,n2_mole_fraction,mol/mol,
-PSI-69::flex,co2_initial_ambient_composition,measure,co2_mole_fraction,mol/mol,
-PSI-69::flex,he_initial_ambient_composition,measure,he_mole_fraction,mol/mol,
-PSI-69::flex,droplet_initial_diameter,measure,droplet_initial_diameter,mm,
-PSI-69::flex,visible_flame_extinction_diameter,measure,extinction_diameter,mm,
-PSI-69::flex,burning_rate,measure,burning_rate_k,mm2/s,Unidad corregida en la ingesta (perdió el ²)
-PSI-69::flex,burn_time,measure,burn_time,s,
+PSI-69::flex,ambient_pressure,measure,pressure_kpa,mmHg,Test 114 reads 0 mmHg: known sensor error (R12)
+PSI-69::flex,o2_initial_ambient_composition,measure,o2_frac,mol/mol,
+PSI-69::flex,n2_initial_ambient_composition,measure,n2_frac,mol/mol,
+PSI-69::flex,co2_initial_ambient_composition,measure,co2_frac,mol/mol,
+PSI-69::flex,he_initial_ambient_composition,measure,he_frac,mol/mol,
+PSI-69::flex,droplet_initial_diameter,measure,droplet_d0_mm,mm,
+PSI-69::flex,visible_flame_extinction_diameter,measure,extinction_d_mm,mm,
+PSI-69::flex,burning_rate,measure,burning_rate_k_mm2_s,mm2/s,Unit fixed at ingestion (the ² was lost)
+PSI-69::flex,burn_time,measure,burn_time_s,s,
 PSI-69::flex,test_end,outcome,,,Extinction / Completion / Disruption
 PSI-159::cfi_g_normal_flames,flame_type,flame_type,,,
-PSI-159::cfi_g_normal_flames,day,ignore,,,Día de operación; la fecha sale del código de ensayo
-PSI-159::cfi_g_normal_flames,fuel,material,,,"Ej. ""30% butane"": el % es la dilución con N2"
-PSI-159::cfi_g_normal_flames,test,test_code,,,YYDDD + letra/número; da la fecha
+PSI-159::cfi_g_normal_flames,day,ignore,,,Operations day; the date comes from the test code
+PSI-159::cfi_g_normal_flames,fuel,material,,,"e.g. ""30% butane"": the % is the dilution in N2"
+PSI-159::cfi_g_normal_flames,test,test_code,,,YYDDD + letter/number; gives the date
 PSI-159::cfi_g_normal_flames,cool_flame,attribute,cool_flame,,
-PSI-159::cfi_g_normal_flames,xo2_before_test,measure,o2_mole_fraction,mol/mol,Se toma el valor antes del ensayo
+PSI-159::cfi_g_normal_flames,xo2_before_test,measure,o2_frac,mol/mol,Pre-test value is used
 PSI-159::cfi_g_normal_flames,xo2_after_test,ignore,,,
-PSI-159::cfi_g_normal_flames,approx_p,measure,pressure,bar,
-PSI-159::cfi_g_normal_flames,xf,measure,fuel_mole_fraction,mol/mol,
-PSI-159::cfi_g_normal_flames,mhc,measure,fuel_mass_flow,mg/s,
+PSI-159::cfi_g_normal_flames,approx_p,measure,pressure_kpa,bar,
+PSI-159::cfi_g_normal_flames,xf,measure,fuel_frac,mol/mol,
+PSI-159::cfi_g_normal_flames,mhc,measure,fuel_mass_flow_mg_s,mg/s,
 PSI-159::cfi_g_normal_flames,tfp,ignore,,,
-PSI-159::cfi_g_normal_flames,tad,measure,adiabatic_flame_temp,K,
-PSI-159::cfi_g_normal_flames,zst,measure,stoich_mixture_fraction,1,
-PSI-159::cfi_g_normal_flames,hot_ignition,outcome,,,Se combina con self_ext_or_flow_term
-PSI-159::cfi_g_normal_flames,burn_time,measure,burn_time,s,
-PSI-159::cfi_g_normal_flames,self_ext_or_flow_term,outcome,,,SE = autoextinción; FT = se cortó el flujo
-PSI-159::cfi_g_normal_flames,peak_burner_t,measure,peak_burner_temp,°C,
+PSI-159::cfi_g_normal_flames,tad,measure,tad_k,K,
+PSI-159::cfi_g_normal_flames,zst,measure,zst,1,
+PSI-159::cfi_g_normal_flames,hot_ignition,outcome,,,Combined with self_ext_or_flow_term
+PSI-159::cfi_g_normal_flames,burn_time,measure,burn_time_s,s,
+PSI-159::cfi_g_normal_flames,self_ext_or_flow_term,outcome,,,SE = self-extinguished; FT = flow terminated by operator
+PSI-159::cfi_g_normal_flames,peak_burner_t,measure,peak_burner_temp_k,°C,
 PSI-159::cfi_g_normal_flames,comments,comment,,,
 PSI-159::cfi_g_inverse_flames,flame_type,flame_type,,,
 PSI-159::cfi_g_inverse_flames,day,ignore,,,
 PSI-159::cfi_g_inverse_flames,fuel,material,,,
 PSI-159::cfi_g_inverse_flames,test,test_code,,,
-PSI-159::cfi_g_inverse_flames,xf_before_test,measure,fuel_mole_fraction,mol/mol,
+PSI-159::cfi_g_inverse_flames,xf_before_test,measure,fuel_frac,mol/mol,
 PSI-159::cfi_g_inverse_flames,xf_after_test,ignore,,,
-PSI-159::cfi_g_inverse_flames,approx_p,measure,pressure,bar,
-PSI-159::cfi_g_inverse_flames,xo2,measure,o2_mole_fraction,mol/mol,O2 del chorro del quemador (llama inversa)
-PSI-159::cfi_g_inverse_flames,hc_burnrate,measure,fuel_mass_flow,mg/s,
-PSI-159::cfi_g_inverse_flames,o2_flow_rate,measure,o2_mass_flow,mg/s,
+PSI-159::cfi_g_inverse_flames,approx_p,measure,pressure_kpa,bar,
+PSI-159::cfi_g_inverse_flames,xo2,measure,o2_frac,mol/mol,O2 of the burner jet (inverse flame)
+PSI-159::cfi_g_inverse_flames,hc_burnrate,measure,fuel_mass_flow_mg_s,mg/s,
+PSI-159::cfi_g_inverse_flames,o2_flow_rate,measure,o2_mass_flow_mg_s,mg/s,
 PSI-159::cfi_g_inverse_flames,tfp,ignore,,,
-PSI-159::cfi_g_inverse_flames,tad,measure,adiabatic_flame_temp,K,
-PSI-159::cfi_g_inverse_flames,zst,measure,stoich_mixture_fraction,1,
+PSI-159::cfi_g_inverse_flames,tad,measure,tad_k,K,
+PSI-159::cfi_g_inverse_flames,zst,measure,zst,1,
 PSI-159::cfi_g_inverse_flames,hot_ignition,outcome,,,Yes / No / flash
-PSI-159::cfi_g_inverse_flames,burn_time,measure,burn_time,s,
+PSI-159::cfi_g_inverse_flames,burn_time,measure,burn_time_s,s,
 PSI-159::cfi_g_inverse_flames,self_ext_or_flow_term,outcome,,,
-PSI-159::cfi_g_inverse_flames,peak_burner_temp,ignore,,,Se usa la columna en K
-PSI-159::cfi_g_inverse_flames,peak_burner_temp_2,measure,peak_burner_temp,K,
+PSI-159::cfi_g_inverse_flames,peak_burner_temp,ignore,,,The Kelvin column is used
+PSI-159::cfi_g_inverse_flames,peak_burner_temp_2,measure,peak_burner_temp_k,K,
 PSI-159::cfi_g_inverse_flames,color,attribute,flame_color,,
 PSI-159::cfi_g_inverse_flames,comments,comment,,,
 PSI-98::saffire_1,sample_number,test_code,,,
 PSI-98::saffire_1,material,material,,,
-PSI-98::saffire_1,sample_thickness,measure,sample_thickness,cm,
-PSI-98::saffire_1,sample_length,measure,sample_length,cm,
-PSI-98::saffire_1,sample_width,measure,sample_width,cm,
-PSI-98::saffire_1,air_flow,measure,flow_velocity,cm/s,
-PSI-98::saffire_1,percent_o2,measure,o2_mole_fraction,%,
-PSI-98::saffire_1,ignition_power,measure,ignition_power,W,
-PSI-98::saffire_1,ignition_time,measure,ignition_time,s,
-PSI-98::saffire_1,burn_time,measure,burn_time,s,
+PSI-98::saffire_1,sample_thickness,measure,thickness_mm,cm,
+PSI-98::saffire_1,sample_length,measure,sample_length_mm,cm,
+PSI-98::saffire_1,sample_width,measure,sample_width_mm,cm,
+PSI-98::saffire_1,air_flow,measure,flow_cm_s,cm/s,
+PSI-98::saffire_1,percent_o2,measure,o2_frac,%,
+PSI-98::saffire_1,ignition_power,measure,ignition_power_w,W,
+PSI-98::saffire_1,ignition_time,measure,ignition_time_s,s,
+PSI-98::saffire_1,burn_time,measure,burn_time_s,s,
 PSI-98::saffire_1,flow_direction,flow_direction,,,
 PSI-98::saffire_1,camera_1,ignore,,,
 PSI-98::saffire_1,camera_2,ignore,,,
 PSI-99::saffire_2,sample_number,test_code,,,
 PSI-99::saffire_2,material,material,,,
-PSI-99::saffire_2,sample_thickness,measure,sample_thickness,mm,"""037 mm"" se corrige a 0.37 mm (ver overrides)"
-PSI-99::saffire_2,sample_length,measure,sample_length,cm,
-PSI-99::saffire_2,sample_width,measure,sample_width,cm,
-PSI-99::saffire_2,air_flow,measure,flow_velocity,cm/s,
-PSI-99::saffire_2,percent_o2,measure,o2_mole_fraction,%,
-PSI-99::saffire_2,ignition_power,measure,ignition_power,W,
-PSI-99::saffire_2,ignition_time,measure,ignition_time,s,
-PSI-99::saffire_2,burn_time,measure,burn_time,s,"""Insignificant"" = no propagó"
+PSI-99::saffire_2,sample_thickness,measure,thickness_mm,mm,"""037 mm"" is likely 0.37 mm: proposed fix DD-P01 (pending)"
+PSI-99::saffire_2,sample_length,measure,sample_length_mm,cm,
+PSI-99::saffire_2,sample_width,measure,sample_width_mm,cm,
+PSI-99::saffire_2,air_flow,measure,flow_cm_s,cm/s,
+PSI-99::saffire_2,percent_o2,measure,o2_frac,%,
+PSI-99::saffire_2,ignition_power,measure,ignition_power_w,W,
+PSI-99::saffire_2,ignition_time,measure,ignition_time_s,s,
+PSI-99::saffire_2,burn_time,measure,burn_time_s,s,"""Insignificant"" = no flame spread"
 PSI-99::saffire_2,flow_direction,flow_direction,,,
-PSI-99::saffire_2,micro_g_burn_length,measure,burn_length_ug,cm,Base del resultado en µg
-PSI-99::saffire_2,micro_g_spread_length,measure,spread_rate_ug,mm/s,"El encabezado dice ""length"" pero los valores son mm/s"
-PSI-99::saffire_2,normal_g_burn_length,measure,burn_length_1g,cm,
-PSI-99::saffire_2,normal_g_spread_rate,measure,spread_rate_1g,mm/s,
+PSI-99::saffire_2,micro_g_burn_length,measure,burn_length_ug_mm,cm,Basis of the microgravity outcome
+PSI-99::saffire_2,micro_g_spread_length,measure,spread_rate_ug_mm_s,mm/s,"Header says ""length"" but values are mm/s"
+PSI-99::saffire_2,normal_g_burn_length,measure,burn_length_1g_mm,cm,
+PSI-99::saffire_2,normal_g_spread_rate,measure,spread_rate_1g_mm_s,mm/s,
 PSI-99::saffire_2,camera_1,ignore,,,
 PSI-99::saffire_2,camera_2,ignore,,,
 PSI-100::saffire_3,sample_number,test_code,,,
 PSI-100::saffire_3,material,material,,,
-PSI-100::saffire_3,sample_thickness,measure,sample_thickness,cm,
-PSI-100::saffire_3,sample_length,measure,sample_length,cm,
-PSI-100::saffire_3,sample_width,measure,sample_width,cm,
-PSI-100::saffire_3,air_flow,measure,flow_velocity,cm/s,
+PSI-100::saffire_3,sample_thickness,measure,thickness_mm,cm,
+PSI-100::saffire_3,sample_length,measure,sample_length_mm,cm,
+PSI-100::saffire_3,sample_width,measure,sample_width_mm,cm,
+PSI-100::saffire_3,air_flow,measure,flow_cm_s,cm/s,
 PSI-100::saffire_3,direction,flow_direction,,,
 PSI-100::saffire_3,camera_1,ignore,,,
 PSI-100::saffire_3,camera_2,ignore,,,
+PSI-10::flame_design_normal_flame,flame_type,flame_type,,,
+PSI-10::flame_design_normal_flame,day,ignore,,,
+PSI-10::flame_design_normal_flame,fuel,material,,,
+PSI-10::flame_design_normal_flame,test,test_code,,,YYDDD + letter/number
+PSI-10::flame_design_normal_flame,xfuel,measure,fuel_frac,mol/mol,RAMP = flow varied during the test
+PSI-10::flame_design_normal_flame,mfuel,measure,fuel_mass_flow_mg_s,mg/s,
+PSI-10::flame_design_normal_flame,mn2,measure,n2_mass_flow_mg_s,mg/s,
+PSI-10::flame_design_normal_flame,mtot,measure,fuel_mix_mass_flow_mg_s,mg/s,
+PSI-10::flame_design_normal_flame,xo2_init,measure,o2_frac,mol/mol,
+PSI-10::flame_design_normal_flame,xo2_final,measure,o2_frac_final,mol/mol,
+PSI-10::flame_design_normal_flame,pmean,measure,pressure_kpa,atm,Mean pressure; falls back to pinit
+PSI-10::flame_design_normal_flame,pinit,measure,pressure_kpa,atm,Fallback for pmean
+PSI-10::flame_design_normal_flame,pfinal,ignore,,,
+PSI-10::flame_design_normal_flame,mean_zst,measure,zst,1,
+PSI-10::flame_design_normal_flame,tad,measure,tad_k,K,
+PSI-10::flame_design_inverse_flame,flame_type,flame_type,,,
+PSI-10::flame_design_inverse_flame,day,ignore,,,
+PSI-10::flame_design_inverse_flame,test,test_code,,,
+PSI-10::flame_design_inverse_flame,xo2,measure,o2_frac,mol/mol,O2 of the burner jet (inverse flame)
+PSI-10::flame_design_inverse_flame,mo2,measure,o2_mass_flow_mg_s,mg/s,
+PSI-10::flame_design_inverse_flame,mn2,measure,n2_mass_flow_mg_s,mg/s,
+PSI-10::flame_design_inverse_flame,mtot,ignore,,,
+PSI-10::flame_design_inverse_flame,xc2h4_initial,measure,fuel_frac,mol/mol,Ambient C2H4
+PSI-10::flame_design_inverse_flame,xc2h4_final,ignore,,,
+PSI-10::flame_design_inverse_flame,pmean,measure,pressure_kpa,atm,
+PSI-10::flame_design_inverse_flame,pinit,measure,pressure_kpa,atm,Fallback for pmean
+PSI-10::flame_design_inverse_flame,pfinal,ignore,,,
+PSI-10::flame_design_inverse_flame,mean_zst,measure,zst,1,
+PSI-10::flame_design_inverse_flame,tad,measure,tad_k,K,
+PSI-107::spice,gmt_date,ignore,,,"Day of year (GMT), no year"
+PSI-107::spice,gmt_ignition,ignore,,,Used to derive burn time (DD-P04)
+PSI-107::spice,gmt_flame_off,ignore,,,Used to derive burn time (DD-P04)
+PSI-107::spice,fuel,material,,,"""75 % Propylene"" = diluted propylene"
+PSI-107::spice,nozzle,measure,nozzle_d_mm,mm,
+PSI-107::spice,fuel_rate,measure,fuel_volume_flow_sccm,sccm,
+PSI-107::spice,fuel_rate_2,measure,fuel_mix_mass_flow_mg_s,mg/s,
+PSI-107::spice,hc_fuel_rate,measure,fuel_mass_flow_mg_s,mg/s,Hydrocarbon only
+PSI-107::spice,air_rate,measure,flow_cm_s,cm/s,Co-flow air velocity
+PSI-25::bass_ii,pi,attribute,principal_investigator,,
+PSI-25::bass_ii,test,test_code,,,
+PSI-25::bass_ii,date,ignore,,,Date M/D/YYYY (see tables.csv)
+PSI-25::bass_ii,gmt,ignore,,,
+PSI-25::bass_ii,sample,attribute,sample_id,,
+PSI-25::bass_ii,fuel_sample_material,material,,,
+PSI-25::bass_ii,flow_restrictor,attribute,flow_restrictor,,
+PSI-25::bass_ii,fan_display,comment,,,Fan potentiometer sequence
+PSI-25::bass_ii,air_display,sequence+comment,flow_cm_s,cm/s,Flow sequence (R6): parsed into test_steps
+PSI-25::bass_ii,radiometer_gain,ignore,,,
+PSI-25::bass_ii,total_frames_shot,ignore,,,
+PSI-25::bass_ii,calibrated_initial_o2_pct_by_vol,measure,o2_frac,%,
+PSI-25::bass_ii,calibrated_final_o2_pct_by_vol,measure,o2_frac_final,%,
+PSI-25::bass_ii,initial_co2_pct_by_vol,measure,co2_frac,%,
+PSI-25::bass_ii,final_co2_pct_by_vol,measure,co2_frac_final,%,
+PSI-25::bass_ii,initial_co,measure,co_ppm_initial,ppm,
+PSI-25::bass_ii,final_co,measure,co_ppm_final,ppm,
+PSI-26::bass,date,ignore,,,
+PSI-26::bass,gmt,ignore,,,
+PSI-26::bass,as_run_test,attribute,as_run_test,,
+PSI-26::bass,test,test_code,,,
+PSI-26::bass,sample,attribute,sample_id,,
+PSI-26::bass,fuel_sample_material,material+comment,,,
+PSI-39::cfi,flex_number,test_code,,,
+PSI-39::cfi,test_date,ignore,,,
+PSI-39::cfi,local_time,ignore,,,
+PSI-39::cfi,cir,attribute,cir_id,,
+PSI-39::cfi,pressure,measure,pressure_kpa,atm,
+PSI-39::cfi,oxygen,measure,o2_frac,mol/mol,
+PSI-39::cfi,nitrogen,measure,n2_frac,mol/mol,
+PSI-39::cfi,helium,measure,he_frac,mol/mol,
+PSI-39::cfi,fiber,attribute,fiber_supported,,Fiber-supported droplet
+PSI-39::cfi,fuel,material+comment,,,
+PSI-101::same_r,sample_type,material,,,
+PSI-101::same_r,same_test,test_code,,,
+PSI-101::same_r,description,comment,,,
+PSI-101::same_r,date,ignore,,,No year
+PSI-101::same_r,inlet_velocity,measure,flow_cm_s,cm/s,
+PSI-101::same_r,rt_r0,measure,rt_r0,1,
+PSI-101::same_r,duration,measure,heating_time_s,s,
+PSI-101::same_r,primary_aging_time,measure,primary_aging_time_s,s,
+PSI-101::same_r,primary_mixing_time,measure,primary_mixing_time_s,s,
+PSI-101::same_r,net_aging_time,measure,net_aging_time_s,s,
+PSI-102::same,sample,test_code,,,
+PSI-102::same,sample_material,material,,,
+PSI-102::same,air_flow,measure,flow_cm_s,cm/s,
+PSI-102::same,weight_loss_rate,measure,mass_loss_rate_mg_min,mg/min,
+PSI-102::same,aging_duration,measure,net_aging_time_s,min,
+PSI-20::acme_bre,year,ignore,,,
+PSI-20::acme_bre,month,ignore,,,
+PSI-20::acme_bre,date,ignore,,,
+PSI-20::acme_bre,burner_size,attribute,burner_size_mm,,
+PSI-20::acme_bre,fuel_bottle,material,,,
+PSI-20::acme_bre,oxygen_conc,attribute,o2_percent,,O2 of the tests that ignited
+PSI-20::acme_bre,flames_ignited,n_flames,,,
+PSI-20::acme_bre,notes,comment,,,
+PSI-21::cld_flame,test_type,log_label,,,
+PSI-21::cld_flame,test_day,ignore,,,YYDDD
+PSI-21::cld_flame,fuel_mfc,attribute,fuel_mfc,,
+PSI-21::cld_flame,n2_mfc,attribute,n2_mfc,,
+PSI-21::cld_flame,fuel_bottle,material,,,
+PSI-21::cld_flame,fuel_conc_range,attribute,fuel_conc_percent,,
+PSI-21::cld_flame,flames_ignited,n_flames,,,
+PSI-21::cld_flame,notes,comment,,,
+PSI-22::acme_e_field_flames,test_type,log_label,,,
+PSI-22::acme_e_field_flames,test_day,ignore,,,
+PSI-22::acme_e_field_flames,year,ignore,,,
+PSI-22::acme_e_field_flames,month,ignore,,,
+PSI-22::acme_e_field_flames,date,ignore,,,
+PSI-22::acme_e_field_flames,mesh_polarity,attribute,mesh_polarity,,
+PSI-22::acme_e_field_flames,fuel_bottle,material,,,
+PSI-22::acme_e_field_flames,fuel_conc,attribute,fuel_conc_percent,,Continuation rows add concentrations to the previous day (DD-P07)
+PSI-22::acme_e_field_flames,flames_ignited,n_flames,,,
+PSI-22::acme_e_field_flames,notes,comment,,,
+PSI-23::acme_s_flame,test_type,log_label,,,
+PSI-23::acme_s_flame,test_day,ignore,,,
+PSI-23::acme_s_flame,year,ignore,,,
+PSI-23::acme_s_flame,month,ignore,,,
+PSI-23::acme_s_flame,date,ignore,,,
+PSI-23::acme_s_flame,atmosphere,attribute,atmosphere,,
+PSI-23::acme_s_flame,fuel_bottle,material,,,
+PSI-23::acme_s_flame,flames_ignited,n_flames,,,
+PSI-23::acme_s_flame,notes,comment,,,
+PSI-106::slice,test_date,comment,,,Date at the start; the rest is a note
+PSI-106::slice,fuel_type,material+attribute,fuel,,
+PSI-68::flex2,sample_fuel_type,material+log_label,,,
+PSI-68::flex2,initial_droplet_diameter,attribute,droplet_diameter_mm,,
+PSI-68::flex2,ambient_gas_mixture,attribute,ambient_gas,,
+PSI-68::flex2,oxygen_mole_fraction,attribute,o2_mole_fraction,,
+PSI-68::flex2,ambient_pressure,attribute,pressure_atm,,
+PSI-68::flex2,ambient_temperature,attribute,temperature_c,,
+PSI-68::flex2,flow_velocity,attribute,flow_velocity_cm_s,,
+PSI-47::daft,session_name,log_label,,,
+PSI-47::daft,actual_day,ignore,,,
+PSI-47::daft,hardware_description,attribute,hardware,,
+PSI-47::daft,sample_material,material,,,
+PSI-47::daft,sampled_location,comment,,,
+PSI-142::data_summary_table,data_id,attribute,data_id,,
+PSI-142::data_summary_table,data_description,log_label,,,
+PSI-142::data_summary_table,reference_publication_link,attribute,reference_url,,
+PSI-142::data_summary_table,figure_id_in_reference,attribute,figure,,

@@ -1,0 +1,6 @@
+table_id,column_name,pattern,replacement,decision_id,reason
+PSI-21::cld_flame,fuel_bottle,\bCH\d+\b,CH4,DD-P05,"Excel fill-down: CH5, CH6... CH14 in methane rows"
+PSI-21::cld_flame,fuel_bottle,\bC2H\d+\b,C2H4,DD-P05,"Excel fill-down: C2H5, C2H6... C2H11 in ethylene rows"
+PSI-23::acme_s_flame,atmosphere,\bN\d+\b,N2,DD-P06,"Excel fill-down: N3, N4... instead of N2"
+PSI-23::acme_s_flame,fuel_bottle,\bN\d+\b,N2,DD-P06,"Excel fill-down: N3, N4... instead of N2"
+PSI-102::same,sample_material,:\s*same conditions as 1-4$,,DD-P08,Conditions repeat those of samples 1-4

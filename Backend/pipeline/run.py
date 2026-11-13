@@ -1,6 +1,6 @@
-"""Ejecuta la ingesta completa: CSV crudos -> parquet en data/staging/.
+"""Run the full ingestion: raw CSVs -> Parquet in data/staging/ (L1).
 
-Uso (desde Backend/):
+Usage (from Backend/):
     .venv/Scripts/python -m pipeline.run
 """
 from __future__ import annotations
@@ -18,21 +18,21 @@ from .utils import write_parquet
 
 
 def check_integrity(out: dict[str, pd.DataFrame]) -> list[dict]:
-    """Chequeos de claves foráneas entre los datasets de staging."""
+    """Foreign-key checks between the staging datasets."""
     issues = []
     known = set(out["investigations"]["accession"])
     for name in ("investigation_hardware", "investigation_formats", "files", "experimental_tables"):
         orphan = set(out[name]["accession"]) - known
         if orphan:
-            issues.append({"source": name, "key": None, "issue": "accession sin investigación", "value": sorted(orphan)})
+            issues.append({"source": name, "key": None, "issue": "accession without investigation", "value": sorted(orphan)})
     tables = set(out["experimental_tables"]["table_id"])
     for name in ("experimental_columns", "experimental_rows", "experimental_values"):
         orphan = set(out[name]["table_id"]) - tables
         if orphan:
-            issues.append({"source": name, "key": None, "issue": "table_id huérfano", "value": sorted(orphan)})
+            issues.append({"source": name, "key": None, "issue": "orphan table_id", "value": sorted(orphan)})
     no_table = set(out["files"].query("kind == 'experimental_table'")["file_name"]) - set(out["experimental_tables"]["file_name"])
     if no_table:
-        issues.append({"source": "experimental_tables", "key": None, "issue": "tabla en el índice pero no en disco", "value": sorted(no_table)})
+        issues.append({"source": "experimental_tables", "key": None, "issue": "table in the index but not on disk", "value": sorted(no_table)})
     return issues
 
 

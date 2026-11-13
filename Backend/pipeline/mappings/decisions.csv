@@ -1,0 +1,9 @@
+decision_id,status,table_id,summary
+DD-P01,proposed,PSI-99::saffire_2,"""037 mm"" read as 0.37 mm (missing decimal point)"
+DD-P02,proposed,PSI-99::saffire_2,Empty material in samples 2-6 and 2-9 taken from the row above (merged Excel cell)
+DD-P03,proposed,PSI-107::spice,Negative air velocity marked as sensor error
+DD-P04,proposed,PSI-107::spice,Burn time derived as flame-off time minus ignition time
+DD-P05,proposed,PSI-21::cld_flame,"Excel fill-down typos CH5..CH14 -> CH4, C2H5..C2H11 -> C2H4"
+DD-P06,proposed,PSI-23::acme_s_flame,"Excel fill-down typos N3, N4... -> N2"
+DD-P07,proposed,PSI-22::acme_e_field_flames,Continuation rows (Fuel Conc only) merged into the previous day
+DD-P08,proposed,PSI-102::same,"""<material>: same conditions as 1-4"" split into material + note"

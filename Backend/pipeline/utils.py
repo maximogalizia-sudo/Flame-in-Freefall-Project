@@ -1,4 +1,4 @@
-"""Helpers compartidos: normalización de texto, fechas y escritura."""
+"""Shared helpers: text normalization, dates and writing."""
 from __future__ import annotations
 
 import re
@@ -13,7 +13,7 @@ _SPACES = re.compile(r"\s+")
 
 
 def clean_cell(value) -> str | None:
-    """Normaliza unicode, quita caracteres de control y espacios sobrantes. Vacío -> None."""
+    """Normalize unicode, drop control characters and extra spaces. Empty -> None."""
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return None
     s = unicodedata.normalize("NFKC", str(value))
@@ -30,7 +30,7 @@ def snake(name: str) -> str:
 
 
 def parse_date(value: str | None, formats: tuple[str, ...]) -> str | None:
-    """Devuelve ISO (YYYY-MM-DD) o None."""
+    """Return ISO (YYYY-MM-DD) or None."""
     value = clean_cell(value)
     if not value:
         return None

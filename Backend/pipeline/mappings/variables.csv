@@ -1,26 +1,40 @@
-code,label,group,unit,is_core,description
-o2_mole_fraction,O2 (fracción molar),atmosfera,mol/mol,true,"Fracción molar de O2 del oxidante. En llamas inversas de CFI-G es la del chorro del quemador, no la del ambiente."
-n2_mole_fraction,N2 (fracción molar),atmosfera,mol/mol,false,Fracción molar de N2 en el ambiente.
-co2_mole_fraction,CO2 (fracción molar),atmosfera,mol/mol,false,Fracción molar de CO2 en el ambiente (supresor en FLEX).
-he_mole_fraction,He (fracción molar),atmosfera,mol/mol,false,Fracción molar de He en el ambiente (diluyente en FLEX).
-pressure,Presión,atmosfera,atm,true,Presión ambiente.
-flow_velocity,Velocidad del flujo de aire,flujo,cm/s,true,Velocidad del flujo forzado sobre la muestra.
-fuel_mole_fraction,Combustible (fracción molar),combustible,mol/mol,false,Fracción molar de combustible en la corriente de combustible (CFI-G).
-fuel_mass_flow,Caudal másico de combustible,combustible,mg/s,false,Caudal másico de hidrocarburo.
-o2_mass_flow,Caudal másico de O2,flujo,mg/s,false,Caudal másico de O2 (llamas inversas).
-droplet_initial_diameter,Diámetro inicial de gota,geometria,mm,false,Diámetro de la gota al encenderse.
-extinction_diameter,Diámetro de extinción,resultado,mm,false,Diámetro de la gota cuando se apagó la llama visible.
-burning_rate_k,Constante de quemado K,resultado,mm2/s,false,Tasa de quemado de la gota (ley d²).
-burn_time,Tiempo de quemado,resultado,s,true,Duración de la combustión.
-adiabatic_flame_temp,Temperatura adiabática de llama,termica,K,false,Temperatura adiabática calculada.
-stoich_mixture_fraction,Fracción de mezcla estequiométrica (Zst),combustible,1,false,Zst calculado.
-peak_burner_temp,Temperatura pico del quemador,termica,K,false,Temperatura pico medida en el quemador.
-sample_thickness,Espesor de la muestra,geometria,mm,false,Espesor de la muestra sólida.
-sample_length,Largo de la muestra,geometria,cm,false,Largo de la muestra sólida.
-sample_width,Ancho de la muestra,geometria,cm,false,Ancho de la muestra sólida.
-ignition_power,Potencia de ignición,ignicion,W,false,Potencia del ignitor.
-ignition_time,Tiempo de ignición,ignicion,s,false,Tiempo de encendido del ignitor.
-burn_length_ug,Largo quemado en microgravedad,resultado,cm,false,Largo de muestra quemado en µg (SAFFIRE-II).
-spread_rate_ug,Velocidad de propagación en microgravedad,resultado,mm/s,false,Velocidad de avance de la llama en µg (SAFFIRE-II).
-burn_length_1g,Largo quemado en 1 g,resultado,cm,false,Largo quemado en el ensayo de referencia en tierra (SAFFIRE-II).
-spread_rate_1g,Velocidad de propagación en 1 g,resultado,mm/s,false,Velocidad de propagación en tierra (SAFFIRE-II).
+code,label,group,unit,is_core,measured_or_calculated,description
+o2_frac,O2 mole fraction,atmosphere,mol/mol,true,measured,"Oxidizer O2 mole fraction. For CFI-G and Flame Design inverse flames it is the burner jet, not the ambient."
+n2_frac,N2 mole fraction,atmosphere,mol/mol,false,measured,Ambient N2 mole fraction.
+co2_frac,CO2 mole fraction,atmosphere,mol/mol,false,measured,Ambient CO2 mole fraction (suppressant in FLEX).
+he_frac,He mole fraction,atmosphere,mol/mol,false,measured,Ambient helium mole fraction (diluent in FLEX and CFI).
+pressure_kpa,Pressure,atmosphere,kPa,true,measured,Ambient pressure.
+flow_cm_s,Air flow velocity,flow,cm/s,true,measured,Forced or co-flow air velocity.
+fuel_frac,Fuel mole fraction,fuel,mol/mol,false,measured,Fuel mole fraction in the fuel stream (or in the ambient for inverse flames).
+fuel_mass_flow_mg_s,Hydrocarbon mass flow,fuel,mg/s,false,measured,Hydrocarbon mass flow rate.
+fuel_mix_mass_flow_mg_s,Fuel mixture mass flow,fuel,mg/s,false,measured,Total fuel-stream mass flow (hydrocarbon + diluent).
+fuel_volume_flow_sccm,Fuel volume flow,fuel,sccm,false,measured,Standard volumetric fuel flow.
+o2_mass_flow_mg_s,O2 mass flow,flow,mg/s,false,measured,O2 mass flow rate (inverse flames).
+n2_mass_flow_mg_s,N2 mass flow,flow,mg/s,false,measured,N2 (diluent) mass flow rate.
+droplet_d0_mm,Initial droplet diameter,geometry,mm,false,measured,Droplet diameter at ignition.
+extinction_d_mm,Extinction diameter,outcome,mm,false,measured,Droplet diameter when the visible flame went out.
+burning_rate_k_mm2_s,Burning rate constant K,outcome,mm2/s,false,measured,Droplet burning rate (d-squared law).
+burn_time_s,Burn time,outcome,s,true,measured,Duration of the flame.
+tad_k,Adiabatic flame temperature,thermal,K,false,calculated,Computed adiabatic flame temperature (R13: not an observation).
+zst,Stoichiometric mixture fraction,fuel,1,false,calculated,Computed stoichiometric mixture fraction (R13: not an observation).
+peak_burner_temp_k,Peak burner temperature,thermal,K,false,measured,Peak temperature measured at the burner.
+nozzle_d_mm,Nozzle diameter,geometry,mm,false,measured,Burner nozzle inner diameter (SPICE).
+thickness_mm,Sample thickness,geometry,mm,false,measured,Solid sample thickness.
+sample_length_mm,Sample length,geometry,mm,false,measured,Solid sample length.
+sample_width_mm,Sample width,geometry,mm,false,measured,Solid sample width.
+ignition_power_w,Igniter power,ignition,W,false,measured,Igniter power.
+ignition_time_s,Igniter on-time,ignition,s,false,measured,Igniter energized time.
+burn_length_ug_mm,Burned length in microgravity,outcome,mm,false,measured,Sample length burned in microgravity (SAFFIRE-II).
+spread_rate_ug_mm_s,Flame spread rate in microgravity,outcome,mm/s,false,measured,Flame spread rate in microgravity (SAFFIRE-II).
+burn_length_1g_mm,Burned length in 1 g,outcome,mm,false,measured,Sample length burned in the ground (1 g) reference test (SAFFIRE-II).
+spread_rate_1g_mm_s,Flame spread rate in 1 g,outcome,mm/s,false,measured,Flame spread rate in the ground reference test (SAFFIRE-II).
+o2_frac_final,Final O2 mole fraction,atmosphere,mol/mol,false,measured,O2 mole fraction at the end of the test.
+co2_frac_final,Final CO2 mole fraction,atmosphere,mol/mol,false,measured,CO2 mole fraction at the end of the test.
+co_ppm_initial,Initial CO,atmosphere,ppm,false,measured,CO concentration at the start of the test.
+co_ppm_final,Final CO,atmosphere,ppm,false,measured,CO concentration at the end of the test (combustion product).
+mass_loss_rate_mg_min,Mass loss rate,outcome,mg/min,false,measured,Mass loss rate of the heated sample (SAME).
+heating_time_s,Heating time,procedure,s,false,measured,Sample heating duration (SAME-R).
+primary_aging_time_s,Primary aging time,procedure,s,false,measured,Smoke aging time before measurement (SAME-R).
+primary_mixing_time_s,Primary mixing time,procedure,s,false,measured,Smoke mixing time (SAME-R).
+net_aging_time_s,Net aging time,procedure,s,false,measured,Total smoke aging time (SAME and SAME-R).
+rt_r0,Wire resistance ratio Rt/R0,procedure,1,false,measured,Heater wire resistance ratio (how hot the wire got) in SAME-R.

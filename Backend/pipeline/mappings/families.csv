@@ -1,14 +1,14 @@
-family,group_code,group_name
-llamas de gas,gas,Llamas de gas
-llamas de gas (emulador de sólidos),gas,Llamas de gas
-llamas de gas (hollín/humo),gas,Llamas de gas
-gotas (droplets),droplet,Gotas
-gotas (droplets) / llamas frías,droplet,Gotas
-sólidos,solid,Sólidos
-sólidos a gran escala,solid,Sólidos
-humo/aerosoles,aerosol,Humo y aerosoles
-polvo/aerosoles,aerosol,Humo y aerosoles
-modelado (tierra),ground,Modelado y ensayos en tierra
-modelado CFD (tierra),ground,Modelado y ensayos en tierra
-análisis (tierra),ground,Modelado y ensayos en tierra
-experimento de tierra,ground,Modelado y ensayos en tierra
+family,family_en,group_code,group_name
+llamas de gas,Gaseous flames,gas,Gaseous flames
+llamas de gas (emulador de sólidos),Gaseous flames (solid-fuel emulator),gas,Gaseous flames
+llamas de gas (hollín/humo),Gaseous flames (soot and smoke),gas,Gaseous flames
+gotas (droplets),Droplets,droplet,Droplets
+gotas (droplets) / llamas frías,Droplets / cool flames,droplet,Droplets
+sólidos,Solids,solid,Solids
+sólidos a gran escala,Large-scale solids,solid,Solids
+humo/aerosoles,Smoke and aerosols,aerosol,Smoke and aerosols
+polvo/aerosoles,Dust and aerosols,aerosol,Smoke and aerosols
+modelado (tierra),Modeling (ground),ground,Modeling and ground studies
+modelado CFD (tierra),CFD modeling (ground),ground,Modeling and ground studies
+análisis (tierra),Analysis (ground),ground,Modeling and ground studies
+experimento de tierra,Ground experiment,ground,Modeling and ground studies

@@ -1,27 +1,26 @@
-import { getStats, getInvestigations, getTestRuns, getMeasurements } from "./api.js";
+import { API_BASE, ask, getInvestigations, getMeasurements, getStats, getSteps, getTests, isOnline } from "./api.js";
 
 const SVG = "http://www.w3.org/2000/svg";
 const $ = (sel) => document.querySelector(sel);
 
-// Tres clases de resultado para el color (las 9 categorías finas van en el tooltip).
+// Three outcome classes for color (the 11 detailed outcomes go in the tooltip).
 const CLASSES = [
-  { key: "ext",   label: "Se apagó sola",   color: "var(--out-ext)",   test: (r) => r.self_extinguished === true },
-  { key: "burn",  label: "Siguió ardiendo", color: "var(--out-burn)",  test: (r) => r.self_extinguished === false },
-  { key: "other", label: "Otro / sin dato", color: "var(--out-other)", test: () => true, hollow: true },
+  { key: "ext",   label: "Self-extinguished",  color: "var(--out-ext)",   test: (r) => r.self_extinguished === true },
+  { key: "burn",  label: "Kept burning",       color: "var(--out-burn)",  test: (r) => r.self_extinguished === false },
+  { key: "other", label: "Other / no outcome", color: "var(--out-other)", test: () => true, hollow: true },
 ];
 const classOf = (r) => CLASSES.find((c) => c.test(r));
 
-// Atmósferas de referencia (no salen de la base; son datos de contexto).
+// Reference atmospheres (context, not from the database).
 const REFERENCES = [
-  { label: "ISS (21 %, 1 atm)", o2: 0.21, p: 1.0 },
-  // NASA Exploration Atmospheres Working Group: 8.2 psia / 34 % O2, propuesta para hábitats lunares.
-  { label: "Hábitat de exploración (34 %, 0,56 atm)", o2: 0.34, p: 0.558 },
+  { label: "ISS cabin (21 %, 101 kPa)", o2: 0.21, p: 101.3 },
+  // NASA Exploration Atmospheres Working Group: 8.2 psia / 34 % O2, proposed for lunar habitats.
+  { label: "Exploration habitat (34 %, 56.5 kPa)", o2: 0.34, p: 56.5 },
 ];
 
-const GROUP_NAMES = { droplet: "Gotas", gas: "Llamas de gas", solid: "Sólidos", aerosol: "Humo y aerosoles", ground: "Tierra" };
+const GROUP_NAMES = { droplet: "Droplets", gas: "Gaseous flames", solid: "Solids", aerosol: "Smoke and aerosols", ground: "Ground studies" };
 
-const fmt = (v, d = 2) => (v == null ? "—" : Number(v).toLocaleString("es-AR", { maximumFractionDigits: d }));
-// Decimales según magnitud: 2284 K, 19 s, 1,09 atm, 0,0981.
+const fmt = (v, d = 2) => (v == null ? "—" : Number(v).toLocaleString("en-US", { maximumFractionDigits: d }));
 const fmtAuto = (v) => { const a = Math.abs(v); return fmt(v, a >= 100 ? 0 : a >= 10 ? 1 : a >= 1 ? 2 : 4); };
 const pct = (v) => (v == null ? "—" : `${fmt(v * 100, 1)} %`);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -47,24 +46,25 @@ function showTip(html, x, y) {
 const hideTip = () => { tip.hidden = true; };
 const row = (k, v) => `<div class="row"><span>${esc(k)}</span><span>${esc(v)}</span></div>`;
 
-// ------------------------------------------------------------------ estado
-const state = { runs: [], invs: [], group: "", inv: "", mat: "", selected: null };
+// ------------------------------------------------------------------ state
+const state = { tests: [], invs: [], group: "", inv: "", mat: "", selected: null };
 
 function filtered() {
-  return state.runs.filter((r) =>
+  return state.tests.filter((r) =>
     (!state.group || r.family_group === state.group) &&
-    (!state.inv || r.accession === state.inv) &&
+    (!state.inv || r.psi_id === state.inv) &&
     (!state.mat || r.material_code === state.mat));
 }
 
 // ------------------------------------------------------------------ tiles
 function renderTiles(s) {
   const tiles = [
-    [s.n_investigations, "investigaciones de combustión"],
-    [s.n_test_runs, "ensayos con datos estructurados"],
-    [`${s.n_tables_mapped} / ${s.n_tables_total}`, "tablas experimentales mapeadas"],
-    [s.n_rag_documents, "documentos para el asistente"],
-    [`${fmt(s.total_tb, 1)} TB`, "publicados en PSI"],
+    [s.n_investigations, "combustion investigations"],
+    [fmt(s.n_tests, 0), "tests loaded"],
+    [fmt(s.n_tests_with_outcome, 0), "tests with a flame outcome"],
+    [s.n_log_entries, "operations-day and log records"],
+    [`${s.n_tables_mapped} / ${s.n_tables_total}`, "experimental tables mapped"],
+    [s.n_documents, "documents for the search service"],
   ];
   $("#tiles").innerHTML = tiles.map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join("");
 }
@@ -76,43 +76,45 @@ function legendItem(c) {
   return `<li>${sw}${esc(c.label)}</li>`;
 }
 
-// ------------------------------------------------------------------ mapa O2 vs presión
-function renderMap(runs) {
+// ------------------------------------------------------------------ O2 vs pressure map
+function renderMap(tests) {
   const box = $("#chart-map");
   box.innerHTML = "";
-  const pts = runs.filter((r) => r.o2_mole_fraction != null && r.pressure_atm != null);
-  const missing = runs.length - pts.length;
-  $("#note-map").textContent = (missing ? `${missing} ensayo(s) del filtro no reportan O2 o presión y no aparecen en el mapa (por ejemplo, SAFFIRE). ` : "") +
-    "En las llamas inversas de CFI-G el O2 es el del chorro del quemador, no el del ambiente.";
+  const valid = tests.filter((r) => r.is_valid);
+  const pts = valid.filter((r) => r.o2_frac != null && r.pressure_kpa != null);
+  const missing = tests.length - pts.length;
+  $("#note-map").textContent = (missing ? `${missing} test(s) in this filter have no O2 or pressure (e.g. BASS, SAFFIRE, SPICE) or are flagged invalid, and are not plotted. ` : "") +
+    "For inverse flames (CFI-G, Flame Design) O2 is the burner jet, not the ambient.";
   if (!pts.length) {
-    box.innerHTML = `<p class="empty">Ningún ensayo de este filtro reporta O2 y presión. Los sólidos (SAFFIRE) se quemaron a presión de cabina: mirá su resultado en el gráfico de abajo.</p>`;
+    box.innerHTML = `<p class="empty">No test in this filter reports both O2 and pressure. Solids (BASS, SAFFIRE) and smoke (SAME) ran at cabin pressure: see their outcomes below.</p>`;
     return;
   }
 
-  // Se dibuja al ancho real del contenedor: el texto queda siempre a 11-12 px.
+  // Drawn at the container's real width so text stays at 11–12 px.
   const W = Math.max(300, box.clientWidth), H = W < 560 ? 300 : 380;
   const m = { t: 12, r: 16, b: 44, l: W < 560 ? 44 : 52 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const xMax = Math.max(0.4, ...pts.map((r) => r.o2_mole_fraction)) * 1.05;
-  const yMax = Math.max(1.2, ...pts.map((r) => r.pressure_atm)) * 1.08;
+  const xMax = Math.max(0.4, ...pts.map((r) => r.o2_frac)) * 1.05;
+  const yMax = Math.max(120, ...pts.map((r) => r.pressure_kpa)) * 1.08;
   const x = (v) => m.l + (v / xMax) * iw;
   const y = (v) => m.t + ih - (v / yMax) * ih;
 
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Dispersión de ensayos: fracción de oxígeno contra presión, coloreado por resultado" }, box);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Scatter plot of tests: oxygen mole fraction against pressure, colored by outcome" }, box);
   const step = xMax > 0.6 ? (W < 560 ? 0.2 : 0.1) : 0.05;
   for (let v = 0; v <= xMax + 1e-9; v += step) {
     el("line", { class: "gridline", x1: x(v), x2: x(v), y1: m.t, y2: m.t + ih }, svg);
     el("text", { x: x(v), y: m.t + ih + 16, "text-anchor": "middle" }, svg).textContent = `${Math.round(v * 100)} %`;
   }
-  for (let v = 0; v <= yMax + 1e-9; v += 0.5) {
+  const yStep = yMax > 300 ? 100 : 50;
+  for (let v = 0; v <= yMax + 1e-9; v += yStep) {
     el("line", { class: "gridline", x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v) }, svg);
-    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, 1);
+    el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, 0);
   }
   el("line", { class: "baseline", x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
-  el("text", { class: "axis-title", x: m.l + iw / 2, y: H - 6, "text-anchor": "middle" }, svg).textContent = "Oxígeno (fracción molar)";
-  el("text", { class: "axis-title", transform: `translate(14 ${m.t + ih / 2}) rotate(-90)`, "text-anchor": "middle" }, svg).textContent = "Presión (atm)";
+  el("text", { class: "axis-title", x: m.l + iw / 2, y: H - 6, "text-anchor": "middle" }, svg).textContent = "Oxygen (mole fraction)";
+  el("text", { class: "axis-title", transform: `translate(14 ${m.t + ih / 2}) rotate(-90)`, "text-anchor": "middle" }, svg).textContent = "Pressure (kPa)";
 
-  // "Otro" primero (abajo), así los resultados con significado quedan arriba.
+  // "Other" first (bottom), so meaningful outcomes stay on top.
   const order = [...pts].sort((a, b) => (classOf(a).key === "other" ? -1 : 0) - (classOf(b).key === "other" ? -1 : 0));
   const dots = [];
   for (const r of order) {
@@ -120,10 +122,10 @@ function renderMap(runs) {
     const attrs = c.hollow
       ? { fill: "var(--surface)", stroke: c.color, "stroke-width": 1.5, r: 3.5 }
       : { fill: c.color, stroke: "var(--surface)", "stroke-width": 1, r: 4 };
-    const d = el("circle", { class: "dot", cx: x(r.o2_mole_fraction), cy: y(r.pressure_atm), ...attrs }, svg);
-    d.dataset.id = r.test_run_id;
-    if (state.selected === r.test_run_id) d.classList.add("selected");
-    dots.push({ r, cx: x(r.o2_mole_fraction), cy: y(r.pressure_atm), node: d });
+    const d = el("circle", { class: "dot", cx: x(r.o2_frac), cy: y(r.pressure_kpa), ...attrs }, svg);
+    d.dataset.id = r.test_id;
+    if (state.selected === r.test_id) d.classList.add("selected");
+    dots.push({ r, cx: x(r.o2_frac), cy: y(r.pressure_kpa) });
   }
 
   for (const ref of REFERENCES) {
@@ -134,7 +136,7 @@ function renderMap(runs) {
     el("text", { class: "ref-label", x: cx + (right ? 10 : -10), y: cy - 8, "text-anchor": right ? "start" : "end", "pointer-events": "none" }, svg).textContent = ref.label;
   }
 
-  // Hit target: el punto más cercano al cursor (radio 18 px), más grande que la marca.
+  // Hit target: the dot nearest to the pointer within 18 px, larger than the mark.
   const toLocal = (ev) => {
     const pt = svg.createSVGPoint();
     pt.x = ev.clientX; pt.y = ev.clientY;
@@ -154,38 +156,39 @@ function renderMap(runs) {
     svg.style.cursor = d ? "pointer" : "default";
     if (!d) return hideTip();
     const r = d.r;
-    showTip(`<b>${esc(r.acronym)} · ensayo ${esc(r.test_code ?? r.source_row)}</b>` +
-      row("Resultado", r.outcome_label) + row("Material", r.material ?? "—") +
-      row("O2", pct(r.o2_mole_fraction)) + row("Presión", `${fmtAuto(r.pressure_atm)} atm`) +
-      (r.burn_time_s != null ? row("Tiempo de quemado", `${fmt(r.burn_time_s, 1)} s`) : "") +
-      (r.flame_type ? row("Llama", r.flame_type === "inverse" ? "inversa" : "normal") : ""), ev.clientX, ev.clientY);
+    showTip(`<b>${esc(r.acronym)} · ${esc(r.test_id)}</b>` +
+      row("Outcome", r.outcome_label + (r.outcome_status === "provisional" ? " (provisional)" : "")) +
+      row("Material", r.material ?? "—") +
+      row("O2", pct(r.o2_frac)) + row("Pressure", `${fmtAuto(r.pressure_kpa)} kPa`) +
+      (r.burn_time_s != null ? row("Burn time", `${fmt(r.burn_time_s, 1)} s`) : "") +
+      (r.flame_type ? row("Flame", r.flame_type) : ""), ev.clientX, ev.clientY);
   });
   svg.addEventListener("mouseleave", hideTip);
-  svg.addEventListener("click", (ev) => { const d = nearest(ev); if (d) selectRun(d.r); });
+  svg.addEventListener("click", (ev) => { const d = nearest(ev); if (d) selectTest(d.r); });
 }
 
-// ------------------------------------------------------------------ barras por experimento
-function renderBars(runs) {
+// ------------------------------------------------------------------ bars by experiment
+function renderBars(tests) {
   const box = $("#chart-bars");
   box.innerHTML = "";
-  if (!runs.length) { box.innerHTML = `<p class="empty">Sin ensayos para este filtro.</p>`; return; }
+  if (!tests.length) { box.innerHTML = `<p class="empty">No tests in this filter.</p>`; return; }
 
   const groups = new Map();
-  for (const r of runs) {
+  for (const r of tests) {
     const key = `${r.acronym} · ${r.source_table}`;
-    // "CFI-G_Normal Flames" -> "CFI-G · Normal Flames"; tablas de un solo nombre usan la sigla.
+    // "CFI-G_Normal Flames" -> "CFI-G · Normal Flames"; single-name tables use the acronym.
     const label = r.source_table.includes("_") ? r.source_table.replace(/_/g, " · ") : r.acronym;
-    if (!groups.has(key)) groups.set(key, { key, label, runs: [] });
-    groups.get(key).runs.push(r);
+    if (!groups.has(key)) groups.set(key, { key, label, tests: [] });
+    groups.get(key).tests.push(r);
   }
-  const rows = [...groups.values()].sort((a, b) => b.runs.length - a.runs.length);
-  const max = Math.max(...rows.map((g) => g.runs.length));
+  const rows = [...groups.values()].sort((a, b) => b.tests.length - a.tests.length);
+  const max = Math.max(...rows.map((g) => g.tests.length));
 
   const W = Math.max(300, box.clientWidth), rowH = 30, labelW = W < 560 ? 150 : 210, m = { t: 4, r: 40, b: 24 };
   const H = m.t + rows.length * rowH + m.b;
   const iw = W - labelW - m.r;
   const xs = (v) => (v / max) * iw;
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Barras apiladas: ensayos por resultado en cada experimento" }, box);
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Stacked bars: tests by outcome for each experiment" }, box);
 
   const tickStep = (max > 200 ? 50 : max > 50 ? 25 : max > 10 ? 5 : 1) * (W < 560 ? 2 : 1);
   for (let v = 0; v <= max; v += tickStep) {
@@ -198,9 +201,9 @@ function renderBars(runs) {
     el("text", { x: labelW - 10, y: yTop + bh / 2 + 4, "text-anchor": "end", class: "axis-title" }, svg).textContent = g.label;
     let x0 = labelW;
     for (const c of CLASSES) {
-      const seg = g.runs.filter((r) => classOf(r) === c);
+      const seg = g.tests.filter((r) => classOf(r) === c);
       if (!seg.length) continue;
-      const w = Math.max(xs(seg.length) - 2, 1.5);   // 2 px de separación entre segmentos
+      const w = Math.max(xs(seg.length) - 2, 1.5);   // 2 px gap between segments
       const rect = el("rect", { x: x0, y: yTop, width: w, height: bh, rx: 3, fill: c.hollow ? "var(--surface)" : c.color,
         stroke: c.hollow ? c.color : "none", "stroke-width": c.hollow ? 1.5 : 0 }, svg);
       const detail = Object.entries(seg.reduce((acc, r) => ((acc[r.outcome_label] = (acc[r.outcome_label] || 0) + 1), acc), {}));
@@ -209,51 +212,88 @@ function renderBars(runs) {
       rect.addEventListener("mouseleave", hideTip);
       x0 += xs(seg.length);
     }
-    el("text", { x: x0 + 6, y: yTop + bh / 2 + 4, class: "ref-label" }, svg).textContent = g.runs.length;
+    el("text", { x: x0 + 6, y: yTop + bh / 2 + 4, class: "ref-label" }, svg).textContent = g.tests.length;
   });
   el("line", { class: "baseline", x1: labelW, x2: labelW, y1: m.t, y2: H - m.b }, svg);
 }
 
-// ------------------------------------------------------------------ detalle
-async function selectRun(r) {
-  state.selected = r.test_run_id;
+// ------------------------------------------------------------------ detail
+async function selectTest(r) {
+  state.selected = r.test_id;
   document.querySelectorAll(".dot.selected").forEach((n) => n.classList.remove("selected"));
-  document.querySelector(`.dot[data-id="${r.test_run_id}"]`)?.classList.add("selected");
-  $("#detail-sub").textContent = `${r.acronym} · ensayo ${r.test_code ?? r.source_row}`;
-  const ms = await getMeasurements(r.test_run_id);
+  document.querySelector(`.dot[data-id="${CSS.escape(r.test_id)}"]`)?.classList.add("selected");
+  $("#detail-sub").textContent = `${r.acronym} · ${r.test_id}`;
+  const [ms, steps] = await Promise.all([getMeasurements(r.test_id), getSteps(r.test_id)]);
   const fields = [
-    ["Resultado", r.outcome_label], ["Material", r.material], ["Fecha", r.test_date],
-    ["Tipo de llama", r.flame_type && (r.flame_type === "inverse" ? "inversa" : "normal")],
-    ["Dirección del flujo", r.flow_direction && (r.flow_direction === "opposed" ? "opuesto" : "concurrente")],
-    ["Comentario", r.comment],
+    ["Outcome", r.outcome_label + (r.outcome_status === "provisional" ? " (provisional)" : "")],
+    ["Material", r.material], ["Date", r.test_date], ["Flame type", r.flame_type], ["Flow direction", r.flow_direction],
+    ["Valid", r.is_valid ? "yes" : `no — ${r.invalid_reason}`], ["Comment", r.comment],
   ].filter(([, v]) => v != null && v !== "");
+  const value = (m) => {
+    if (m.value_num != null) return `${m.is_approx ? "≈ " : ""}${fmtAuto(m.value_num)} ${m.unit === "1" ? "" : m.unit}`;
+    if (m.flag === "censored") return `${m.censored} ${fmtAuto(m.censor_limit)} ${m.unit}`;
+    return m.value_text;
+  };
   const flags = (r.quality_flags || []).filter((f) => f !== "outcome_not_in_table");
   $("#detail").innerHTML =
     `<dl>${fields.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` +
-    `<h3>Mediciones</h3><dl>${ms.map((m) => `<dt>${esc(m.variable_label)}</dt><dd>${
-      m.value_num != null ? `${m.is_approx ? "≈ " : ""}${esc(fmtAuto(m.value_num))} ${esc(m.unit === "1" ? "" : m.unit)}` : esc(m.value_text)
-    }</dd>`).join("")}</dl>` +
-    (flags.length ? `<p class="flags">Correcciones aplicadas: ${esc(flags.join(", "))}</p>` : "") +
-    `<p class="flags">Fuente: <a href="${esc(r.doi_url)}" target="_blank" rel="noopener">${esc(r.doi_url)}</a> · fila ${r.source_row} de “${esc(r.source_table)}”</p>`;
+    `<h3>Measurements</h3><dl>${ms.map((m) => `<dt>${esc(m.variable_label)}${m.measured_or_calculated === "calculated" ? " (calc.)" : ""}</dt><dd>${esc(value(m))}${
+      m.flag && m.flag !== "approx" ? ` <span class="pill">${esc(m.flag)}</span>` : ""}</dd>`).join("")}</dl>` +
+    (steps.length ? `<h3>Flow sequence</h3><p class="flags">${esc(steps.map((s) => s.flow_cm_s ?? s.note).join(" → "))} cm/s · “${esc(steps[0].raw)}”</p>` : "") +
+    (flags.length ? `<p class="flags">Quality flags: ${esc(flags.join(", "))}</p>` : "") +
+    `<p class="flags">Source: <a href="${esc(r.doi_url)}" target="_blank" rel="noopener">${esc(r.doi_url)}</a> · ${esc(r.source_file)}, row ${r.source_row}</p>`;
 }
 
-// ------------------------------------------------------------------ tabla de investigaciones
+// ------------------------------------------------------------------ investigations table
 function renderInvestigations(invs) {
-  const rows = [...invs].sort((a, b) => b.n_test_runs - a.n_test_runs || b.rag_value_rank - a.rag_value_rank);
+  const rows = [...invs].sort((a, b) => b.n_tests - a.n_tests || b.n_log_entries - a.n_log_entries || b.rag_value_rank - a.rag_value_rank);
   const period = (i) => (i.start_date || i.end_date ? `${i.start_date?.slice(0, 4) ?? "?"}–${i.end_date?.slice(0, 4) ?? "?"}` : "—");
   $("#inv-table").innerHTML = `
-    <thead><tr><th>PSI</th><th>Sigla</th><th>Título</th><th>Familia</th><th>Período</th>
-      <th class="num">Ensayos</th><th class="num">Docs</th><th>Valor ML</th><th>Valor RAG</th><th>DOI</th></tr></thead>
+    <thead><tr><th>PSI</th><th>Acronym</th><th>Title</th><th>Family</th><th>Period</th>
+      <th class="num">Tests</th><th class="num">With outcome</th><th class="num">Log</th><th class="num">Docs</th><th>DOI</th></tr></thead>
     <tbody>${rows.map((i) => `<tr>
-      <td>${esc(i.accession)}</td><td>${esc(i.acronym ?? "—")}</td><td class="title">${esc(i.title)}</td>
+      <td>${esc(i.psi_id)}</td><td>${esc(i.acronym ?? "—")}</td><td class="title">${esc(i.title)}</td>
       <td><span class="pill">${esc(GROUP_NAMES[i.family_group] ?? i.family_group)}</span></td>
       <td>${period(i)}</td>
-      <td class="num">${i.n_test_runs || "—"}</td><td class="num">${i.n_rag_documents || "—"}</td>
-      <td>${esc(i.ml_value)}</td><td>${esc(i.rag_value)}</td>
+      <td class="num">${i.n_tests || "—"}</td><td class="num">${i.n_tests_with_outcome || "—"}</td>
+      <td class="num">${i.n_log_entries || "—"}</td><td class="num">${i.n_documents || "—"}</td>
       <td><a href="${esc(i.doi_url)}" target="_blank" rel="noopener">${esc(i.doi)}</a></td></tr>`).join("")}</tbody>`;
 }
 
-// ------------------------------------------------------------------ filtros
+// ------------------------------------------------------------------ ask
+function setupAsk() {
+  const form = $("#chat-form"), input = $("#chat-input"), btn = $("#chat-btn"), out = $("#answer");
+  if (!isOnline()) {
+    input.disabled = btn.disabled = true;
+    $("#chat-sub").textContent = "Needs the backend API. This page is running offline on static data.";
+    return;
+  }
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = input.value.trim() || input.placeholder;
+    btn.disabled = true;
+    out.innerHTML = `<p class="flags">Thinking…</p>`;
+    try {
+      const a = await ask(text);
+      const p = a.predictions[0];
+      out.innerHTML =
+        `<p>${esc(a.text)}</p>` +
+        (a.unknown_terms.length ? `<p class="flags">Not measured by NASA: ${esc(a.unknown_terms.join(", "))}</p>` : "") +
+        (p ? `<p class="flags">Estimate: ${p.probability == null ? "—" : pct(p.probability)} self-extinguished` +
+          (p.ci_low != null ? ` (95 % CI ${pct(p.ci_low)}–${pct(p.ci_high)})` : "") + ` · ${p.in_domain ? "inside" : "outside"} the tested range · ${esc(p.model_version)}</p>` : "") +
+        (a.evidence.length ? `<h3>Closest NASA tests</h3><ul class="evidence">${a.evidence.map((e) =>
+          `<li><b>${esc(e.test_id)}</b> · ${esc(e.outcome)} · ${esc(e.source)}</li>`).join("")}</ul>` : "") +
+        (a.citations.length ? `<h3>Documents</h3><ul class="evidence">${a.citations.map((c) =>
+          `<li>${esc(c.snippet)} <span class="flags">${esc(c.title ?? c.doc_id)}${c.page_or_section ? `, ${esc(c.page_or_section)}` : ""}</span></li>`).join("")}</ul>` : "");
+    } catch (err) {
+      out.innerHTML = `<p class="flags">Could not get an answer: ${esc(err.message)}</p>`;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+// ------------------------------------------------------------------ filters
 function fillSelect(sel, items) {
   const keep = sel.value;
   sel.innerHTML = sel.options[0].outerHTML + items.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join("");
@@ -261,41 +301,43 @@ function fillSelect(sel, items) {
 }
 
 function refreshFilters() {
-  const byGroup = state.runs.filter((r) => !state.group || r.family_group === state.group);
-  const invs = [...new Map(byGroup.map((r) => [r.accession, `${r.acronym} (${r.accession})`])).entries()];
+  const byGroup = state.tests.filter((r) => !state.group || r.family_group === state.group);
+  const invs = [...new Map(byGroup.map((r) => [r.psi_id, `${r.acronym} (${r.psi_id})`])).entries()];
   fillSelect($("#f-inv"), invs.sort((a, b) => a[1].localeCompare(b[1])));
   state.inv = $("#f-inv").value;
-  const byInv = byGroup.filter((r) => !state.inv || r.accession === state.inv);
+  const byInv = byGroup.filter((r) => !state.inv || r.psi_id === state.inv);
   const mats = [...new Map(byInv.filter((r) => r.material_code).map((r) => [r.material_code, r.material])).entries()];
   fillSelect($("#f-mat"), mats.sort((a, b) => a[1].localeCompare(b[1])));
   state.mat = $("#f-mat").value;
 }
 
 function render() {
-  const runs = filtered();
-  $("#f-count").textContent = `${runs.length} de ${state.runs.length} ensayos`;
-  renderMap(runs);
-  renderBars(runs);
+  const tests = filtered();
+  $("#f-count").textContent = `${tests.length} of ${state.tests.length} tests`;
+  renderMap(tests);
+  renderBars(tests);
 }
 
 for (const [id, key] of [["#f-group", "group"], ["#f-inv", "inv"], ["#f-mat", "mat"]]) {
   $(id).addEventListener("change", (e) => { state[key] = e.target.value; refreshFilters(); render(); });
 }
 
-// ------------------------------------------------------------------ arranque
+// ------------------------------------------------------------------ boot
 try {
-  const [stats, invs, runs] = await Promise.all([getStats(), getInvestigations(), getTestRuns()]);
-  Object.assign(state, { runs, invs });
+  $("#mode").textContent = isOnline() ? `Live API · ${new URL(API_BASE).host}` : "Offline data";
+  const [stats, invs, tests] = await Promise.all([getStats(), getInvestigations(), getTests()]);
+  Object.assign(state, { tests, invs });
   renderTiles(stats);
   $("#legend-map").innerHTML = CLASSES.map(legendItem).join("") +
-    `<li><svg width="12" height="12"><path d="M1 6H11M6 1V11" stroke="var(--ref)" stroke-width="2"/></svg>Atmósfera de referencia</li>`;
+    `<li><svg width="12" height="12"><path d="M1 6H11M6 1V11" stroke="var(--ref)" stroke-width="2"/></svg>Reference atmosphere</li>`;
   $("#legend-bars").innerHTML = CLASSES.map(legendItem).join("");
   renderInvestigations(invs);
   refreshFilters();
   render();
+  setupAsk();
   let raf;
   new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }).observe($("#chart-bars"));
 } catch (err) {
-  document.querySelector("main").insertAdjacentHTML("afterbegin", `<p class="empty">No se pudieron cargar los datos: ${esc(err.message)}</p>`);
+  document.querySelector("main").insertAdjacentHTML("afterbegin", `<p class="empty">Could not load the data: ${esc(err.message)}</p>`);
   console.error(err);
 }

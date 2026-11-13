@@ -1,1 +1,1 @@
-[{"n_investigations":24,"n_test_runs":620,"n_measurements":5243,"n_tables_mapped":6,"n_tables_total":22,"n_files":60812,"n_rag_documents":315,"total_tb":13.45}]
+[{"n_investigations":24,"n_tests":1870,"n_tests_with_outcome":642,"n_tests_invalid":11,"n_measurements":11870,"n_log_entries":130,"n_tables_mapped":22,"n_tables_total":22,"n_decisions_pending":8,"n_files":60812,"n_documents":315,"total_tb":13.45}]

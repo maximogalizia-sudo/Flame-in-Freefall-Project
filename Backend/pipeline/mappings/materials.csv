@@ -1,15 +1,31 @@
-raw_value,code,name,fuel_class,dilution_fraction
-Methanol,methanol,Metanol,liquid_alcohol,
-Heptane,n_heptane,n-Heptano,liquid_hydrocarbon,
-ethane,ethane,Etano,gaseous_hydrocarbon,
-30% ethane,ethane,Etano,gaseous_hydrocarbon,0.30
-propane,propane,Propano,gaseous_hydrocarbon,
-30% propane,propane,Propano,gaseous_hydrocarbon,0.30
-butane,n_butane,n-Butano,gaseous_hydrocarbon,
-30% butane,n_butane,n-Butano,gaseous_hydrocarbon,0.30
-50% butane,n_butane,n-Butano,gaseous_hydrocarbon,0.50
-SIBAL Fabric,sibal,SIBAL (algodón-fibra de vidrio),solid_fabric,
-Cotton-Fiberglass (SIBAL),sibal,SIBAL (algodón-fibra de vidrio),solid_fabric,
-Silicone,silicone,Silicona,solid_polymer,
-PMMA,pmma,PMMA (acrílico),solid_polymer,
-PMMA & Nomex,pmma_nomex,PMMA + Nomex,solid_composite,
+pattern,code,name,fuel_class
+methanol,methanol,Methanol,liquid_alcohol
+ethanol,ethanol,Ethanol,liquid_alcohol
+propanol.*glycerol,propanol_glycerol,Propanol + glycerol,liquid_mixture
+heptane.*isooctane,heptane_isooctane,Heptane + isooctane,liquid_mixture
+iso-?octane,isooctane,Isooctane,liquid_hydrocarbon
+n-octane,n_octane,n-Octane,liquid_hydrocarbon
+heptane,n_heptane,n-Heptane,liquid_hydrocarbon
+iso-dodecane,dodecane_isododecane,n-Dodecane + iso-dodecane,liquid_mixture
+c12h26|dodecane,n_dodecane,n-Dodecane,liquid_hydrocarbon
+decane,n_decane,n-Decane,liquid_hydrocarbon
+dibutyl phthalate,dibutyl_phthalate,Dibutyl phthalate,liquid_other
+propylene,propylene,Propylene,gaseous_hydrocarbon
+\bethane\b|\bc2h6\b,ethane,Ethane,gaseous_hydrocarbon
+propane|c3h8,propane,Propane,gaseous_hydrocarbon
+butane,n_butane,n-Butane,gaseous_hydrocarbon
+ethylene|\bc2h4\b,ethylene,Ethylene,gaseous_hydrocarbon
+methane|\bch4\b,methane,Methane,gaseous_hydrocarbon
+\bh2\b,hydrogen,Hydrogen,gaseous_hydrogen
+pmma\s*(&|and|\+)\s*nomex,pmma_nomex,PMMA + Nomex,solid_composite
+sibal|cotton-fiberglass,sibal,SIBAL (cotton-fiberglass fabric),solid_fabric
+nomex,nomex,Nomex,solid_fabric
+lampwick,lampwick,Cotton lampwick,solid_fabric
+ultem,ultem,Ultem (polyetherimide),solid_polymer
+wax|candle,wax,Wax (candle or paraffin),solid_wax
+silicone,silicone,Silicone,solid_polymer
+kapton,kapton,Kapton,solid_polymer
+teflon,teflon,Teflon,solid_polymer
+pyrell,pyrell,Pyrell foam,solid_foam
+arizona road dust,ard_dust,Arizona Road Dust (test dust),solid_dust
+pmma|rod|film|slab|spher|micron,pmma,PMMA (acrylic),solid_polymer

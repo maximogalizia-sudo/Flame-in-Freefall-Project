@@ -1,0 +1,23 @@
+table_id,owner,fact,entry_type,date_rule,default_material,outcome_rule,outcome_method,notes
+PSI-69::flex,LC,test_run,,flex_date,,flex,source_column,
+PSI-159::cfi_g_normal_flames,LC,test_run,,yyddd:test,,cfi_g,rule_two_columns,
+PSI-159::cfi_g_inverse_flames,LC,test_run,,yyddd:test,,cfi_g,rule_two_columns,
+PSI-98::saffire_1,MG,test_run,,,,,none,"Outcome is in the reports, not the table"
+PSI-99::saffire_2,MG,test_run,,,,saffire_2,rule_burn_length,
+PSI-100::saffire_3,MG,test_run,,,,,none,"Outcome is in the reports, not the table"
+PSI-10::flame_design_normal_flame,MG,test_run,,yyddd:test,,,none,Goal: soot limits; no extinction label
+PSI-10::flame_design_inverse_flame,MG,test_run,,yyddd:test,ethylene,,none,C2H4 ambient; O2 comes from the burner
+PSI-107::spice,MG,test_run,,,,,none,Smoke point; the table has no year
+PSI-25::bass_ii,LC,test_run,,mdy:date,,bass_ii_notes,rule_operator_notes,Outcome inferred from operator notes (provisional)
+PSI-26::bass,LC,test_run,,mdy:date,,,none,Outcome is in As Run_Test Matrix.xlsx
+PSI-39::cfi,MG,test_run,,dmy:test_date,,,none,Outcome is in CFI_DataSummary (xlsx)
+PSI-101::same_r,MG,test_run,,,,not_applicable,not_applicable,Smoke: not a flame test
+PSI-102::same,MG,test_run,,,,not_applicable,not_applicable,Smoke: not a flame test
+PSI-20::acme_bre,MG,log_entry,operation_day,ymd_cols:year/month/date,,,none,
+PSI-21::cld_flame,MG,log_entry,operation_day,yyddd:test_day,,,none,
+PSI-22::acme_e_field_flames,MG,log_entry,operation_day,yyddd:test_day,,,none,
+PSI-23::acme_s_flame,MG,log_entry,operation_day,yyddd:test_day,,,none,
+PSI-106::slice,MG,log_entry,operation_day,date_prefix:test_date,,,none,
+PSI-68::flex2,MG,log_entry,test_matrix,,,,none,Design matrix: per-test results are in Raw Data
+PSI-47::daft,MG,log_entry,sampling_session,gmt_year:actual_day,,,none,Not a combustion experiment
+PSI-142::data_summary_table,MG,log_entry,dataset_index,,,,none,Index of published figures

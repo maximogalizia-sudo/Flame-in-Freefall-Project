@@ -1,38 +1,51 @@
-// Capa de datos del tablero.
+// Data layer of the dashboard. The frontend only talks to the backend API.
 //
-// Hoy lee JSON estáticos (Frontend/data/*.json) exportados desde las vistas mart.*
-// por Backend/tools/pglite_check.mjs. Cuando exista la API, se cambia API_BASE
-// (ej. "https://api.tu-dominio.com") y cada función pasa a pegarle al endpoint
-// equivalente: la forma de los datos es la misma porque sale de las mismas vistas.
-//
-//   función            vista SQL                 endpoint futuro
-//   getStats           mart.v_stats              GET /api/stats
-//   getInvestigations  mart.v_investigations     GET /api/investigations
-//   getTestRuns        mart.v_test_runs          GET /api/test-runs
-//   getMeasurements    mart.v_measurements       GET /api/test-runs/:id/measurements
-//   getEnvelope        mart.v_tested_envelope    GET /api/envelope
-const API_BASE = null;
+// API base URL, in order of precedence:
+//   1. ?api=https://... in the page URL (handy for testing a deploy)
+//   2. <meta name="flame-api" content="https://..."> in index.html (set at deploy time)
+// With no API configured, the page runs in offline mode on static JSON exported from
+// the same mart views (Backend/tools/pglite_check.mjs), so the shapes are identical.
+const fromQuery = new URLSearchParams(location.search).get("api");
+const fromMeta = document.querySelector('meta[name="flame-api"]')?.content;
+export const API_BASE = (fromQuery || fromMeta || "").replace(/\/$/, "") || null;
 
 const cache = new Map();
 
-async function getJSON(staticFile, endpoint) {
-  const url = API_BASE ? `${API_BASE}${endpoint}` : `./data/${staticFile}`;
-  if (!cache.has(url)) {
-    cache.set(url, fetch(url).then((r) => {
-      if (!r.ok) throw new Error(`${r.status} al pedir ${url}`);
-      return r.json();
-    }));
-  }
-  return cache.get(url);
+async function getJSON(url, options) {
+  const key = options ? null : url;
+  if (key && cache.has(key)) return cache.get(key);
+  const p = fetch(url, options).then(async (r) => {
+    if (!r.ok) throw new Error(`${r.status} on ${url}`);
+    return r.json();
+  });
+  if (key) cache.set(key, p);
+  return p;
 }
 
-export const getStats = async () => (await getJSON("stats.json", "/api/stats"))[0];
-export const getInvestigations = () => getJSON("investigations.json", "/api/investigations");
-export const getTestRuns = () => getJSON("test_runs.json", "/api/test-runs");
-export const getEnvelope = () => getJSON("envelope.json", "/api/envelope");
+const api = (path) => getJSON(`${API_BASE}${path}`);
+const offline = (file) => getJSON(`./data/${file}`);
 
-export async function getMeasurements(testRunId) {
-  if (API_BASE) return getJSON(null, `/api/test-runs/${testRunId}/measurements`);
-  const all = await getJSON("measurements.json");
-  return all.filter((m) => m.test_run_id === testRunId);
+export const isOnline = () => Boolean(API_BASE);
+
+export const getStats = async () => (API_BASE ? api("/stats") : (await offline("stats.json"))[0]);
+export const getInvestigations = () => (API_BASE ? api("/investigations") : offline("investigations.json"));
+export const getTests = () => (API_BASE ? api("/tests") : offline("tests.json"));
+
+export async function getMeasurements(testId) {
+  if (API_BASE) return api(`/tests/${encodeURIComponent(testId)}/measurements`);
+  return (await offline("measurements.json")).filter((m) => m.test_id === testId);
+}
+
+export async function getSteps(testId) {
+  if (API_BASE) return api(`/tests/${encodeURIComponent(testId)}/steps`);
+  return (await offline("test_steps.json")).filter((s) => s.test_id === testId);
+}
+
+export async function ask(text) {
+  if (!API_BASE) throw new Error("The question box needs the backend API (offline mode).");
+  return getJSON(`${API_BASE}/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
 }

@@ -1,7 +1,10 @@
-table_id,row_idx,column_name,action,new_value,reason
-PSI-99::saffire_2,4,sample_thickness,replace,0.37 mm,"""037 mm"": falta el punto decimal (SIBAL de 0.37 mm, igual que SAFFIRE-I)"
-PSI-99::saffire_2,5,sample_thickness,replace,0.37 mm,"""037 mm"": falta el punto decimal"
-PSI-99::saffire_2,6,sample_thickness,replace,0.37 mm,"""037 mm"": falta el punto decimal"
-PSI-99::saffire_2,6,material,fill_down,,Celda combinada en el original: mismo material que 2-5
-PSI-99::saffire_2,9,material,fill_down,,Celda combinada en el original: mismo material que 2-8
-PSI-69::flex,114,ambient_pressure,null,,0 mmHg no es físico (dato faltante)
+table_id,row_idx,column_name,action,new_value,decision_id,reason
+PSI-99::saffire_2,4,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,5,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,6,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,6,material,fill_down,,DD-P02,Merged cell in the source: same material as 2-5
+PSI-99::saffire_2,9,material,fill_down,,DD-P02,Merged cell in the source: same material as 2-8
+PSI-69::flex,114,ambient_pressure,invalid,,,Known sensor error: 0 mmHg (R12)
+PSI-25::bass_ii,97,calibrated_final_o2_pct_by_vol,invalid,,,Known sensor error: final O2 39.1 % (R12)
+PSI-25::bass_ii,128,calibrated_final_o2_pct_by_vol,invalid,,,Known sensor error: final O2 40.4 % (R12)
+PSI-26::bass,66,*,row_type,cleaning,,"""SOOT Cleaning"" is a maintenance run, not a test (R1)"

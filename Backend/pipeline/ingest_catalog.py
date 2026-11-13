@@ -1,4 +1,4 @@
-"""Ingesta de los CSV del catálogo: investigaciones e índice de archivos."""
+"""Ingestion of the catalog CSVs: investigations and the PSI file index."""
 from __future__ import annotations
 
 import re
@@ -17,7 +17,7 @@ def _read(path) -> pd.DataFrame:
 
 
 def _split_list(value: str | None, sep: str = ",") -> list[str]:
-    """Separa listas tipo "A (X), B (Y)" respetando paréntesis."""
+    """Split lists like "A (X), B (Y)" while respecting parentheses."""
     value = clean_cell(value)
     if not value:
         return []
@@ -76,13 +76,13 @@ def ingest_investigations() -> dict[str, pd.DataFrame]:
     for col_raw, col in (("start", "start_date"), ("end", "end_date")):
         bad = raw[col_raw].notna() & inv[col].isna()
         for acc, val in zip(raw.loc[bad, "accession"], raw.loc[bad, col_raw]):
-            issues.append({"source": "investigations", "key": acc, "issue": f"fecha no parseable en {col_raw}", "value": val})
+            issues.append({"source": "investigations", "key": acc, "issue": f"unparseable date in {col_raw}", "value": val})
     for col in ("ml_value", "rag_value"):
         bad = inv[col].notna() & inv[f"{col}_rank"].isna()
         for acc, val in zip(inv.loc[bad, "accession"], inv.loc[bad, col]):
-            issues.append({"source": "investigations", "key": acc, "issue": f"nivel desconocido en {col}", "value": val})
+            issues.append({"source": "investigations", "key": acc, "issue": f"unknown level in {col}", "value": val})
     if inv["accession"].duplicated().any():
-        issues.append({"source": "investigations", "key": None, "issue": "accession duplicado", "value": None})
+        issues.append({"source": "investigations", "key": None, "issue": "duplicated accession", "value": None})
 
     hardware = [
         {"accession": acc, "hardware": hw}
@@ -104,7 +104,7 @@ def ingest_investigations() -> dict[str, pd.DataFrame]:
 
 
 def ingest_files() -> dict[str, pd.DataFrame]:
-    """Índice completo de archivos de PSI, marcado con las listas curadas (útiles / RAG)."""
+    """Full PSI file index, flagged with the curated lists (useful / document search)."""
     files = _read(config.FILES_INDEX_CSV)
     useful = _read(config.USEFUL_FILES_CSV)
     rag = _read(config.RAG_DOCS_CSV)
@@ -116,12 +116,12 @@ def ingest_files() -> dict[str, pd.DataFrame]:
 
     folders = files["file"].isna() | files["s3_key"].str.endswith("/")
     if folders.any():
-        issues.append({"source": "files", "key": None, "issue": "entradas de carpeta (sin nombre de archivo) descartadas", "value": int(folders.sum())})
+        issues.append({"source": "files", "key": None, "issue": "folder entries (no file name) dropped", "value": int(folders.sum())})
         files = files[~folders]
 
     dup = files["s3_key"].duplicated(keep="first")
     if dup.any():
-        issues.append({"source": "files", "key": None, "issue": "s3_key duplicado (se conserva el primero)", "value": int(dup.sum())})
+        issues.append({"source": "files", "key": None, "issue": "duplicated s3_key (first kept)", "value": int(dup.sum())})
         files = files[~dup]
 
     files["is_useful"] = files["s3_key"].isin(set(useful["s3_key"]))
@@ -132,8 +132,8 @@ def ingest_files() -> dict[str, pd.DataFrame]:
     for name, sub in (("psi_archivos_utiles", useful), ("rag_documentos_pdf", rag)):
         missing = set(sub["s3_key"]) - set(files["s3_key"])
         if missing:
-            issues.append({"source": name, "key": None, "issue": "s3_key ausente del índice completo", "value": len(missing)})
+            issues.append({"source": name, "key": None, "issue": "s3_key missing from the full index", "value": len(missing)})
 
-    files = files.drop(columns=["acronym"])  # se resuelve por la dimensión investigación
+    files = files.drop(columns=["acronym"])  # resolved through the investigation dimension
     files = files.rename(columns={"file": "file_name"})
     return {"files": files.reset_index(drop=True), "_issues": pd.DataFrame(issues)}

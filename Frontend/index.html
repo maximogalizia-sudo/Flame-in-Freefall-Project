@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flame in Freefall</title>
-  <meta name="description" content="Tablero de experimentos de NASA sobre fuego en microgravedad">
+  <meta name="description" content="NASA microgravity combustion experiments, curated for spacecraft fire safety">
+  <!-- Backend API base URL, set at deploy time (empty = offline mode on static JSON). -->
+  <meta name="flame-api" content="">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c2 6 9 9 9 17a9 9 0 0 1-18 0c0-5 3-7 4-11 1 3 3 4 3 4 0-4 1-7 2-10z' fill='%23eb6834'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -13,27 +15,29 @@
     <div>
       <p class="eyebrow">NASA PSI · Combustion Science</p>
       <h1>Flame in Freefall</h1>
-      <p class="lede">Cómo se comporta el fuego sin gravedad: ensayos reales de la ISS y de Cygnus, para pensar la seguridad de misiones a la Luna y Marte.</p>
+      <p class="lede">How fire behaves without gravity: real tests from the ISS and Cygnus, curated to reason about fire safety for missions to the Moon and Mars.</p>
     </div>
+    <span class="mode" id="mode"></span>
   </header>
 
   <main>
-    <section class="tiles" id="tiles" aria-label="Resumen"></section>
+    <section class="tiles" id="tiles" aria-label="Summary"></section>
 
-    <section class="filters" aria-label="Filtros">
-      <label>Familia
+    <section class="filters" aria-label="Filters">
+      <label>Family
         <select id="f-group">
-          <option value="">Todas</option>
-          <option value="droplet">Gotas</option>
-          <option value="gas">Llamas de gas</option>
-          <option value="solid">Sólidos</option>
+          <option value="">All</option>
+          <option value="droplet">Droplets</option>
+          <option value="gas">Gaseous flames</option>
+          <option value="solid">Solids</option>
+          <option value="aerosol">Smoke and aerosols</option>
         </select>
       </label>
-      <label>Investigación
-        <select id="f-inv"><option value="">Todas</option></select>
+      <label>Investigation
+        <select id="f-inv"><option value="">All</option></select>
       </label>
-      <label>Material / combustible
-        <select id="f-mat"><option value="">Todos</option></select>
+      <label>Material / fuel
+        <select id="f-mat"><option value="">All</option></select>
       </label>
       <span class="count" id="f-count" aria-live="polite"></span>
     </section>
@@ -42,8 +46,8 @@
       <section class="card span-2" aria-labelledby="t-map">
         <header class="card-head">
           <div>
-            <h2 id="t-map">Mapa de extinción</h2>
-            <p class="sub">Cada punto es un ensayo: oxígeno del ambiente contra presión. Pasá el cursor para ver el detalle y hacé click para ver todas sus mediciones.</p>
+            <h2 id="t-map">Extinction map</h2>
+            <p class="sub">Each dot is a test: oxygen against pressure. Hover for details, click to see every measurement.</p>
           </div>
           <ul class="legend" id="legend-map"></ul>
         </header>
@@ -54,8 +58,8 @@
       <section class="card" aria-labelledby="t-detail">
         <header class="card-head">
           <div>
-            <h2 id="t-detail">Detalle del ensayo</h2>
-            <p class="sub" id="detail-sub">Elegí un punto del mapa.</p>
+            <h2 id="t-detail">Test detail</h2>
+            <p class="sub" id="detail-sub">Pick a dot on the map.</p>
           </div>
         </header>
         <div id="detail" class="detail"></div>
@@ -64,41 +68,42 @@
       <section class="card span-3" aria-labelledby="t-outcomes">
         <header class="card-head">
           <div>
-            <h2 id="t-outcomes">Resultado por experimento</h2>
-            <p class="sub">Cantidad de ensayos según cómo terminó la llama.</p>
+            <h2 id="t-outcomes">Outcome by experiment</h2>
+            <p class="sub">Number of tests by how the flame ended. Derived outcomes are provisional until the model owner validates them.</p>
           </div>
           <ul class="legend" id="legend-bars"></ul>
         </header>
         <div class="chart" id="chart-bars"></div>
       </section>
 
-      <section class="card span-3" aria-labelledby="t-inv">
-        <header class="card-head">
-          <div>
-            <h2 id="t-inv">Investigaciones</h2>
-            <p class="sub">Las 24 investigaciones de combustión en PSI. "Ensayos" son las filas ya cargadas en la base. El resto todavía espera mapeo o no tiene tabla por ensayo.</p>
-          </div>
-        </header>
-        <div class="table-wrap"><table id="inv-table"></table></div>
-      </section>
-
       <section class="card span-3 chat" aria-labelledby="t-chat">
         <header class="card-head">
           <div>
-            <h2 id="t-chat">Preguntale a los documentos</h2>
-            <p class="sub">Próximamente: respuestas con fuentes citadas, sobre los reportes y papers de cada investigación.</p>
+            <h2 id="t-chat">Ask the data</h2>
+            <p class="sub" id="chat-sub">Ask in plain English. The answer shows what was understood, the closest NASA tests and where the data ends.</p>
           </div>
         </header>
-        <form class="chat-form" onsubmit="return false">
-          <input type="text" placeholder="¿Qué telas se apagan solas con poco flujo de aire?" disabled aria-label="Pregunta">
-          <button type="submit" disabled>Preguntar</button>
+        <form class="chat-form" id="chat-form">
+          <input type="text" id="chat-input" placeholder="Would cotton fabric burn at 34% oxygen in a lunar habitat?" aria-label="Question" maxlength="500">
+          <button type="submit" id="chat-btn">Ask</button>
         </form>
+        <div class="answer" id="answer" aria-live="polite"></div>
+      </section>
+
+      <section class="card span-3" aria-labelledby="t-inv">
+        <header class="card-head">
+          <div>
+            <h2 id="t-inv">Investigations</h2>
+            <p class="sub">All 24 PSI combustion investigations. "Tests" are rows loaded into the database; "Log" are per-day or design-matrix rows.</p>
+          </div>
+        </header>
+        <div class="table-wrap"><table id="inv-table"></table></div>
       </section>
     </div>
   </main>
 
   <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
-  <footer class="foot">Datos: NASA Physical Sciences Informatics (PSI), licencia CC0-1.0. Citar el DOI de cada investigación.</footer>
+  <footer class="foot">Data: NASA Physical Sciences Informatics (PSI), CC0-1.0. Cite each investigation's DOI.</footer>
   <script type="module" src="app.js"></script>
 </body>
 </html>

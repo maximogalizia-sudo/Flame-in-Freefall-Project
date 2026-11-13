@@ -124,3 +124,10 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .chat-form button { font: inherit; padding: 9px 16px; border-radius: 8px; border: 0; background: var(--accent); color: #fff; opacity: .5; }
 
 .foot { color: var(--muted); font-size: 12px; padding-top: 24px; padding-bottom: 32px; }
+
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.mode { color: var(--muted); font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.answer { margin-top: 12px; font-size: 14px; }
+.answer h3 { font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+.evidence { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.chat-form button:not(:disabled) { opacity: 1; cursor: pointer; }
