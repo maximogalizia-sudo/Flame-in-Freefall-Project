@@ -1,0 +1,12 @@
+{
+  "name": "flame-tools",
+  "private": true,
+  "type": "module",
+  "description": "Validación local del esquema con PGlite (Postgres en WASM) y export de JSON para el front",
+  "scripts": {
+    "check": "node pglite_check.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14"
+  }
+}

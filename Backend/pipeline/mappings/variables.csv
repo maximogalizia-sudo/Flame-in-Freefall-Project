@@ -1,0 +1,26 @@
+code,label,group,unit,is_core,description
+o2_mole_fraction,O2 (fracción molar),atmosfera,mol/mol,true,"Fracción molar de O2 del oxidante. En llamas inversas de CFI-G es la del chorro del quemador, no la del ambiente."
+n2_mole_fraction,N2 (fracción molar),atmosfera,mol/mol,false,Fracción molar de N2 en el ambiente.
+co2_mole_fraction,CO2 (fracción molar),atmosfera,mol/mol,false,Fracción molar de CO2 en el ambiente (supresor en FLEX).
+he_mole_fraction,He (fracción molar),atmosfera,mol/mol,false,Fracción molar de He en el ambiente (diluyente en FLEX).
+pressure,Presión,atmosfera,atm,true,Presión ambiente.
+flow_velocity,Velocidad del flujo de aire,flujo,cm/s,true,Velocidad del flujo forzado sobre la muestra.
+fuel_mole_fraction,Combustible (fracción molar),combustible,mol/mol,false,Fracción molar de combustible en la corriente de combustible (CFI-G).
+fuel_mass_flow,Caudal másico de combustible,combustible,mg/s,false,Caudal másico de hidrocarburo.
+o2_mass_flow,Caudal másico de O2,flujo,mg/s,false,Caudal másico de O2 (llamas inversas).
+droplet_initial_diameter,Diámetro inicial de gota,geometria,mm,false,Diámetro de la gota al encenderse.
+extinction_diameter,Diámetro de extinción,resultado,mm,false,Diámetro de la gota cuando se apagó la llama visible.
+burning_rate_k,Constante de quemado K,resultado,mm2/s,false,Tasa de quemado de la gota (ley d²).
+burn_time,Tiempo de quemado,resultado,s,true,Duración de la combustión.
+adiabatic_flame_temp,Temperatura adiabática de llama,termica,K,false,Temperatura adiabática calculada.
+stoich_mixture_fraction,Fracción de mezcla estequiométrica (Zst),combustible,1,false,Zst calculado.
+peak_burner_temp,Temperatura pico del quemador,termica,K,false,Temperatura pico medida en el quemador.
+sample_thickness,Espesor de la muestra,geometria,mm,false,Espesor de la muestra sólida.
+sample_length,Largo de la muestra,geometria,cm,false,Largo de la muestra sólida.
+sample_width,Ancho de la muestra,geometria,cm,false,Ancho de la muestra sólida.
+ignition_power,Potencia de ignición,ignicion,W,false,Potencia del ignitor.
+ignition_time,Tiempo de ignición,ignicion,s,false,Tiempo de encendido del ignitor.
+burn_length_ug,Largo quemado en microgravedad,resultado,cm,false,Largo de muestra quemado en µg (SAFFIRE-II).
+spread_rate_ug,Velocidad de propagación en microgravedad,resultado,mm/s,false,Velocidad de avance de la llama en µg (SAFFIRE-II).
+burn_length_1g,Largo quemado en 1 g,resultado,cm,false,Largo quemado en el ensayo de referencia en tierra (SAFFIRE-II).
+spread_rate_1g,Velocidad de propagación en 1 g,resultado,mm/s,false,Velocidad de propagación en tierra (SAFFIRE-II).

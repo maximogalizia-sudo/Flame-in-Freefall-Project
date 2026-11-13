@@ -1,0 +1,93 @@
+table_id,column_name,role,target,source_unit,notes
+PSI-69::flex,flex_test,test_code,,,
+PSI-69::flex,flex_identifier,ignore,,,Identificador de grabación; flex_test es el ID del ensayo
+PSI-69::flex,test_gmt,ignore,,,Hora GMT del ensayo
+PSI-69::flex,test_date,test_date,,,Formato M/D/YYYY o M/D/YY
+PSI-69::flex,fuel,material,,,
+PSI-69::flex,ambient_pressure,measure,pressure,mmHg,0 mmHg = dato inválido
+PSI-69::flex,o2_initial_ambient_composition,measure,o2_mole_fraction,mol/mol,
+PSI-69::flex,n2_initial_ambient_composition,measure,n2_mole_fraction,mol/mol,
+PSI-69::flex,co2_initial_ambient_composition,measure,co2_mole_fraction,mol/mol,
+PSI-69::flex,he_initial_ambient_composition,measure,he_mole_fraction,mol/mol,
+PSI-69::flex,droplet_initial_diameter,measure,droplet_initial_diameter,mm,
+PSI-69::flex,visible_flame_extinction_diameter,measure,extinction_diameter,mm,
+PSI-69::flex,burning_rate,measure,burning_rate_k,mm2/s,Unidad corregida en la ingesta (perdió el ²)
+PSI-69::flex,burn_time,measure,burn_time,s,
+PSI-69::flex,test_end,outcome,,,Extinction / Completion / Disruption
+PSI-159::cfi_g_normal_flames,flame_type,flame_type,,,
+PSI-159::cfi_g_normal_flames,day,ignore,,,Día de operación; la fecha sale del código de ensayo
+PSI-159::cfi_g_normal_flames,fuel,material,,,"Ej. ""30% butane"": el % es la dilución con N2"
+PSI-159::cfi_g_normal_flames,test,test_code,,,YYDDD + letra/número; da la fecha
+PSI-159::cfi_g_normal_flames,cool_flame,attribute,cool_flame,,
+PSI-159::cfi_g_normal_flames,xo2_before_test,measure,o2_mole_fraction,mol/mol,Se toma el valor antes del ensayo
+PSI-159::cfi_g_normal_flames,xo2_after_test,ignore,,,
+PSI-159::cfi_g_normal_flames,approx_p,measure,pressure,bar,
+PSI-159::cfi_g_normal_flames,xf,measure,fuel_mole_fraction,mol/mol,
+PSI-159::cfi_g_normal_flames,mhc,measure,fuel_mass_flow,mg/s,
+PSI-159::cfi_g_normal_flames,tfp,ignore,,,
+PSI-159::cfi_g_normal_flames,tad,measure,adiabatic_flame_temp,K,
+PSI-159::cfi_g_normal_flames,zst,measure,stoich_mixture_fraction,1,
+PSI-159::cfi_g_normal_flames,hot_ignition,outcome,,,Se combina con self_ext_or_flow_term
+PSI-159::cfi_g_normal_flames,burn_time,measure,burn_time,s,
+PSI-159::cfi_g_normal_flames,self_ext_or_flow_term,outcome,,,SE = autoextinción; FT = se cortó el flujo
+PSI-159::cfi_g_normal_flames,peak_burner_t,measure,peak_burner_temp,°C,
+PSI-159::cfi_g_normal_flames,comments,comment,,,
+PSI-159::cfi_g_inverse_flames,flame_type,flame_type,,,
+PSI-159::cfi_g_inverse_flames,day,ignore,,,
+PSI-159::cfi_g_inverse_flames,fuel,material,,,
+PSI-159::cfi_g_inverse_flames,test,test_code,,,
+PSI-159::cfi_g_inverse_flames,xf_before_test,measure,fuel_mole_fraction,mol/mol,
+PSI-159::cfi_g_inverse_flames,xf_after_test,ignore,,,
+PSI-159::cfi_g_inverse_flames,approx_p,measure,pressure,bar,
+PSI-159::cfi_g_inverse_flames,xo2,measure,o2_mole_fraction,mol/mol,O2 del chorro del quemador (llama inversa)
+PSI-159::cfi_g_inverse_flames,hc_burnrate,measure,fuel_mass_flow,mg/s,
+PSI-159::cfi_g_inverse_flames,o2_flow_rate,measure,o2_mass_flow,mg/s,
+PSI-159::cfi_g_inverse_flames,tfp,ignore,,,
+PSI-159::cfi_g_inverse_flames,tad,measure,adiabatic_flame_temp,K,
+PSI-159::cfi_g_inverse_flames,zst,measure,stoich_mixture_fraction,1,
+PSI-159::cfi_g_inverse_flames,hot_ignition,outcome,,,Yes / No / flash
+PSI-159::cfi_g_inverse_flames,burn_time,measure,burn_time,s,
+PSI-159::cfi_g_inverse_flames,self_ext_or_flow_term,outcome,,,
+PSI-159::cfi_g_inverse_flames,peak_burner_temp,ignore,,,Se usa la columna en K
+PSI-159::cfi_g_inverse_flames,peak_burner_temp_2,measure,peak_burner_temp,K,
+PSI-159::cfi_g_inverse_flames,color,attribute,flame_color,,
+PSI-159::cfi_g_inverse_flames,comments,comment,,,
+PSI-98::saffire_1,sample_number,test_code,,,
+PSI-98::saffire_1,material,material,,,
+PSI-98::saffire_1,sample_thickness,measure,sample_thickness,cm,
+PSI-98::saffire_1,sample_length,measure,sample_length,cm,
+PSI-98::saffire_1,sample_width,measure,sample_width,cm,
+PSI-98::saffire_1,air_flow,measure,flow_velocity,cm/s,
+PSI-98::saffire_1,percent_o2,measure,o2_mole_fraction,%,
+PSI-98::saffire_1,ignition_power,measure,ignition_power,W,
+PSI-98::saffire_1,ignition_time,measure,ignition_time,s,
+PSI-98::saffire_1,burn_time,measure,burn_time,s,
+PSI-98::saffire_1,flow_direction,flow_direction,,,
+PSI-98::saffire_1,camera_1,ignore,,,
+PSI-98::saffire_1,camera_2,ignore,,,
+PSI-99::saffire_2,sample_number,test_code,,,
+PSI-99::saffire_2,material,material,,,
+PSI-99::saffire_2,sample_thickness,measure,sample_thickness,mm,"""037 mm"" se corrige a 0.37 mm (ver overrides)"
+PSI-99::saffire_2,sample_length,measure,sample_length,cm,
+PSI-99::saffire_2,sample_width,measure,sample_width,cm,
+PSI-99::saffire_2,air_flow,measure,flow_velocity,cm/s,
+PSI-99::saffire_2,percent_o2,measure,o2_mole_fraction,%,
+PSI-99::saffire_2,ignition_power,measure,ignition_power,W,
+PSI-99::saffire_2,ignition_time,measure,ignition_time,s,
+PSI-99::saffire_2,burn_time,measure,burn_time,s,"""Insignificant"" = no propagó"
+PSI-99::saffire_2,flow_direction,flow_direction,,,
+PSI-99::saffire_2,micro_g_burn_length,measure,burn_length_ug,cm,Base del resultado en µg
+PSI-99::saffire_2,micro_g_spread_length,measure,spread_rate_ug,mm/s,"El encabezado dice ""length"" pero los valores son mm/s"
+PSI-99::saffire_2,normal_g_burn_length,measure,burn_length_1g,cm,
+PSI-99::saffire_2,normal_g_spread_rate,measure,spread_rate_1g,mm/s,
+PSI-99::saffire_2,camera_1,ignore,,,
+PSI-99::saffire_2,camera_2,ignore,,,
+PSI-100::saffire_3,sample_number,test_code,,,
+PSI-100::saffire_3,material,material,,,
+PSI-100::saffire_3,sample_thickness,measure,sample_thickness,cm,
+PSI-100::saffire_3,sample_length,measure,sample_length,cm,
+PSI-100::saffire_3,sample_width,measure,sample_width,cm,
+PSI-100::saffire_3,air_flow,measure,flow_velocity,cm/s,
+PSI-100::saffire_3,direction,flow_direction,,,
+PSI-100::saffire_3,camera_1,ignore,,,
+PSI-100::saffire_3,camera_2,ignore,,,

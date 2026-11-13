@@ -1,0 +1,15 @@
+raw_value,code,name,fuel_class,dilution_fraction
+Methanol,methanol,Metanol,liquid_alcohol,
+Heptane,n_heptane,n-Heptano,liquid_hydrocarbon,
+ethane,ethane,Etano,gaseous_hydrocarbon,
+30% ethane,ethane,Etano,gaseous_hydrocarbon,0.30
+propane,propane,Propano,gaseous_hydrocarbon,
+30% propane,propane,Propano,gaseous_hydrocarbon,0.30
+butane,n_butane,n-Butano,gaseous_hydrocarbon,
+30% butane,n_butane,n-Butano,gaseous_hydrocarbon,0.30
+50% butane,n_butane,n-Butano,gaseous_hydrocarbon,0.50
+SIBAL Fabric,sibal,SIBAL (algodón-fibra de vidrio),solid_fabric,
+Cotton-Fiberglass (SIBAL),sibal,SIBAL (algodón-fibra de vidrio),solid_fabric,
+Silicone,silicone,Silicona,solid_polymer,
+PMMA,pmma,PMMA (acrílico),solid_polymer,
+PMMA & Nomex,pmma_nomex,PMMA + Nomex,solid_composite,

@@ -1,0 +1,14 @@
+family,group_code,group_name
+llamas de gas,gas,Llamas de gas
+llamas de gas (emulador de sólidos),gas,Llamas de gas
+llamas de gas (hollín/humo),gas,Llamas de gas
+gotas (droplets),droplet,Gotas
+gotas (droplets) / llamas frías,droplet,Gotas
+sólidos,solid,Sólidos
+sólidos a gran escala,solid,Sólidos
+humo/aerosoles,aerosol,Humo y aerosoles
+polvo/aerosoles,aerosol,Humo y aerosoles
+modelado (tierra),ground,Modelado y ensayos en tierra
+modelado CFD (tierra),ground,Modelado y ensayos en tierra
+análisis (tierra),ground,Modelado y ensayos en tierra
+experimento de tierra,ground,Modelado y ensayos en tierra
