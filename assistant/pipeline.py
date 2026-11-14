@@ -38,6 +38,7 @@ class Gathered:
     query_translation: str | None = None                                      # as_is / llm / glossary
     rag_query: str | None = None                                              # the English query actually searched
     risk: object | None = None                                                # RiskResponse (v3)
+    analytics: list = field(default_factory=list)                             # (kind, dict) from flame.analytics
     sweep: object | None = None                                               # SweepResponse (v3)
     effects: list = field(default_factory=list)                               # EffectsResponse list (v3)
 
@@ -85,6 +86,10 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
             r = tools.tests_search(call.args)
             if r.ok:
                 g.counts.append((call.label, call.args.model_dump(exclude_none=True), r.data))
+        elif call.tool in ('profile', 'rank', 'gaps'):
+            r = getattr(tools, call.tool)(call.args)
+            if r.ok:
+                g.analytics.append((call.tool, r.data))
         elif call.tool in ('risk', 'sweep', 'effects'):
             r = getattr(tools, call.tool)(call.args)
             if r.ok:
@@ -185,6 +190,51 @@ def effects_sentences(e, lang: str) -> list[str]:
     return out
 
 
+def _zones(z: list) -> str:
+    return ', '.join(f'{a:g}–{b:g} ({n} pruebas)' for a, b, n in z)
+
+
+def analytic_sentences(kind: str, d: dict, lang: str) -> list[str]:
+    """Deterministic text for the analytic tools (also the fallback when the LLM is not available)."""
+    es = lang == 'es'
+    out = []
+    if kind == 'profile':
+        out.append((f"Lo que muestran TODOS los datos de NASA sobre {d['label']}:" if es else f"What ALL the NASA data show about {d['label']}:"))
+        groups = [x for x in d['groups'] if x['group'].endswith('- all')] or d['groups']
+        for x in groups[:6]:
+            line = (f"· {x['group'].removesuffix(' - all')} — '{x['meaning']}': {x['n']} pruebas, rango probado {x['tested_range'][0]:g}–{x['tested_range'][1]:g}"
+                    if es else f"· {x['group'].removesuffix(' - all')} — '{x['meaning']}': {x['n']} tests, tested range {x['tested_range'][0]:g}–{x['tested_range'][1]:g}")
+            if x['min_where_observed'] is not None:
+                line += (f"; ocurrió desde {x['min_where_observed']:g} hasta {x['max_where_observed']:g}" if es
+                         else f"; it happened from {x['min_where_observed']:g} up to {x['max_where_observed']:g}")
+            if x['zones_always']:
+                line += (f"; SIEMPRE en {_zones(x['zones_always'])}" if es else f"; ALWAYS in {_zones(x['zones_always'])}")
+            if x['zones_never']:
+                line += (f"; NUNCA en {_zones(x['zones_never'])}" if es else f"; NEVER in {_zones(x['zones_never'])}")
+            if not x['zones_always'] and not x['zones_never']:
+                line += ('; no hay ningún tramo donde ocurra siempre o nunca' if es else '; there is no band where it always or never happened')
+            out.append(line + '.')
+        out += d['notes']
+    elif kind == 'rank':
+        tname = {'persistence': ('las que más sostuvieron la llama', 'kept burning most often'),
+                 'extinction': ('las que más se apagaron', 'went out most often'),
+                 'burn_time': ('las que más tardaron en apagarse', 'burned the longest'),
+                 'fastest_out': ('las que más rápido se apagaron', 'went out the fastest')}[d['target']]
+        out.append((f"Configuraciones probadas por NASA — {tname[0]}:" if es else f"Configurations tested by NASA that {tname[1]}:"))
+        for r in d['rows']:
+            t = '' if r['median_burn_time_s'] is None else (f", tiempo mediano {'≥' if r['burn_time_is_lower_bound'] else ''}{r['median_burn_time_s']:g} s"
+                                                             if es else f", median time {'≥' if r['burn_time_is_lower_bound'] else ''}{r['median_burn_time_s']:g} s")
+            out.append((f"· {r['configuration']}: {r['n_tests']} pruebas, siguió quemando en {r['share_kept_burning'] * 100:.0f} %{t}"
+                         if es else f"· {r['configuration']}: {r['n_tests']} tests, kept burning in {r['share_kept_burning'] * 100:.0f} %{t}"))
+        out += d['notes']
+    elif kind == 'gaps':
+        out.append('Lo que NASA nunca probó o está flojo en los datos, y qué experimento lo cubriría:' if es
+                   else 'What NASA never tested or is weak in the data, and which experiment would cover it:')
+        for i in d['items']:
+            out.append(f"· {i['gap']} → {i['suggested_test']}.")
+    return out
+
+
 def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]:
     """Returns (text, decision) built only from tool outputs."""
     lang = u.lang
@@ -224,6 +274,8 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
                         '(not a prediction for these conditions): '}[lang]
                  + '; '.join(f'{r.scenario}, {r.effect}: {word[r.direction]} (×{r.ratio:g})' for r in trend_rows[:3]) + '.')
         partial = True
+    for p in no_number:                  # observed times of the closest real tests, even without a model number
+        s += [n for n in p.notes if n.startswith('Closest NASA flames')][:1]
     first_in = next((p for _, p in g.predictions if p.probability is not None), None)
     if first_in and first_in.assumptions:
         s.append(TP.t('assumed', lang, x='; '.join(first_in.assumptions)))
@@ -251,6 +303,10 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             s.append(TP.t('docs_unavailable', lang))
         else:
             s.append(TP.t('docs_none', lang))
+    for kind, data in g.analytics:
+        lines = analytic_sentences(kind, data, lang)
+        s += lines
+        answered = answered or len(lines) > 1
     if 'risk_needs_o2' in plan.notes:
         s.append({'es': 'Para el indicador de riesgo necesito al menos el % de oxígeno de la atmósfera (y si podés, la presión).',
                   'en': 'For the risk indicator I need at least the oxygen % of the atmosphere (and the pressure if possible).'}[lang])

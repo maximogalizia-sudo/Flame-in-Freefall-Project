@@ -17,6 +17,7 @@ import httpx
 import pandas as pd
 
 from flame import models as fm
+from flame import analytics as fa
 from flame import scenarios as fs
 from flame.contracts import (Conditions, EffectsResponse, EvidenceItem, Prediction, RagSearchRequest, RagSearchResponse,
                              RiskRequest, RiskResponse, SweepRequest, SweepResponse, TestsSearchRequest, TestsSearchResponse)
@@ -124,10 +125,32 @@ class LocalTools:
     def effects(self, variable: str) -> ToolResult:
         return _timed('effects', {'variable': variable}, lambda: fs.effects(variable))
 
+    # analytic tools over ALL the data (always computed in-process from flame + data/processed)
+    def profile(self, args) -> ToolResult:
+        var, fam = args
+        return _timed('profile', {'variable': var, 'family': fam}, lambda: fa.profile(var, fam))
+
+    def rank(self, args) -> ToolResult:
+        target, fam, k = args
+        return _timed('rank', {'target': target, 'family': fam, 'k': k}, lambda: fa.rank(target, fam, k))
+
+    def gaps(self, fam) -> ToolResult:
+        return _timed('gaps', {'family': fam}, lambda: fa.gaps(fam))
+
 
 # ------------------------------------------------------------------ HTTP backend (MG's API)
 class HttpTools:
     mode = 'http'
+
+    # analytic tools are pure functions over the curated tables shipped with this service: computed in-process
+    def profile(self, args) -> ToolResult:
+        return LocalTools().profile(args)
+
+    def rank(self, args) -> ToolResult:
+        return LocalTools().rank(args)
+
+    def gaps(self, fam) -> ToolResult:
+        return LocalTools().gaps(fam)
 
     def __init__(self, base_url: str, token: str | None, timeout_s: float = 20.0, transport: httpx.BaseTransport | None = None):
         self.base = base_url.rstrip('/')

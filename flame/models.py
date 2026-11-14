@@ -186,18 +186,26 @@ def predict_cfig(c: Conditions) -> list[Prediction]:
         ok_p = d[(d['pressure_bar'] - p_bar).abs() <= 0.25]
         ok = ok_p[(ok_p['o2_mid'] - c.o2_frac).abs() <= (0.04 if ft == 'normal' else 0.08)]
         if ok.empty:
+            at_p = sorted((ok_p['o2_mid'] * 100).round().astype(int).unique().tolist())
             ood.append(f'no NASA {ft} {fuel} flame near {p_bar:.2f} bar and O2={c.o2_frac:.2f} '
-                       f'(tested pressures: {sorted(d["pressure_bar"].round(2).unique().tolist())}; '
-                       f'tested O2: {sorted((d["o2_mid"] * 100).round().astype(int).unique().tolist())} %)')
+                       f'(tested pressures for {fuel}: {sorted(d["pressure_bar"].round(2).unique().tolist())}; '
+                       + (f'O2 tested at ~{p_bar:.2f} bar: {at_p} %' if at_p else f'nothing tested at ~{p_bar:.2f} bar') + ')')
     if horizon > 150: ood.append('horizon above 150 s: few flames were followed that long')
     pool = d if len(d) else t[t['flame_type'] == ft]
     dist = np.sqrt(((pool['o2_mid'] - (c.o2_frac or 0.21)) / 0.04) ** 2 + ((pool['pressure_bar'] - p_bar) / 0.5) ** 2)
     nearest = pool.assign(distance=dist).sort_values('distance').head(5)['test_id'].tolist()
     m = model(f'cfig_selfext_{ft}')
+    near_rows = pool.assign(distance=dist).sort_values('distance').head(5)
+    near_times = '; '.join(f"{r['test_id']}: {r['o2_mid'] * 100:.0f} % O2, {r['pressure_bar']:.2f} bar -> "
+                           + (f"went out by itself after {r['burn_time_s']:g} s" if r['end'] == 'self_ext'
+                              else f"still burning when cut at {r['burn_time_s']:g} s") for _, r in near_rows.iterrows()
+                           if pd.notna(r['burn_time_s']))
+    ign = [ignition_evidence(c.jet_fuel_frac if c.jet_fuel_frac is not None else 1.0, nearest)] if ft == 'normal' and fuel else []
     if ood:
         return [Prediction(family='cfig', target=f'self_extinction_within_{horizon:g}s', probability=None, ci_low=None, ci_high=None,
                            in_domain=False, out_of_domain=ood, contributions={}, nearest_tests=nearest,
-                           model_version=f"{VERSION}:{m['name']}", assumptions=assumptions)]
+                           model_version=f"{VERSION}:{m['name']}", assumptions=assumptions,
+                           notes=[f'Closest NASA flames (observed burn times): {near_times}'] if near_times else [])] + ign
     flow = c.fuel_flow_mg_s or float(d['fuel_flow_mg_s'].median())
     if c.fuel_flow_mg_s is None: assumptions.append(f'fuel flow = {flow:.2f} mg/s (typical tested flame size)')
     x = {'o2_pct': c.o2_frac * 100, 'pressure_bar': p_bar, 'fuel_flow_mg_s': flow,
@@ -207,16 +215,21 @@ def predict_cfig(c: Conditions) -> list[Prediction]:
     else:
         x['atm_fuel_pct'] = (c.atm_fuel_frac if c.atm_fuel_frac is not None else float(d['atm_fuel_frac'].median())) * 100
     p, lo, hi, contrib = _cox_predict(m, x, horizon)
+    # the whole time curve from the same model: share gone out by itself at several times, and the median time
+    curve = {t: _cox_predict(m, x, t)[0] for t in (10, 30, 60, 120)}
+    grid = np.arange(1, 301)
+    s_med = next((int(t) for t in grid if _cox_predict(m, x, float(t))[0] >= 0.5), None)
+    timing = ('Time curve (model): goes out by itself within ' + ', '.join(f'{t} s: {v:.0%}' for t, v in curve.items())
+              + (f'; median time until it goes out by itself ~{s_med} s' if s_med else '; most such flames were still burning at 300 s'))
     out = [Prediction(family='cfig', target=f'self_extinction_within_{horizon:g}s', probability=round(p, 3), ci_low=round(lo, 3),
                       ci_high=round(hi, 3), in_domain=True, out_of_domain=[], contributions=contrib, nearest_tests=nearest,
                       model_version=f"{VERSION}:{m['name']}", assumptions=assumptions,
-                      notes=['Contributions are log-hazard: positive = goes out sooner',
+                      notes=[timing, f'Closest NASA flames (observed burn times): {near_times}',
+                             'Contributions are log-hazard: positive = goes out sooner',
                              'Flames stopped by the operator were counted as "still burning at that time", not as "never goes out"']
                       + (['Moderate confidence: the inverse-flame model ranks flames correctly ~71 % of the time and its high '
                           'probabilities are less reliable (model review, notebook 04)'] if ft == 'inverse' else []))]
-    if ft == 'normal' and c.jet_fuel_frac is not None:
-        out.append(ignition_evidence(c.jet_fuel_frac, nearest))
-    return out
+    return out + ign
 
 
 IGNITION_BANDS = [(0.0, 0.03, '<= 3 %'), (0.03, 0.06, '3-6 %'), (0.06, 0.2, '6-20 %'), (0.2, 1.0, '> 20 %')]

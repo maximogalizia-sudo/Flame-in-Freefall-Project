@@ -43,7 +43,11 @@ STRICT RULES
 7. Scenario sweeps: give the probability at the start and at the end of the TESTED part of the range (they are in the
    evidence) and say clearly where NASA's data end; do not refuse just because part of the range was not tested.
    Risk indicator: give the overall level, the scenarios behind it, the untested ones, and always the disclaimer.
-8. Write in {lang_name}. Be clear for a non-expert: short paragraphs, no jargon without a one-line explanation. At most ~170 words.
+8. Analytic evidence (profile, ranking, gaps) summarises ALL the NASA tests. For a range/threshold question say plainly
+   whether an "always" or "never" zone exists in the tested range (if none exists, say so and give the lowest/highest
+   value where it was observed). For a ranking, list the configurations in order with their number of tests. For future
+   experiments, propose them from the gaps listed. Respect the number of items the user asked for.
+9. Write in {lang_name}. Be clear for a non-expert: short paragraphs, no jargon without a one-line explanation. At most ~170 words (up to ~250 for rankings, lists or profiles).
 """
 LANG = {'es': 'Spanish (Rioplatense, neutral)', 'en': 'English'}
 
@@ -81,6 +85,25 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         items.append(f'[T{k}] what the ML models learned about {e.variable} (ratio > 1 = more likely / sooner to go out): '
                      + '; '.join(f'{r.scenario}, {r.effect}: x{r.ratio} (95% {r.ci_low}-{r.ci_high}) {r.direction}' for r in e.rows)
                      + f'. Tested: {dumps(e.tested)}. Never tested: {dumps(e.not_tested)}. Caveats: {dumps(e.caveats)}')
+    for kind, data in g.analytics:               # analytic results over ALL the data (observed NASA tests, with counts)
+        k += 1; labels.add(f'T{k}')
+        if kind == 'profile':
+            groups = [x for x in data['groups'] if x['group'].endswith('- all')] or data['groups']
+            body = '; '.join(f"{x['group']} [outcome = {x['meaning']}]: n={x['n']}, tested {x['tested_range']}, observed from "
+                             f"{x['min_where_observed']} to {x['max_where_observed']}, ALWAYS zones {x['zones_always']}, NEVER zones "
+                             f"{x['zones_never']}, bands {[(b['from'], b['to'], b['n'], b['share']) for b in x['bands']]}"
+                             for x in groups[:6])
+            items.append(f"[T{k}] profile of {data['label']} over all NASA tests (zones are [from, to, n_tests]; bands are "
+                         f"(from, to, n_tests, share where the outcome happened)): {body}. Notes: {dumps(data['notes'])}")
+        elif kind == 'rank':
+            body = '; '.join(f"{r['configuration']} -> n_tests {r['n_tests']}, kept burning {r['share_kept_burning']}, went out "
+                             f"{r['share_went_out']}, median burn time s {r['median_burn_time_s']}"
+                             + (' (lower bound: still burning when cut)' if r['burn_time_is_lower_bound'] else '') for r in data['rows'])
+            items.append(f"[T{k}] ranking of tested configurations by '{data['target']}' (observed NASA data, per family): {body}. "
+                         f"Notes: {dumps(data['notes'])}")
+        else:
+            items.append(f"[T{k}] gaps in the NASA data and the experiment that would cover each: "
+                         + '; '.join(f"{i['gap']} -> suggested: {i['suggested_test']}" for i in data['items']))
     for j, e in enumerate(g.evidence[:5], 1):
         labels.add(f'E{j}')
         items.append(f'[E{j}] closest real NASA test {e.test_id} ({e.psi_id}): outcome {e.outcome}; source {e.source[:160]}')

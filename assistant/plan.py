@@ -21,6 +21,7 @@ from .understand import SOLID_FAMILY_NAME, Understanding, normalize
 
 FAMILY_ACCESSIONS = {'flex': ['PSI-69'], 'cfig': ['PSI-159'], 'solids': ['PSI-25', 'PSI-26', 'PSI-98']}
 ACCESSION_FAMILY = {'PSI-69': 'flex', 'PSI-159': 'cfig', 'PSI-25': 'solids', 'PSI-26': 'solids'}
+ANALYTIC_VAR = {'o2_frac': 'o2', 'co2_frac': 'co2', 'he_frac': 'he', 'pressure_kpa': 'pressure', 'droplet_d0_mm': 'd0'}
 OUTCOME_COL = {'flex': 'test_end', 'cfig': 'end', 'solids': 'outcome_group'}
 
 
@@ -67,6 +68,22 @@ def make_plan(u: Understanding) -> Plan:
 
     if u.intent == 'off_topic':
         p.notes.append('off_topic')
+        return p
+
+    # Analytic questions over ALL the data (flame.analytics): ranges/thresholds, rankings, gaps
+    if u.intent == 'profile':
+        var = ANALYTIC_VAR.get(u.variable or 'o2_frac', 'o2')
+        p.calls.append(ToolCall('profile', (var, u.analytic_family)))
+        return p
+    if u.intent == 'rank':
+        m = re.search(r'\b(\d{1,2})\b', normalize(u.text))
+        k = min(max(int(m.group(1)), 1), 10) if m else 5
+        p.calls.append(ToolCall('rank', (u.rank_target or 'persistence', u.analytic_family, k)))
+        return p
+    if u.intent == 'gaps':
+        p.calls.append(ToolCall('gaps', u.analytic_family))
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query='future work recommendations limitations further tests needed',
+                                                               accessions=FAMILY_ACCESSIONS.get(u.analytic_family, []), k=30)))
         return p
 
     # v3 (mentors): early-warning risk by atmosphere, hypothetical scenarios, per-variable explanation
