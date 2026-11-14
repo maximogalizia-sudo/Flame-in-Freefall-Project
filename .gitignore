@@ -8,3 +8,6 @@ Backend/*.zip
 .venv/
 __pycache__/
 .ipynb_checkpoints/
+
+# assistant traces (local)
+assistant_traces.jsonl
