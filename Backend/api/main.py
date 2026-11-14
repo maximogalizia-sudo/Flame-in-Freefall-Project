@@ -4,8 +4,8 @@ The backend does all the work: it serves the curated database and orchestrates t
 model functions. The RAG and LLM services are separate and called over HTTPS only
 when needed (see services.py).
 
-Run locally (from Backend/):
-    .venv/Scripts/python -m uvicorn api.main:app --reload --port 8000
+Run locally (from the repo root, so that `flame` is importable):
+    Backend/.venv/Scripts/python -m uvicorn --app-dir Backend api.main:app --reload --port 8000
 """
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from . import db, modeling
 from .contracts import Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction
@@ -21,7 +22,7 @@ from .settings import get_settings
 
 app = FastAPI(
     title="Flame in Freefall API",
-    version="0.1.0",
+    version="0.2.0",
     description="NASA PSI microgravity combustion data, curated for fire-safety insights.",
 )
 app.add_middleware(
@@ -126,9 +127,18 @@ def predict(c: Conditions) -> list[Prediction]:
     return modeling.predict(c)
 
 
+class ExplainRequest(BaseModel):
+    family: Family
+
+
 @app.get("/explain/{family}")
 def explain(family: Family) -> dict:
     return modeling.explain(family)
+
+
+@app.post("/explain")
+def explain_post(req: ExplainRequest) -> dict:
+    return modeling.explain(req.family)
 
 
 @app.post("/coverage", response_model=list[EvidenceItem])
@@ -138,7 +148,7 @@ def coverage(c: Conditions) -> list[EvidenceItem]:
 
 @app.post("/ask", response_model=Answer)
 def ask(req: AskRequest) -> Answer:
-    return modeling.ask(req.text)
+    return modeling.template_answer(req.text)
 
 
 # ---------------------------------------------------------------- documents (RAG service proxy)
