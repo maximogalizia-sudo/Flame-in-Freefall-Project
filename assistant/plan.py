@@ -20,6 +20,7 @@ from .ml_insight import variables_to_explain
 from .understand import SOLID_FAMILY_NAME, Understanding, normalize
 
 FAMILY_ACCESSIONS = {'flex': ['PSI-69'], 'cfig': ['PSI-159'], 'solids': ['PSI-25', 'PSI-26', 'PSI-98']}
+ACCESSION_FAMILY = {'PSI-69': 'flex', 'PSI-159': 'cfig', 'PSI-25': 'solids', 'PSI-26': 'solids'}
 OUTCOME_COL = {'flex': 'test_end', 'cfig': 'end', 'solids': 'outcome_group'}
 
 
@@ -98,6 +99,23 @@ def make_plan(u: Understanding) -> Plan:
         p.calls.append(ToolCall('rag_search', RagSearchRequest(query=q, accessions=accessions, k=30)))
         return p
 
+    # Questions about a whole experiment ("how many FLEX tests?", "which fuels did FLEX use?", "at what pressure?"):
+    # answered from that experiment's table, grouped by what is asked.
+    exp_fam = next((ACCESSION_FAMILY[a] for a in u.accessions if a in ACCESSION_FAMILY), None)
+    t = normalize(u.text)
+    table_q = re.search(r'cuant[ao]s|how many|que (?:combustibles?|gases|materiales|presion\w*)|which (?:fuels?|gases|materials)|'
+                        r'what (?:fuels?|gases|materials|pressures?)|a que presion|at what pressure', t)
+    if exp_fam and not fam and table_q:
+        gb = (['fuel'] if re.search(r'combustible|fuel|gas', t) and exp_fam != 'solids' else
+              ['material'] if re.search(r'material', t) else
+              (['p_level'] if exp_fam == 'flex' else ['pressure_bar']) if re.search(r'presion|pressure', t) and exp_fam != 'solids' else
+              [OUTCOME_COL[exp_fam]] if exp_fam != 'cfig' else ['ignited', 'end'])
+        p.calls.append(ToolCall('tests_search', TestsSearchRequest(family=exp_fam, group_by=gb, limit=5),
+                                label={'flex': 'FLEX', 'cfig': 'CFI-G', 'solids': 'BASS / BASS-II'}[exp_fam]))
+        if u.intent == 'explain_doc':
+            p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
+        return p
+
     if u.intent == 'explain_doc':
         p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
         if fam:
@@ -128,7 +146,10 @@ def make_plan(u: Understanding) -> Plan:
     if not fam and c.gravity_g is None and not u.unknown_terms:
         p.notes.append('no_subject')     # e.g. a material NASA did not test (Kevlar): say what was tested, call nothing
         return p
-    if fam or c.gravity_g is not None:
+    if not fam and not (c.gravity_g or 0) > 0:
+        p.notes.append('no_subject')     # e.g. "Kevlar on the space station": microgravity is fine, the material was not tested
+        return p
+    if fam or (c.gravity_g or 0) > 0:   # gravity check only when there IS gravity (Moon, Mars): always out of the data
         p.calls.append(ToolCall('predict', c if fam else Conditions(**{**c.model_dump(exclude_none=True), 'family': 'flex', 'fuel': 'methanol', 'o2_frac': c.o2_frac or 0.21}),
                                 label='gravity_check' if not fam else ''))
     if fam:

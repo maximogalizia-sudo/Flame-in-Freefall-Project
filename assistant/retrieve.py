@@ -22,8 +22,12 @@ GLOSSARY = {   # Spanish -> English, used only when the LLM is not available
     'propagacion': 'flame spread', 'ignicion': 'ignition', 'encender': 'ignite', 'flujo': 'flow', 'aire': 'air',
     'por que': 'why', 'que es': 'what is', 'como': 'how', 'resultados': 'results', 'prueba': 'test', 'pruebas': 'tests',
     'experimento': 'experiment', 'contaminado': 'contaminated', 'recubrimiento': 'coating', 'materiales': 'materials',
+    'objetivo': 'objective', 'objetivos': 'objectives', 'proposito': 'purpose', 'descubrio': 'discovered',
+    'aprendio': 'learned', 'medir': 'measure', 'midio': 'measured', 'conclusiones': 'conclusions', 'resultado': 'result',
+    'temperatura': 'temperature', 'velocidad': 'velocity', 'gravedad': 'gravity', 'tejido': 'fabric', 'vela': 'candle',
 }
-STOP_ES = r'\b(?:el|la|los|las|un|una|de|del|en|y|o|que|se|por|para|con|sin|al|lo|su|sus|es|son|segun|nasa)\b'
+STOP_ES = (r'\b(?:el|la|los|las|un|una|de|del|en|y|o|que|se|por|para|con|sin|al|lo|su|sus|es|son|segun|nasa|tenia|tuvo|'
+           r'tiene|hay|usa|uso|fue|era|eran|cual|cuales)\b')
 
 
 def glossary_translate(text: str) -> str:
@@ -87,6 +91,14 @@ def keyword_rerank(query: str, candidates: list[dict]) -> list[dict]:
         idx, c = item
         return (-len(q & _stems(c.get('content', ''))) / len(q), idx)
     return [c for _, c in sorted(enumerate(candidates), key=score)]
+
+
+def passage_relevance(query: str, passages: list[dict], top: int = 3) -> float:
+    """Share of the query's content words found in the best passages (max over the top ones). 0..1."""
+    q = _stems(query)
+    if not q or not passages:
+        return 0.0
+    return max(len(q & _stems(p.get('content', ''))) / len(q) for p in passages[:top])
 
 
 def select_passages(candidates: list[dict], k: int = 6, prefer_narrative: bool = True, query: str | None = None) -> list[dict]:

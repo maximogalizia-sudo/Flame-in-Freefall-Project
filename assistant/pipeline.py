@@ -18,7 +18,7 @@ from . import templates as TP
 from .config import get_settings
 from .plan import OUTCOME_COL, Plan, make_plan
 from .ml_insight import drivers, relevant_rows
-from .retrieve import select_passages, translate_query
+from .retrieve import passage_relevance, select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, understand
 from .understand_llm import llm_assist, needs_help
@@ -36,6 +36,7 @@ class Gathered:
     unavailable: list[str] = field(default_factory=list)
     results: list[ToolResult] = field(default_factory=list)
     query_translation: str | None = None                                      # as_is / llm / glossary
+    rag_query: str | None = None                                              # the English query actually searched
     risk: object | None = None                                                # RiskResponse (v3)
     sweep: object | None = None                                               # SweepResponse (v3)
     effects: list = field(default_factory=list)                               # EffectsResponse list (v3)
@@ -67,6 +68,7 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
             q, method = translate_query(call.args.query, lang, llm)
             call.args = call.args.model_copy(update={'query': q})
             g.query_translation = method
+            g.rag_query = q
         if call.tool == 'predict':
             r = tools.predict(call.args)
             if r.ok:
@@ -238,8 +240,13 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             for k, d in enumerate(g.passages[:2], 1):
                 page = f"p. {d['page_from']}" if d.get('page_from') else ''
                 s.append(f"[D{k}] {d.get('doc_title') or d['file_name']} {page}: \"{d['content'][:280].strip()}…\"")
-            # report passages answer document questions; for a prediction question they are related evidence only
-            partial = partial or u.intent != 'predict'
+            # Report passages ANSWER a document question when they are about what was asked (most of the question's
+            # content words appear in the best passages); tangential passages only make it partial. For a prediction
+            # question they are related evidence only.
+            if u.intent == 'explain_doc' and passage_relevance(g.rag_query or u.text, g.passages) >= 0.5:
+                answered = True
+            else:
+                partial = partial or u.intent != 'predict'
         elif 'rag_search' in g.unavailable:
             s.append(TP.t('docs_unavailable', lang))
         else:

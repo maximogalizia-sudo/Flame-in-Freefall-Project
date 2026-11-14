@@ -11,7 +11,7 @@
    "llm_used": 0.0,
    "n": 8,
    "invented_numbers": 0,
-   "median_ms": 2415
+   "median_ms": 2372
   },
   "predict_out": {
    "intent_ok": 1.0,
@@ -24,7 +24,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 2491
+   "median_ms": 2532
   },
   "count": {
    "intent_ok": 1.0,
@@ -37,7 +37,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 611
+   "median_ms": 598
   },
   "trap": {
    "intent_ok": 1.0,
@@ -50,7 +50,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 1,
-   "median_ms": 588
+   "median_ms": 591
   },
   "explain_variable": {
    "intent_ok": 1.0,
@@ -63,7 +63,7 @@
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 1265
+   "median_ms": 1208
   },
   "scenario": {
    "intent_ok": 1.0,
@@ -76,7 +76,7 @@
    "llm_used": 0.0,
    "n": 2,
    "invented_numbers": 0,
-   "median_ms": 1366
+   "median_ms": 1246
   },
   "risk": {
    "intent_ok": 1.0,
@@ -89,12 +89,12 @@
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 626
+   "median_ms": 599
   },
   "docs": {
    "intent_ok": 1.0,
    "tools_ok": 1.0,
-   "decision_ok": 1.0,
+   "decision_ok": 0.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
    "doc_ok": 1.0,
@@ -102,10 +102,10 @@
    "llm_used": 0.0,
    "n": 10,
    "invented_numbers": 1,
-   "median_ms": 745
+   "median_ms": 631
   },
   "implicit": {
-   "intent_ok": 0.83,
+   "intent_ok": 1.0,
    "tools_ok": 1.0,
    "decision_ok": 1.0,
    "expect_ok": 1.0,
@@ -115,12 +115,12 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 1273
+   "median_ms": 1230
   },
   "ALL": {
-   "intent_ok": 0.98,
+   "intent_ok": 1.0,
    "tools_ok": 1.0,
-   "decision_ok": 1.0,
+   "decision_ok": 0.8,
    "expect_ok": 1.0,
    "text_ok": 1.0,
    "doc_ok": 1.0,
@@ -128,7 +128,7 @@
    "llm_used": 0.0,
    "n": 50,
    "invented_numbers": 2,
-   "median_ms": 1257
+   "median_ms": 1196
   }
  },
  "failures": [
@@ -146,7 +146,7 @@
    "invented_numbers": [
     "2"
    ],
-   "ms": 1900,
+   "ms": 1873,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -154,12 +154,107 @@
    "text": "Understood: material = nomex, O₂ = 34 %. No estimate for \"Solid materials\": Solid materials (BASS/BASS-II) are shown as NASA evidence, not as a model (DD-033); O2 above 22.7 %: no solid-material tests. Closest real NASA tests: BASS-56 (no_flame), BASS-57 (no_flame), F1 (survived). What NASA reports say (most relevant passages): [D1] BASS: overview of recent ISS results (presentation) p. 28: \"When exposed to a heat source, the Nomex fibers swell and seal the spaces between the fibers, stopping air movement through the fabric and thus inhibiting heat transfer through the fabric. ULOI: 23.5% O2\n2 cm Igniter\nNomex-III ULOI: 22% O2\nResults:\nUltem and Nomex HT90-40 samples…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 53: \"Fire in Free Fall. Appl. Mech. Rev., vol. 55, no. 6, 2002, pp. B116–B117. 20. Reckart, T.A.: Space Flight System at GRC: Burning and Suppression of Solids (BASS). National Aeronautics and Space Administration, 2014.\nhttps://www1.grc.nasa.gov/space/iss- research/msg/bass/ Accessed…\""
   },
   {
+   "id": "D01",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 641,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 23: \"(8) Distorted droplets (e.g., the HiBMs video from the FLEX–088 test) for methanol droplet burning (approximately four tests) are probably the result of the contaminant.\n6.0 Conclusions\n(1) Burning-rate constants were average, and the droplet history was minimally influenced by t…\" [D2] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 34: \"FLEX–279 H19H101 12/8/11 22:29:44 Heptane 764.7 .21 .64 0 .15 3.54 2.91 .55 7.6 Extinction\nFLEX–280 H19H201 12/8/11 23:41:45 Heptane 766.2 .21 .64 0 .15 2.82 .73 .65 11.7 Extinction\nNASA/TP—2015-216046 28\nAppendix B.—Droplet and Flame Sizes\nFigures 5 to 280 show the results of ea…\""
+  },
+  {
+   "id": "D02",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 730,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 23: \"(8) Distorted droplets (e.g., the HiBMs video from the FLEX–088 test) for methanol droplet burning (approximately four tests) are probably the result of the contaminant.\n6.0 Conclusions\n(1) Burning-rate constants were average, and the droplet history was minimally influenced by t…\" [D2] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 22: \"The sharp decline in the droplet size on either side of that gap corresponds to the time when the droplet (usually) or flame (rarely) was partially in and partially out of the FOV.\nFor some tests, some of the CIR cameras failed to record data for a portion of the test, and for ot…\""
+  },
+  {
+   "id": "D03",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 624,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 74: \"A cool flame is one that burns at about 600 degrees Celsius.\nA typical candle is about three-and-a-half times hotter, burning at around 1,400 degrees Celsius. Most internal combustion engines are designed using computer models that neglect cool flame chemistry, but ignition and f…\" [D2] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 72: \"A cool flame is one that burns at about 600 degrees Celsius. A typical candle is about two-and- a-half times hotter, burning at around 1,400 degrees Celsius.\nMost internal combustion engines are designed using computer models that neglect cool flame chemistry, but ignition and fl…\""
+  },
+  {
+   "id": "D04",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 631,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 28: \"of California San Diego, San Diego, CA NASA Project Scientist (PS): Dennis P. Stocker, NASA Glenn Research Center, Cleveland, OH PS team member: Dr. Vedha Nayagam, Case Western Reserve University, Cleveland, OH I.\nIntroduction Tests for the Cool Flames Investigation with Gases (C…\" [D2] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 35: \"Louis, MO Co-Investigator (Co-I): Prof. Forman A. Williams, U. of California San Diego, San Diego, CA NASA Project Scientist (PS): Dennis P. Stocker, NASA Glenn Research Center, Cleveland, OH PS team member: Dr.\nVedha Nayagam, Case Western Reserve University, Cleveland, OH V. Int…\""
+  },
+  {
+   "id": "D05",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 610,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 34: \"2.2.7 Scale Analysis: Expression for Extinction Velocity Vg,cr\nIn a microgravity environment, an opposing flow can be quite mild or even absent, raising the residence time to the point that both gas and surface radiation can become significant compared to other heat transfer mech…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 97: \"The ignition delay time can be up to almost 10 times longer than the NASA STD–6001 standard igniter on time.\nDetailed observations of near-quenching flames are described, including flame standoff distance trend with O2 and stretch rate a. The flame shrinks to a hemispherical blue…\""
+  },
+  {
    "id": "D06",
    "type": "docs",
    "intent_ok": true,
    "tools_ok": true,
-   "decision_ok": true,
-   "decision": "partial",
+   "decision_ok": false,
+   "decision": "answer",
    "expected": "partial",
    "expect_ok": true,
    "text_ok": true,
@@ -167,7 +262,7 @@
    "invented_numbers": [
     "1"
    ],
-   "ms": 1238,
+   "ms": 1388,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -175,23 +270,80 @@
    "text": "Understood: material = pmma. What NASA reports say (most relevant passages): [D1] BASS-II data ReadMe : \"Spreadsheets folder has test matrix and fan calibration information.\nTest Matrix explanation\nTabs in spreadsheet for each PI.\nSubrata Bhattacharjee burned various thickness of very thin pmma films.\nPaul Ferkul burned Nomex III and a candle to round out the BASS-I testing.\nFletche…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 137: \"and BASS–II Papers and Presentations\nThe following is a list of Burning and Suppression of Solids (BASS) and BASS–II papers and presentations, going from newest to oldest through summer 2020.\n1. Thomsen, Maria, et al.: Buoyancy Effect on Downward Flame Spread Over PMMA Cylinders.…\""
   },
   {
-   "id": "I04",
-   "type": "implicit",
-   "intent_ok": false,
+   "id": "D07",
+   "type": "docs",
+   "intent_ok": true,
    "tools_ok": true,
-   "decision_ok": true,
+   "decision_ok": false,
    "decision": "answer",
-   "expected": "answer",
+   "expected": "partial",
    "expect_ok": true,
    "text_ok": true,
    "doc_ok": true,
    "invented_numbers": [],
-   "ms": 1421,
+   "ms": 1193,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
    ],
-   "text": "Understood: fuel = butane. NASA has no tests anywhere in that range for this scenario: unknown. How pressure_kpa acts according to the models: · methanol droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · n-heptane droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · normal gas flames, +1 bar: helps it go out (×2.28, 95 %: 1.21–4.49). · inverse gas flames (O2 = burner jet, not the cabin air), +1 bar: no clear effect (×1.32, 95 %: 0.96–2.37). Where it was tested: Heptane droplets: pressure_kpa 70.394-102.845 (O2 0.13-0.30), 78 clean tests; Methanol droplets: pressure_kpa 70.1674-103.205 (O2 0.12-0.34), 128 clean tests. Gas flames: the ratio is how much faster the flame goes out by itself (hazard ratio); inverse flames have moderate confidence Droplets: 2-3 atm has only 7 near-identical tests and is shown as evidence only (DD-024)"
+   "text": "Entendí: material = sibal. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 102: \"7.1.3 Experimental\nAll tests were conducted in a small flow duct (shown in Figure 7.1) within the MSG aboard the ISS. The sample used is a composite cotton-fiberglass fabric blend (75 percent cotton and 25 percent fiberglass). The thickness of the sample is about 0.32 mm with an…\" [D2] Spacecraft Fire Experiment (SAFFIRE): objectives, development and status p. 2: \"4 5 6\n2.1 Sample Materials\nSIBAL\n7 8 9\nSilicone\nSilicone opposed\nPMMA\nNomex\nThe sample material for Saffire-I and III is a composite fabric consisting of cotton on a fiberglass substrate (75% cotton, 25% fiberglass by weight). It is called SIBAL cloth because it was developed for…\""
+  },
+  {
+   "id": "D08",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 627,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] BASS Science Requirements Document p. 1: \"Science Requirements for\nBurning and Suppression of Solids\n“BASS”\n(Material Flammability in Low-Speed Air Flow at\nMicrogravity Including an Assessment of\nInert-Gas Extinguishing Agent: An ISS Glovebox Experiment Utilizing Existing SPICE\nHardware with Minor Modifications)\nFebruary…\" [D2] Flammability aspects of fabric in microgravity, US National Combustion Meeting 2013 (presentation) p. 5: \"Improved combustion computational models used in the design of fire detection\nand suppression systems in microgravity and on Earth\nValidated detailed combustion models in the simpler flow environment of\nmicrogravity build more complex combustion models needed to capture the imp…\""
+  },
+  {
+   "id": "D09",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 612,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] SAFFIRE-I and SAFFIRE-III data ReadMe : \"The objectives of the SAFFIRE (Spacecraft Fire Experiment) experiments are to (1) determine how rapidly a large scale fire grows in low-gravity and (2) investigate the low-g flammability limits compared to those obtained in NASA’s normal gravity material flammability screening te…\" [D2] Spacecraft Fire Experiment (SAFFIRE): objectives, development and status p. 5: \"Of particular note is that many of these objectives require supporting ground-based experimentation to perform the parametric investigations that are required to fully understand the phenomena in question. The objective of the flight experiment is to anchor the ground-based exper…\""
+  },
+  {
+   "id": "D10",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "answer",
+   "expected": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [],
+   "ms": 628,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 23: \"(7) Radiative extinction droplet diameters (larger diameters) were not influenced by the presence of the contaminant.\nHistories of droplet and flame diameters, as well as burning- rate constants and extinction diameters, were obtained in Flame Extinguishment Experiment (FLEX) pro…\" [D2] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 44: \"Burner temperatures were analyzed to find their correlation to the ignition and diameter of cool flames. K. Preliminary Research Findings\n[provided by the U. of Maryland investigator team and lightly edited by Stocker] A total of 280 hot diffusion flames were observed. Among them…\""
   }
  ]
 }

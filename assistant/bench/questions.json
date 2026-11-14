@@ -378,7 +378,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-69"
  },
  {
@@ -389,7 +389,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-69"
  },
  {
@@ -400,7 +400,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-159"
  },
  {
@@ -411,7 +411,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-159"
  },
  {
@@ -422,7 +422,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-159"
  },
  {
@@ -433,7 +433,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-25"
  },
  {
@@ -444,7 +444,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-25"
  },
  {
@@ -455,7 +455,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-26"
  },
  {
@@ -466,7 +466,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-98"
  },
  {
@@ -477,7 +477,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-69"
  },
  {
@@ -528,7 +528,7 @@
   "tools": [
    "rag_search"
   ],
-  "decision": "partial",
+  "decision": "answer",
   "expect_accession": "PSI-69"
  },
  {

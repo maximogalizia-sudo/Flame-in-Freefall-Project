@@ -45,7 +45,8 @@ GASES = {"o2_frac": r"(?:oxigeno|oxygen|o2)", "co2_frac": r"(?:co2|dioxido de ca
          "he_frac": r"(?:helio|helium|he)"}
 EXPERIMENTS = {r"\bflex\b": "PSI-69", r"\bcfi-?g\b|cool flames investigation": "PSI-159", r"\bbass-?ii\b|\bbass 2\b": "PSI-25",
                r"\bbass\b(?!-?ii)": "PSI-26", r"\bsaffire\b": "PSI-98"}
-COMBUSTION_WORDS = r"llama|fuego|incendi|combust|apag|arde|quem|prend|encend|ignic|ignit|flame|fire|burn|extingu|" \
+COMBUSTION_WORDS = r"llama|fuego|incendi|combust|apag|arde|quem|prend|encend|ignic|ignit|flame|fire|burn|extingu|extinc|radiat|" \
+                   r"hollin|soot|propagac|spread|microgravedad|microgravity|oxigeno|oxygen|supresi|suppress|" \
                    r"gota|droplet|oxigen|oxygen|nasa|experiment|prueba|ensayo|test|material|flex|cfi|bass|saffire"
 
 VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X changes")
@@ -59,7 +60,8 @@ VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X 
 }
 
 INTENT_RULES: list[tuple[str, str]] = [   # order matters: first match wins
-    ("risk", r"riesgo de (?:la|esta|una) atmosfera|atmosfera (?:de (?:la )?cabina|de exploracion|del habitat)|es segur[ao]|"
+    ("risk", r"riesgo de (?:la|esta|una) atmosfera|atmosfera (?:de (?:la )?(?:cabina|iss|estacion)|de exploracion|del habitat)|es segur[ao]|"
+             r"(?:que tan |cuan )?(?:riesgos[ao]|peligros[ao]) (?:es|seria) (?:la|esta|una) (?:atmosfera|cabina)|"
              r"alerta|alarma|semaforo|cabin atmosphere|exploration atmosphere|habitat atmosphere|is (?:it|this) safe|early warning|"
              r"risk (?:of|for) (?:this|the|a) (?:atmosphere|cabin)|que tan peligros|how dangerous"),
     ("scenario", r"que pasa(?:ria)? si|que pasaria con|y si (?:sub|baj|aument|reduc|pong|agreg)|what if|what happens if|si (?:subo|bajo|aumento|reduzco)|"
@@ -200,7 +202,8 @@ def understand(text: str) -> Understanding:
     if intent in ("explain_doc", "predict") and variable and not has_numbers and re.search(
             r"\b(mas|menos|more|less|enriquecid\w*|enriched|aument\w*|reduc\w*|sub\w+|baj\w+|increas\w*|decreas\w*|"
             r"rich|alto|alta|bajo|baja|high|low|cuesta|aguanta|dura|influ\w*|afect\w*|lower\w*|rais\w*|help\w*|"
-            r"conviene|en vez de|instead of|better|mejor|grandes?|chic[ao]s?|big\w*|small\w*|large\w*)\b", t):
+            r"conviene|en vez de|instead of|better|mejor|grandes?|chic[ao]s?|big\w*|small\w*|large\w*|"
+            r"ayuda\w*|sirve\w*|favorec\w*|dificult\w*|facilit\w*|hace que|makes?)\b", t):
         intent = "explain_variable"      # "with more CO2, is it harder for the droplet to keep burning?" -> learned effect
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
