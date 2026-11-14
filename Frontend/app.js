@@ -47,7 +47,7 @@ const hideTip = () => { tip.hidden = true; };
 const row = (k, v) => `<div class="row"><span>${esc(k)}</span><span>${esc(v)}</span></div>`;
 
 // ------------------------------------------------------------------ state
-const state = { tests: [], invs: [], group: "", inv: "", mat: "", selected: null };
+const state = { tests: [], invs: [], group: "", inv: "", mat: "", selected: null, cell: null, cellView: null };
 
 function filtered() {
   return state.tests.filter((r) =>
@@ -76,7 +76,25 @@ function legendItem(c) {
   return `<li>${sw}${esc(c.label)}</li>`;
 }
 
-// ------------------------------------------------------------------ O2 vs pressure map
+// ------------------------------------------------------------------ O2 vs pressure heatmap
+// One cell = a range of oxygen x a range of pressure. Colour = share of the tests with a known
+// outcome that self-extinguished; strength = how many tests the cell holds; empty cell = NASA
+// has no test there (that is the point of the map: where the evidence ends).
+const O2_BIN = 0.025, P_BINS = 16;
+
+const cellKey = (i, j) => `${i}:${j}`;
+const mixColor = (frac) => `color-mix(in srgb, var(--out-ext) ${Math.round(frac * 100)}%, var(--out-burn))`;
+
+function legendMap() {
+  return [
+    `<li><span class="grad"></span>Mostly kept burning → mostly self-extinguished</li>`,
+    `<li><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--out-other)" opacity=".6"/></svg>Only other / no outcome</li>`,
+    `<li><svg width="12" height="12"><rect width="12" height="12" rx="2" fill="var(--grid)" opacity=".6"/></svg>No NASA test</li>`,
+    `<li>Stronger colour = more tests</li>`,
+    `<li><svg width="12" height="12"><path d="M1 6H11M6 1V11" stroke="var(--ref)" stroke-width="2"/></svg>Reference atmosphere</li>`,
+  ].join("");
+}
+
 function renderMap(tests) {
   const box = $("#chart-map");
   box.innerHTML = "";
@@ -84,112 +102,129 @@ function renderMap(tests) {
   const pts = valid.filter((r) => r.o2_frac != null && r.pressure_kpa != null);
   const missing = tests.length - pts.length;
   $("#note-map").textContent = (missing ? `${missing} test(s) in this filter have no O2 or pressure (e.g. BASS, SAFFIRE, SPICE) or are flagged invalid, and are not plotted. ` : "") +
-    "For inverse flames (CFI-G, Flame Design) O2 is the burner jet, not the ambient.";
+    "For inverse flames (CFI-G, Flame Design) O2 is the burner jet, not the ambient. Click a cell to list its tests.";
   if (!pts.length) {
     box.innerHTML = `<p class="empty">No test in this filter reports both O2 and pressure. Solids (BASS, SAFFIRE) and smoke (SAME) ran at cabin pressure: see their outcomes below.</p>`;
     return;
   }
 
-  // Drawn at the container's real width so text stays at 11–12 px.
-  const W = Math.max(300, box.clientWidth), H = W < 560 ? 420 : 560;
+  // Drawn at the container's real width so text stays at 11-12 px.
+  const W = Math.max(300, box.clientWidth), H = W < 560 ? 400 : 540;
   const m = { t: 14, r: 20, b: 48, l: W < 560 ? 48 : 58 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const xMax = Math.max(0.4, ...pts.map((r) => r.o2_frac)) * 1.05;
-  // Pressure on a log axis: most tests sit at 70-220 kPa and would otherwise pile up in one band.
-  const yMin = Math.min(40, ...pts.map((r) => r.pressure_kpa)) * 0.9;
-  const yMax = Math.max(150, ...pts.map((r) => r.pressure_kpa)) * 1.15;
-  const lg = Math.log(yMax / yMin);
+  const nx = Math.ceil((Math.max(0.4, ...pts.map((r) => r.o2_frac)) + 1e-9) / O2_BIN);
+  const xMax = nx * O2_BIN;
+  const pMin = Math.min(40, ...pts.map((r) => r.pressure_kpa)) * 0.99;
+  const pMax = Math.max(600, ...pts.map((r) => r.pressure_kpa)) * 1.001;
+  const lg = Math.log(pMax / pMin), ratio = Math.exp(lg / P_BINS);   // pressure bins are equal on a log axis
+  const cw = iw / nx, ch = ih / P_BINS;
   const x = (v) => m.l + (v / xMax) * iw;
-  const y = (v) => m.t + ih - (Math.log(v / yMin) / lg) * ih;
+  const y = (v) => m.t + ih - (Math.log(v / pMin) / lg) * ih;
+  const edge = (j) => pMin * Math.pow(ratio, j);
 
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Scatter plot of tests: oxygen mole fraction against pressure, colored by outcome" }, box);
-  const step = xMax > 0.6 ? (W < 560 ? 0.2 : 0.1) : 0.05;
-  for (let v = 0; v <= xMax + 1e-9; v += step) {
-    el("line", { class: "gridline", x1: x(v), x2: x(v), y1: m.t, y2: m.t + ih }, svg);
+  const cells = new Map();
+  for (const r of pts) {
+    const i = Math.min(nx - 1, Math.floor(r.o2_frac / O2_BIN + 1e-9));
+    const j = Math.min(P_BINS - 1, Math.max(0, Math.floor(Math.log(r.pressure_kpa / pMin) / Math.log(ratio))));
+    const k = cellKey(i, j);
+    if (!cells.has(k)) cells.set(k, { i, j, tests: [], ext: 0, burn: 0, other: 0 });
+    const c = cells.get(k);
+    c.tests.push(r);
+    c[classOf(r).key]++;
+  }
+  const maxN = Math.max(...[...cells.values()].map((c) => c.tests.length));
+  const strength = (n) => Math.log(1 + n) / Math.log(1 + maxN);
+
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img", "aria-label": "Heat map of tests: oxygen mole fraction against pressure; colour is the share that self-extinguished" }, box);
+
+  // Background: every cell of the grid, so empty cells (no NASA test) are visible.
+  for (let i = 0; i < nx; i++) for (let j = 0; j < P_BINS; j++) {
+    if (cells.has(cellKey(i, j))) continue;
+    el("rect", { x: m.l + i * cw + 1, y: m.t + ih - (j + 1) * ch + 1, width: cw - 2, height: ch - 2, rx: 3, fill: "var(--grid)", opacity: 0.45 }, svg);
+  }
+
+  // Axes
+  for (let v = 0; v <= xMax + 1e-9; v += W < 560 ? 0.2 : 0.1) {
     el("text", { x: x(v), y: m.t + ih + 16, "text-anchor": "middle" }, svg).textContent = `${Math.round(v * 100)} %`;
   }
-  for (const v of [40, 50, 75, 100, 150, 200, 300, 500, 750]) {
-    if (v < yMin || v > yMax) continue;
-    el("line", { class: "gridline", x1: m.l, x2: m.l + iw, y1: y(v), y2: y(v) }, svg);
+  for (const v of [40, 50, 75, 100, 150, 200, 300, 500]) {
+    if (v < pMin || v > pMax) continue;
     el("text", { x: m.l - 8, y: y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, 0);
   }
-  el("line", { class: "baseline", x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih }, svg);
   el("text", { class: "axis-title", x: m.l + iw / 2, y: H - 8, "text-anchor": "middle" }, svg).textContent = "Oxygen (mole fraction)";
   el("text", { class: "axis-title", transform: `translate(14 ${m.t + ih / 2}) rotate(-90)`, "text-anchor": "middle" }, svg).textContent = "Pressure (kPa, log scale)";
 
-  // Overlap: tests with (nearly) the same conditions land on the same pixel. Group them by
-  // screen cell and fan each group out in a sunflower pattern around its true position,
-  // with the same outcomes side by side, so every test stays visible and clickable.
-  const CELL = 12, SPREAD = 5.2;
-  const rank = { ext: 0, burn: 1, other: 2 };
-  const cells = new Map();
-  for (const r of pts) {
-    const key = `${Math.round(x(r.o2_frac) / CELL)},${Math.round(y(r.pressure_kpa) / CELL)}`;
-    if (!cells.has(key)) cells.set(key, []);
-    cells.get(key).push(r);
+  // Cells with tests
+  const rects = new Map();
+  for (const [k, c] of cells) {
+    const n = c.tests.length, decided = c.ext + c.burn;
+    const s = strength(n);
+    const style = decided
+      ? `fill:${mixColor(c.ext / decided)};opacity:${(0.35 + 0.65 * s).toFixed(2)}`
+      : `fill:var(--out-other);opacity:${(0.25 + 0.4 * s).toFixed(2)}`;
+    const rect = el("rect", { class: "cell", x: m.l + c.i * cw + 1, y: m.t + ih - (c.j + 1) * ch + 1, width: cw - 2, height: ch - 2, rx: 3, style }, svg);
+    if (state.cell === k) rect.classList.add("selected");
+    rects.set(k, rect);
+    if (cw >= 22 && ch >= 20) {
+      el("text", { class: "cell-n", x: m.l + (c.i + 0.5) * cw, y: m.t + ih - (c.j + 0.5) * ch + 4, "text-anchor": "middle", "pointer-events": "none" }, svg).textContent = n;
+    }
   }
-  const dots = [];
-  let fanned = 0;
-  for (const group of cells.values()) {
-    group.sort((a, b) => rank[classOf(a).key] - rank[classOf(b).key] || a.test_id.localeCompare(b.test_id));
-    const cx0 = group.reduce((s, r) => s + x(r.o2_frac), 0) / group.length;
-    const cy0 = group.reduce((s, r) => s + y(r.pressure_kpa), 0) / group.length;
-    if (group.length > 1) fanned += group.length;
-    group.forEach((r, i) => {
-      const a = i * 2.399963, rad = group.length > 1 ? SPREAD * Math.sqrt(i + 0.5) : 0;
-      dots.push({ r, cx: cx0 + rad * Math.cos(a), cy: cy0 + rad * Math.sin(a) });
-    });
-  }
-  // "Other" first (bottom), so meaningful outcomes stay on top.
-  dots.sort((a, b) => (classOf(a.r).key === "other" ? -1 : 0) - (classOf(b.r).key === "other" ? -1 : 0));
-  for (const { r, cx, cy } of dots) {
-    const c = classOf(r);
-    const attrs = c.hollow
-      ? { fill: "var(--surface)", stroke: c.color, "stroke-width": 1.5, r: 3.4 }
-      : { fill: c.color, stroke: "var(--surface)", "stroke-width": 1, r: 3.8 };
-    const d = el("circle", { class: "dot", cx, cy, ...attrs }, svg);
-    d.dataset.id = r.test_id;
-    if (state.selected === r.test_id) d.classList.add("selected");
-  }
-  if (fanned) $("#note-map").textContent += " Tests with (nearly) identical conditions are fanned out in a cluster; the centre of each cluster is the real value.";
 
   for (const ref of REFERENCES) {
-    if (ref.o2 > xMax || ref.p > yMax) continue;
+    if (ref.o2 > xMax || ref.p > pMax || ref.p < pMin) continue;
     const cx = x(ref.o2), cy = y(ref.p);
-    el("path", { d: `M${cx - 7} ${cy}H${cx + 7}M${cx} ${cy - 7}V${cy + 7}`, stroke: "var(--ref)", "stroke-width": 2, "pointer-events": "none" }, svg);
+    el("path", { d: `M${cx - 8} ${cy}H${cx + 8}M${cx} ${cy - 8}V${cy + 8}`, stroke: "var(--ref)", "stroke-width": 2.5, "pointer-events": "none" }, svg);
     const right = cx < m.l + iw * 0.7;
-    el("text", { class: "ref-label", x: cx + (right ? 10 : -10), y: cy - 8, "text-anchor": right ? "start" : "end", "pointer-events": "none" }, svg).textContent = ref.label;
+    el("text", { class: "ref-label", x: cx + (right ? 12 : -12), y: cy - 10, "text-anchor": right ? "start" : "end", "pointer-events": "none" }, svg).textContent = ref.label;
   }
 
-  // Hit target: the dot nearest to the pointer within 18 px, larger than the mark.
-  const toLocal = (ev) => {
+  // Pointer -> cell (the grid is regular, so no search is needed).
+  const locate = (ev) => {
     const pt = svg.createSVGPoint();
     pt.x = ev.clientX; pt.y = ev.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    if (p.x < m.l || p.x > m.l + iw || p.y < m.t || p.y > m.t + ih) return null;
+    const i = Math.min(nx - 1, Math.floor((p.x - m.l) / cw));
+    const j = Math.min(P_BINS - 1, Math.floor((m.t + ih - p.y) / ch));
+    return { i, j, key: cellKey(i, j), cell: cells.get(cellKey(i, j)) };
   };
-  const nearest = (ev) => {
-    const p = toLocal(ev);
-    let best = null, bd = 9 * (W / svg.getBoundingClientRect().width);
-    for (const d of dots) {
-      const dist = Math.hypot(d.cx - p.x, d.cy - p.y);
-      if (dist < bd) { bd = dist; best = d; }
-    }
-    return best;
-  };
+  const ranges = (i, j) => ({ o2: `${fmt(i * O2_BIN * 100, 1)}–${fmt((i + 1) * O2_BIN * 100, 1)} %`, p: `${fmtAuto(edge(j))}–${fmtAuto(edge(j + 1))} kPa` });
   svg.addEventListener("mousemove", (ev) => {
-    const d = nearest(ev);
-    svg.style.cursor = d ? "pointer" : "default";
-    if (!d) return hideTip();
-    const r = d.r;
-    showTip(`<b>${esc(r.acronym)} · ${esc(r.test_id)}</b>` +
-      row("Outcome", r.outcome_label + (r.outcome_status === "provisional" ? " (provisional)" : "")) +
-      row("Material", r.material ?? "—") +
-      row("O2", pct(r.o2_frac)) + row("Pressure", `${fmtAuto(r.pressure_kpa)} kPa`) +
-      (r.burn_time_s != null ? row("Burn time", `${fmt(r.burn_time_s, 1)} s`) : "") +
-      (r.flame_type ? row("Flame", r.flame_type) : ""), ev.clientX, ev.clientY);
+    const h = locate(ev);
+    svg.style.cursor = h?.cell ? "pointer" : "default";
+    if (!h) return hideTip();
+    const rg = ranges(h.i, h.j);
+    if (!h.cell) return showTip(`<b>No NASA test here</b>` + row("Oxygen", rg.o2) + row("Pressure", rg.p), ev.clientX, ev.clientY);
+    const c = h.cell, acr = [...new Set(c.tests.map((r) => r.acronym))];
+    showTip(`<b>${c.tests.length} test${c.tests.length > 1 ? "s" : ""}</b>` + row("Oxygen", rg.o2) + row("Pressure", rg.p) +
+      row("Self-extinguished", c.ext) + row("Kept burning", c.burn) + row("Other / no outcome", c.other) +
+      row("Experiments", acr.slice(0, 3).join(", ") + (acr.length > 3 ? ` +${acr.length - 3}` : "")), ev.clientX, ev.clientY);
   });
   svg.addEventListener("mouseleave", hideTip);
-  svg.addEventListener("click", (ev) => { const d = nearest(ev); if (d) selectTest(d.r); });
+  svg.addEventListener("click", (ev) => {
+    const h = locate(ev);
+    if (!h?.cell) return;
+    rects.forEach((r) => r.classList.remove("selected"));
+    rects.get(h.key).classList.add("selected");
+    showCell(h.cell, h.key, ranges(h.i, h.j));
+  });
+}
+
+// List of the tests of one cell, in the detail card; pick one to see its measurements.
+function showCell(c, key, rg) {
+  state.cell = key;
+  state.cellView = { c, key, rg };
+  state.selected = null;
+  $("#detail-card").hidden = false;
+  $("#detail-sub").textContent = `Oxygen ${rg.o2} · pressure ${rg.p} · ${c.tests.length} test${c.tests.length > 1 ? "s" : ""}`;
+  const order = { ext: 0, burn: 1, other: 2 };
+  const list = [...c.tests].sort((a, b) => order[classOf(a).key] - order[classOf(b).key] || a.test_id.localeCompare(b.test_id));
+  $("#detail").innerHTML = `<ul class="cell-list">${list.map((r) =>
+    `<li><button type="button" data-id="${esc(r.test_id)}"><span class="swatch" style="background:${classOf(r).hollow ? "transparent" : classOf(r).color};border-color:${classOf(r).color}"></span>` +
+    `<b>${esc(r.acronym)}</b> ${esc(r.test_id)}<span class="meta">${esc(r.outcome_label)}${r.material ? " · " + esc(r.material) : ""}</span></button></li>`).join("")}</ul>`;
+  $("#detail").querySelectorAll("button[data-id]").forEach((b) =>
+    b.addEventListener("click", () => selectTest(c.tests.find((r) => r.test_id === b.dataset.id))));
+  $("#detail-card").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 // ------------------------------------------------------------------ bars by experiment
@@ -245,8 +280,6 @@ function renderBars(tests) {
 // ------------------------------------------------------------------ detail
 async function selectTest(r) {
   state.selected = r.test_id;
-  document.querySelectorAll(".dot.selected").forEach((n) => n.classList.remove("selected"));
-  document.querySelector(`.dot[data-id="${CSS.escape(r.test_id)}"]`)?.classList.add("selected");
   $("#detail-sub").textContent = `${r.acronym} · ${r.test_id}`;
   $("#detail-card").hidden = false;
   const [ms, steps] = await Promise.all([getMeasurements(r.test_id), getSteps(r.test_id)]);
@@ -261,13 +294,15 @@ async function selectTest(r) {
     return m.value_text;
   };
   const flags = (r.quality_flags || []).filter((f) => f !== "outcome_not_in_table");
-  $("#detail").innerHTML =
+  const back = state.cellView ? `<button type="button" class="back" id="back-cell">← All ${state.cellView.c.tests.length} tests in this cell</button>` : "";
+  $("#detail").innerHTML = back +
     `<dl>${fields.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` +
     `<h3>Measurements</h3><dl>${ms.map((m) => `<dt>${esc(m.variable_label)}${m.measured_or_calculated === "calculated" ? " (calc.)" : ""}</dt><dd>${esc(value(m))}${
       m.flag && m.flag !== "approx" ? ` <span class="pill">${esc(m.flag)}</span>` : ""}</dd>`).join("")}</dl>` +
     (steps.length ? `<h3>Flow sequence</h3><p class="flags">${esc(steps.map((s) => s.flow_cm_s ?? s.note).join(" → "))} cm/s · “${esc(steps[0].raw)}”</p>` : "") +
     (flags.length ? `<p class="flags">Quality flags: ${esc(flags.join(", "))}</p>` : "") +
     `<p class="flags">Source: <a href="${esc(r.doi_url)}" target="_blank" rel="noopener">${esc(r.doi_url)}</a> · ${esc(r.source_file)}, row ${r.source_row}</p>`;
+  $("#back-cell")?.addEventListener("click", () => showCell(state.cellView.c, state.cellView.key, state.cellView.rg));
   $("#detail-card").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -346,7 +381,7 @@ function render() {
 }
 
 for (const [id, key] of [["#f-group", "group"], ["#f-inv", "inv"], ["#f-mat", "mat"]]) {
-  $(id).addEventListener("change", (e) => { state[key] = e.target.value; refreshFilters(); render(); });
+  $(id).addEventListener("change", (e) => { state[key] = e.target.value; state.cell = null; state.cellView = null; refreshFilters(); render(); });
 }
 
 // ------------------------------------------------------------------ boot
@@ -355,8 +390,7 @@ try {
   const [stats, invs, tests] = await Promise.all([getStats(), getInvestigations(), getTests()]);
   Object.assign(state, { tests, invs });
   renderTiles(stats);
-  $("#legend-map").innerHTML = CLASSES.map(legendItem).join("") +
-    `<li><svg width="12" height="12"><path d="M1 6H11M6 1V11" stroke="var(--ref)" stroke-width="2"/></svg>Reference atmosphere</li>`;
+  $("#legend-map").innerHTML = legendMap();
   $("#legend-bars").innerHTML = CLASSES.map(legendItem).join("");
   renderInvestigations(invs);
   refreshFilters();
