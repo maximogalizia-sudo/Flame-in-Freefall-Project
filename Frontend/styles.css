@@ -200,3 +200,50 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .how dd { margin: 0; min-width: 0; }
 .how dd p, .how dd ul { margin: 0; }
 @media (max-width: 560px) { .how dl { grid-template-columns: 1fr; gap: 0; } .how dd { margin-bottom: 8px; } }
+
+/* ------------------------------------------------------------------ early warning (M8)
+   status colours (good / warning / critical) + gray = "never tested"; always shown with an icon and a label */
+:root { --st-red: #d03b3b; --st-yellow: #fab219; --st-green: #0ca30c; --st-gray: #898781; }
+.ew { margin-bottom: 28px; }
+.ew-layout { display: grid; grid-template-columns: minmax(240px, 320px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .ew-layout { grid-template-columns: minmax(0, 1fr); } }
+.ew-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; font-size: 13px; }
+.ew-controls { display: grid; gap: 14px; }
+.ew-slider { display: grid; gap: 4px; font-size: 13px; color: var(--ink-2); }
+.ew-slider-head { display: flex; justify-content: space-between; }
+.ew-slider output { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.ew-slider input { width: 100%; accent-color: var(--accent); }
+.ew-overall { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--page); }
+.ew-light { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; color: #fff; background: var(--st-gray); }
+.ew-overall.ew-red .ew-light { background: var(--st-red); }
+.ew-overall.ew-yellow .ew-light { background: var(--st-yellow); color: #0b0b0b; }
+.ew-overall.ew-green .ew-light { background: var(--st-green); }
+.ew-level { font-weight: 600; font-size: 16px; }
+.ew-headline { color: var(--ink-2); font-size: 13px; }
+.ew-disclaimer { margin: 8px 0 12px; font-size: 12px; color: var(--ink-2); border-left: 3px solid var(--axis); padding: 2px 0 2px 8px; }
+.ew-scale { margin-bottom: 6px; }
+.ew-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ew-item { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: grid; gap: 4px; }
+.ew-item-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; font-size: 14px; }
+.ew-chip { font-size: 12px; color: var(--ink-2); display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.ew-chip span { font-size: 11px; }
+.ew-chip.ew-red span { color: var(--st-red); }
+.ew-chip.ew-yellow span { color: var(--st-yellow); }
+.ew-chip.ew-green span { color: var(--st-green); }
+.ew-chip.ew-gray span { color: var(--st-gray); }
+.ew-item-val { display: flex; align-items: center; gap: 10px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.ew-bar { position: relative; flex: 1; max-width: 260px; height: 8px; border-radius: 4px; background: var(--grid); }
+.ew-ci { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: color-mix(in srgb, var(--ink-2) 30%, transparent); }
+.ew-dot { position: absolute; top: -3px; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: var(--ink); }
+.ew-reason { font-size: 12px; color: var(--muted); }
+.ew-model { margin-top: 8px; }
+.ew-whatif { border-top: 1px solid var(--border); margin-top: 18px; padding-top: 14px; }
+.ew-whatif h3 { font-size: 14px; font-weight: 600; margin: 0; }
+.ew-whatif-ctl { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.ew-whatif-ctl label { display: flex; align-items: center; gap: 6px; }
+.chart .ew-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.chart .ew-band { fill: color-mix(in srgb, var(--accent) 18%, transparent); }
+.chart .ew-pt { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart .ew-now { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .ew-nodata { fill: url(#ew-hatch); }
+.section-title { font-size: 18px; font-weight: 600; margin: 0 0 12px; }

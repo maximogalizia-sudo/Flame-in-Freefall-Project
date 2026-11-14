@@ -1,5 +1,6 @@
 import { API_BASE, getInvestigations, getMeasurements, getStats, getSteps, getTests, isOnline } from "./api.js";
 import { setupChat } from "./chat.js";
+import { setupWarning } from "./warning.js";
 
 const SVG = "http://www.w3.org/2000/svg";
 const $ = (sel) => document.querySelector(sel);
@@ -64,7 +65,7 @@ function renderTiles(s) {
     [fmt(s.n_tests, 0), "tests loaded"],
     [fmt(s.n_tests_with_outcome, 0), "tests with a flame outcome"],
     [s.n_log_entries, "operations-day and log records"],
-    [`${s.n_tables_mapped} / ${s.n_tables_total}`, "experimental tables mapped"],
+    [s.n_tables_mapped, `experimental tables from ${s.n_investigations} investigations`],
     [s.n_documents, "documents for the search service"],
   ];
   $("#tiles").innerHTML = tiles.map(([v, l]) => `<div class="tile"><div class="v">${esc(v)}</div><div class="l">${esc(l)}</div></div>`).join("");
@@ -356,6 +357,7 @@ for (const [id, key] of [["#f-group", "group"], ["#f-inv", "inv"], ["#f-mat", "m
 // The chat does not need the dashboard data: start it first, so a question sent while the charts load is not
 // submitted as a plain form (which would reload the page and lose ?api=).
 setupChat();
+setupWarning();
 try {
   $("#mode").textContent = isOnline() ? `Live API · ${new URL(API_BASE).host}` : "Offline data";
   const [stats, invs, tests] = await Promise.all([getStats(), getInvestigations(), getTests()]);

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flame in Freefall</title>
-  <meta name="description" content="NASA microgravity combustion experiments, curated for spacecraft fire safety">
+  <meta name="description" content="Early-warning fire risk indicator and scenario explorer from NASA microgravity combustion experiments">
   <!-- Backend API base URL, set at deploy time (empty = offline mode on static JSON). -->
   <meta name="flame-api" content="https://api-production-9c5980b0.up.railway.app">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c2 6 9 9 9 17a9 9 0 0 1-18 0c0-5 3-7 4-11 1 3 3 4 3 4 0-4 1-7 2-10z' fill='%23eb6834'/%3E%3C/svg%3E">
@@ -15,12 +15,43 @@
     <div>
       <p class="eyebrow">NASA PSI · Combustion Science</p>
       <h1>Flame in Freefall</h1>
-      <p class="lede">How fire behaves without gravity: real tests from the ISS and Cygnus, curated to reason about fire safety for missions to the Moon and Mars.</p>
+      <p class="lede">Early-warning risk indicator, scenario explorer and phenomenon explanations from NASA microgravity fire experiments — with an assistant that never invents data.</p>
     </div>
     <span class="mode" id="mode"></span>
   </header>
 
   <main>
+    <section class="card ew" id="ew" aria-labelledby="t-ew">
+      <header class="card-head">
+        <div>
+          <h2 id="t-ew">Early warning</h2>
+          <p class="sub">Set a cabin or habitat atmosphere. For each kind of fire NASA studied in microgravity, the indicator says whether flames there tended to keep burning or to go out, and where NASA never tested.</p>
+        </div>
+      </header>
+      <div class="ew-layout">
+        <div class="ew-side">
+          <div class="ew-presets" id="ew-presets" aria-label="Reference atmospheres"></div>
+          <div class="ew-controls" id="ew-controls"></div>
+        </div>
+        <div class="ew-result" id="ew-result" aria-live="polite"><p class="muted">Loading…</p></div>
+      </div>
+      <div class="ew-whatif">
+        <header class="card-head">
+          <div>
+            <h3>What if?</h3>
+            <p class="sub">Vary one setting, keep the rest of your atmosphere. Hatched = NASA never tested it: no estimate.</p>
+          </div>
+          <div class="ew-whatif-ctl">
+            <label>Fire <select id="ew-scn"></select></label>
+            <label>Vary <select id="ew-var"></select></label>
+          </div>
+        </header>
+        <div class="chart" id="ew-sweep-chart"></div>
+        <p class="note" id="ew-sweep-note"></p>
+      </div>
+    </section>
+
+    <h2 class="section-title">Explore the NASA data</h2>
     <section class="tiles" id="tiles" aria-label="Summary"></section>
 
     <section class="filters" aria-label="Filters">

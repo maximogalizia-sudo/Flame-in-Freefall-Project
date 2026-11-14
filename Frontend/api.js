@@ -41,6 +41,16 @@ export async function getSteps(testId) {
   return (await offline("test_steps.json")).filter((s) => s.test_id === testId);
 }
 
+// Early warning (contract v3): POST /risk for one atmosphere, POST /sweep to vary one input. Fast (no LLM).
+const postJSON = (path, body, signal) => getJSON(`${API_BASE}${path}`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(body),
+  signal,
+});
+export const getRisk = (atmosphere, signal) => postJSON("/risk", atmosphere, signal);
+export const getSweep = (req, signal) => postJSON("/sweep", req, signal);
+
 // POST /ask. `history` = previous turns [{role: "user"|"assistant", text}] (the API accepts up to 10).
 // The assistant service can take up to 90 s, so the browser waits a little longer than the API does.
 export async function ask(text, history = [], lang) {
