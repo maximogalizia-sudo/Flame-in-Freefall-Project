@@ -1,10 +1,11 @@
 # The API image is built from the repo root (Backend/Dockerfile). Upload only what it needs:
 # Backend/api, Backend/pipeline, Backend/sql, Backend/requirements.txt, flame/, models/, data/processed/,
-# tests/test_flame_models.py.
+# tests/test_flame_models.py, RAG/sql/, RAG/index/.
 .git/
 .env
 Frontend/
-RAG/
+RAG/.venv/
+RAG/*.py
 docs/
 notebooks/
 tools/

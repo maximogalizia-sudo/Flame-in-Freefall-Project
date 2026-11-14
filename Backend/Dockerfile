@@ -7,13 +7,22 @@
 FROM python:3.12-slim
 
 WORKDIR /app
-COPY Backend/requirements.txt .
+COPY Backend/requirements.txt Backend/requirements-rag.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+# Query embeddings for /rag/search: CPU-only torch, then the embedding model baked into the image (no download at start)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu  && pip install --no-cache-dir -r requirements-rag.txt
+ENV HF_HOME=/app/hf
+RUN python -c "from sentence_transformers import SentenceTransformer as S; S('Qwen/Qwen3-Embedding-0.6B', device='cpu')"
+ENV HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false
 
 # LC's models: package, JSON models and curated tables (flame.models resolves them relative to /app)
 COPY flame ./flame
 COPY models ./models
 COPY data/processed ./data/processed
+
+# Document index (built offline by RAG/build_index.py) and the pgvector schema
+COPY RAG/sql ./rag/sql
+COPY RAG/index ./rag/index
 
 COPY Backend/api ./api
 COPY Backend/pipeline ./pipeline
@@ -25,6 +34,6 @@ RUN python -m pytest -q -p no:cacheprovider tests/test_flame_models.py && rm -rf
 
 ENV PORT=8000
 EXPOSE 8000
-# On every start, reload LC's curated tables from the parquet files shipped in this image, so that
-# /tests/search and flame.models always read the same data. If the load fails, the API still starts.
-CMD ["sh", "-c", "python -m pipeline.load_curated || echo 'WARNING: curated tables not loaded'; uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]
+# On every start, reload LC's curated tables and the document index shipped in this image, so that /tests/search,
+# /rag/search and flame.models always read the same data. If a load fails, the API still starts and logs it.
+CMD ["sh", "-c", "python -m pipeline.load_curated || echo 'WARNING: curated tables not loaded'; python -m pipeline.load_rag || echo 'WARNING: rag index not loaded'; uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]

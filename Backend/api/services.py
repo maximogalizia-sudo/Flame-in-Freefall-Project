@@ -1,14 +1,15 @@
-"""HTTPS clients for the two external services the backend calls when needed.
+"""HTTPS client for the assistant (LLM) service, built and operated by LC (docs/PLAN_ASISTENTE.md, M4).
 
-  RAG service  POST {RAG_SERVICE_URL}/search  {"query", "psi_ids", "k"}  -> {"results": [Citation...]}
-  LLM service  POST {LLM_SERVICE_URL}/parse   {"text"}                    -> {"conditions": {...}, "intent": "..."}
+  POST {LLM_SERVICE_URL}/answer   {"text", "history", "lang"}  ->  Answer (contract v2)
+  GET  {LLM_SERVICE_URL}/health
 
-Per D2 the LLM is only an optional fallback to translate the question into
-`Conditions` + intent: it never sees data and never writes numbers. Every response
-is validated against the contract; anything invalid is discarded.
+The service plans, calls this API's tools (/predict /coverage /explain /tests/search /rag/search, with
+ASSISTANT_API_TOKEN), writes the answer only from the tool outputs and verifies it. Here we only forward the
+question with `Authorization: Bearer <LLM_SERVICE_TOKEN>` and validate what comes back against the contract.
 
-Both clients degrade gracefully: if a service is not configured, unreachable or
-returns garbage, they return None and the API answers without it.
+The client degrades gracefully: if the service is not configured, unreachable, slow (> LLM_TIMEOUT_S, 90 s by
+default) or answers something that is not a valid `Answer`, `answer()` returns None and /ask falls back to the
+template answer.
 """
 from __future__ import annotations
 
@@ -18,7 +19,7 @@ from urllib.parse import urlparse
 import httpx
 from pydantic import ValidationError
 
-from .contracts import Citation, Conditions
+from .contracts import Answer, AskRequest
 from .settings import get_settings
 
 log = logging.getLogger("flame.services")
@@ -69,40 +70,20 @@ class ExternalService:
             return "unreachable"
 
 
-class RagClient(ExternalService):
-    name = "rag"
-
-    def search(self, query: str, psi_ids: list[str] | None = None, k: int = 3) -> list[Citation] | None:
-        if not self.configured:
-            return None
-        try:
-            data = self._post("/search", {"query": query, "psi_ids": psi_ids or [], "k": k})
-            return [Citation(**c) for c in data.get("results", [])][:k]
-        except (httpx.HTTPError, ValueError, ValidationError, TypeError) as e:
-            log.warning("rag search failed: %s", e)
-            return None
-
-
 class LlmClient(ExternalService):
     name = "llm"
 
-    def parse(self, text: str) -> tuple[Conditions, str] | None:
-        """Fallback input translation only (D2). Returns None on any problem."""
+    def answer(self, req: AskRequest) -> Answer | None:
+        """The assistant's answer, or None on any problem (not configured, timeout, HTTP error, invalid body)."""
         if not self.configured:
             return None
         try:
-            data = self._post("/parse", {"text": text})
-            return Conditions(**data.get("conditions", {})), str(data.get("intent", "will_it_burn"))
-        except (httpx.HTTPError, ValueError, ValidationError, TypeError) as e:
-            log.warning("llm parse failed: %s", e)
+            return Answer.model_validate(self._post("/answer", req.model_dump(exclude_none=True)))
+        except (httpx.HTTPError, ValueError, ValidationError, TypeError) as e:   # ValidationError is a ValueError
+            log.warning("llm answer failed: %s: %s", type(e).__name__, str(e)[:300])
             return None
-
-
-def get_rag() -> RagClient:
-    s = get_settings()
-    return RagClient(s.rag_service_url, s.rag_service_token, s.service_timeout_s)
 
 
 def get_llm() -> LlmClient:
     s = get_settings()
-    return LlmClient(s.llm_service_url, s.llm_service_token, s.service_timeout_s)
+    return LlmClient(s.llm_service_url, s.llm_service_token, s.llm_timeout_s)

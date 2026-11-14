@@ -17,7 +17,7 @@ Claude (Anthropic), used through Claude Code, helped write:
 |---|---|
 | Data pipeline for the PSI CSV files (ingestion, typing, mapping, loading) | `Backend/pipeline/` |
 | Database schema and views | `Backend/sql/`, `RAG/sql/` |
-| Backend API, service clients and placeholder model functions | `Backend/api/` |
+| Backend API, assistant client, tool endpoints (tabular search, report search) and the loading of the curated tables and the document index | `Backend/api/`, `Backend/pipeline/`, `RAG/build_index.py` |
 | Tests and local validation | `Backend/tests/`, `Backend/tools/pglite_check.mjs` |
 | Dashboard | `Frontend/` |
 
@@ -34,10 +34,18 @@ Commits made with the assistant carry a `Co-Authored-By` line.
 
 ## AI inside the product
 
-- The answers in "Ask the data" are built from templates over the numbers returned by
-  the backend. No language model writes them.
-- An LLM service may optionally be used **only** to translate a question into
-  structured conditions when the built-in parser fails (decision D2). It never sees
-  the data. See `docs/SERVICES.md`.
-- The current model functions in `Backend/api/modeling.py` are **placeholders**
-  (nearest-neighbour baseline). They will be replaced by the interpretable models.
+- **Interpretable models** (logistic regression and Cox survival models, stored as JSON,
+  `flame/`, `models/`) estimate probabilities. They answer only where NASA ran clean tests
+  with the same combination of conditions; elsewhere they say "no data" and why.
+- **Document search**: reports are split into pages and embedded with an open-source
+  embedding model (`Qwen/Qwen3-Embedding-0.6B`); a hybrid search (vector + full text + rank
+  fusion) finds the passages. It only finds text; it does not write.
+- **Assistant (language model)**: an open-source language model run by the team writes the
+  chat answer **only from what the tools return** (the models, the curated NASA tables and
+  the retrieved report passages). It labels each answer as answer / partial / not enough
+  data, cites its sources, and a verifier checks that every number in the text appears in a
+  tool output. It never receives database credentials and never writes SQL. The UI shows
+  the tools used and the verifier result for each answer ("See how it was answered").
+- If the assistant is not available, the chat answers with a fixed template built from the
+  same models, marked as a partial answer.
+- Details of the services: `docs/SERVICES.md`.

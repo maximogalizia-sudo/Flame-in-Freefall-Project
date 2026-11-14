@@ -1,30 +1,38 @@
 """Flame in Freefall API (docs/DOCUMENTO_TECNICO.md §7.3).
 
-The backend does all the work: it serves the curated database and orchestrates the
-model functions. The RAG and LLM services are separate and called over HTTPS only
-when needed (see services.py).
+The backend serves the curated database, LC's models (flame) and the assistant's tools:
+/predict /coverage /explain (models), /tests/search (tabular) and /rag/search (hybrid search
+over the NASA reports, pgvector + full text + RRF). /ask forwards to the assistant (LLM) service.
 
 Run locally (from the repo root, so that `flame` is importable):
     Backend/.venv/Scripts/python -m uvicorn --app-dir Backend api.main:app --reload --port 8000
 """
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import db, modeling, tabular
+from . import db, modeling, rag, tabular
 from .auth import require_assistant_token
-from .contracts import (Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction, TestsSearchRequest,
-                        TestsSearchResponse)
-from .services import get_llm, get_rag
+from .contracts import (Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction, RagSearchRequest,
+                        RagSearchResponse, TestsSearchRequest, TestsSearchResponse)
+from .services import get_llm
 from .settings import get_settings
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    rag.warm_up()          # load the query-embedding model in the background
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Flame in Freefall API",
-    version="0.2.0",
+    version="0.3.0",
     description="NASA PSI microgravity combustion data, curated for fire-safety insights.",
 )
 app.add_middleware(
@@ -33,6 +41,8 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+
 
 Family = Literal["flex", "solids", "cfig"]
 FamilyGroup = Literal["droplet", "gas", "solid", "aerosol", "ground"]
@@ -43,7 +53,7 @@ FamilyGroup = Literal["droplet", "gas", "solid", "aerosol", "ground"]
 def health() -> dict:
     database = db.ping()
     return {"status": "ok" if database else "degraded", "database": "ok" if database else "down",
-            "services": {"rag": get_rag().health(), "llm": get_llm().health()}}
+            "services": {"rag": rag.status(), "llm": get_llm().health()}}
 
 
 # ---------------------------------------------------------------- data
@@ -160,17 +170,26 @@ def coverage(c: Conditions) -> list[EvidenceItem]:
 
 @app.post("/ask", response_model=Answer)
 def ask(req: AskRequest) -> Answer:
-    return modeling.template_answer(req.text)
+    """Forward to the assistant service ({LLM_SERVICE_URL}/answer); if it is off or fails, answer with the template."""
+    return get_llm().answer(req) or modeling.template_answer(req.text)
 
 
-# ---------------------------------------------------------------- documents (RAG service proxy)
+# ---------------------------------------------------------------- assistant tool: document search (M3)
+def _rag_or_503(fn, *args, **kwargs):
+    try:
+        return fn(*args, **kwargs)
+    except RuntimeError as e:                     # embedding model not loaded (yet)
+        raise HTTPException(503, str(e)) from e
+
+
+@app.post("/rag/search", response_model=RagSearchResponse, dependencies=[Depends(require_assistant_token)])
+def rag_search(req: RagSearchRequest) -> RagSearchResponse:
+    """Hybrid search over the indexed NASA reports: top-k vector + top-k full text, fused by RRF (<= 30 candidates)."""
+    return _rag_or_503(rag.search, req)
+
+
 @app.get("/documents/search", response_model=list[Citation])
 def documents_search(q: str = Query(..., min_length=3, max_length=300), psi_id: str | None = None,
                      k: int = Query(5, ge=1, le=10)) -> list[Citation]:
-    rag = get_rag()
-    if not rag.configured:
-        raise HTTPException(503, "The document search service is not configured")
-    results = rag.search(q, psi_ids=[psi_id.upper()] if psi_id else None, k=k)
-    if results is None:
-        raise HTTPException(502, "The document search service did not answer")
-    return results
+    """Same hybrid search, returned as citations (document + pages + snippet + link)."""
+    return _rag_or_503(rag.citations, q, [psi_id] if psi_id else None, k)

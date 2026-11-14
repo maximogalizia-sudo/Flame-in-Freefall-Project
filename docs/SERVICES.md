@@ -1,83 +1,67 @@
-# External services contract
+# Assistant, tools and services contract
 
-The backend does all the work. It owns the curated database and the API that the
-frontend calls. Two capabilities run as **separate services** that the backend calls
-over **HTTPS** only when it needs them:
+Source of truth for every payload: [`flame/contracts.py`](../flame/contracts.py) (contract v2). The backend API
+re-exports it (`Backend/api/contracts.py`); never redefine a model on either side.
 
 ```
-Frontend (Cloudflare Pages) ──HTTPS──► Backend API (FastAPI + Postgres) ──HTTPS──► Document search service ("RAG")
-                                                                     └───HTTPS──► LLM service (optional fallback)
+Frontend (Cloudflare Pages) ──HTTPS──► Backend API (FastAPI + Postgres/pgvector) ──HTTPS──► Assistant (LLM) service
+                                                  ▲                                            │
+                                                  └──────── tool calls (Bearer token) ─────────┘
+                                                    /predict /coverage /explain /tests/search /rag/search
 ```
 
-The frontend never talks to these services, and their URLs and tokens never reach the
-browser. When a service is not configured or does not answer, the backend keeps
-working without it and reports the state in `GET /health`.
+- The **frontend** only talks to the backend API. Service URLs and tokens never reach the browser.
+- The **backend API** owns the data: LC's interpretable models (`flame/`), the curated tables and the document index.
+- The **assistant service** (separate process, operated by LC) plans which tools to call, calls them over HTTPS,
+  reranks the document candidates, writes the answer **only from the tool outputs**, marks it
+  `answer` / `partial` / `abstain` and verifies that every number it wrote appears in a tool output.
+  It never receives database credentials and never writes SQL: it can only call the typed endpoints below.
 
 ## Configuration (backend environment)
 
 | Variable | Meaning |
 |---|---|
-| `RAG_SERVICE_URL` | Base URL of the document search service. Must be `https://` (plain `http://` only for `localhost`) |
-| `RAG_SERVICE_TOKEN` | Sent as `Authorization: Bearer <token>` |
-| `LLM_SERVICE_URL` | Base URL of the LLM service (optional) |
-| `LLM_SERVICE_TOKEN` | Sent as `Authorization: Bearer <token>` |
-| `SERVICE_TIMEOUT_S` | Per-request timeout, default 8 s |
+| `DATABASE_URL` | Postgres with the `vector` extension (pgvector) |
+| `CORS_ORIGINS` | Comma-separated browser origins allowed to call the API (the Cloudflare Pages URLs) |
+| `ASSISTANT_API_TOKEN` | Secret the assistant sends as `Authorization: Bearer …` to `/tests/search` and `/rag/search`. If unset, those two endpoints are open (local development only) |
+| `LLM_SERVICE_URL` | Base URL of the assistant service. `https://` only (plain `http://` is accepted for `localhost`). If unset, `/ask` answers with the template fallback |
+| `LLM_SERVICE_TOKEN` | Secret the API sends as `Authorization: Bearer …` to the assistant service |
+| `LLM_TIMEOUT_S` | How long `/ask` waits for the assistant, default 90 s |
+| `RAG_TORCH_THREADS` | CPU threads used to embed a search query, default 4 |
 
-## Document search service
+## Tool endpoints (called by the assistant)
 
-Semantic search over NASA PSI documents (reports, presentations, papers). It only
-**finds** the paragraph that supports an answer, so it can be cited. It does not draw
-conclusions.
+| Endpoint | Tool | Notes |
+|---|---|---|
+| `POST /predict`, `POST /coverage`, `POST /explain` (also `GET /explain/{family}`) | ML models | `Conditions` in → `Prediction` / `EvidenceItem`. "We don't know" rule by combination: no number outside the tested combinations |
+| `POST /tests/search` | Tabular query | `TestsSearchRequest` → `TestsSearchResponse` over `mart.flex_tests`, `mart.cfig_tests`, `mart.bass_tests`. Whitelisted filters and `group_by` columns per family, values always bound parameters; a filter that does not exist for a family is rejected with `422` |
+| `POST /rag/search` | Document search | `RagSearchRequest` → `RagSearchResponse`: top-k by vector (pgvector, cosine) + top-k by full text, fused with reciprocal-rank fusion (`1/(60+rank)`), up to 30 candidates with both ranks. No reranker here |
 
-`GET /health` → `200` when ready.
+`/tests/search` and `/rag/search` require the bearer token when `ASSISTANT_API_TOKEN` is set.
 
-`POST /search`
+### Document index
 
-```json
-{ "query": "PMMA rod extinction at low flow", "psi_ids": ["PSI-25"], "k": 3 }
-```
+`RAG/build_index.py` (offline) turns the NASA reports into `RAG/index/rag_index.parquet`: page-aware chunks of about
+1,400 characters with 220 of overlap, embedded with `Qwen/Qwen3-Embedding-0.6B` (normalized, 1,024 dimensions,
+documents without instruction, queries with the instruction prefix). `Backend/pipeline/load_rag.py` loads it into
+`rag.document` / `rag.chunk` (schema `RAG/sql/001_rag.sql`) on every container start, skipping the reload when the
+same index is already there. The API embeds each query with the same model on CPU.
 
-Response:
-
-```json
-{
-  "results": [
-    {
-      "doc_id": "PSI-25_Reports_BASS-II_Summary.pdf",
-      "psi_id": "PSI-25",
-      "title": "BASS-II Summary Report",
-      "page_or_section": "p. 14",
-      "snippet": "The flame extinguished when the flow was reduced below ...",
-      "url": "https://psi.nasa.gov/..."
-    }
-  ]
-}
-```
-
-`psi_id` must be the PSI accession (`PSI-25`), which is the shared key with the
-backend database. Each result is validated: an invalid result discards the response.
-
-## LLM service (optional, decision D2)
-
-Only a **fallback to translate the question** into structured conditions when the
-backend's own parser understands nothing. It never sees data, never computes and
-never writes numbers into answers. The answer text is always built from templates
-over the model output.
+## Assistant service contract
 
 `GET /health` → `200` when ready.
 
-`POST /parse`
+`POST /answer`, body = `AskRequest`:
 
 ```json
-{ "text": "Would cotton burn at 34% oxygen in a lunar habitat?" }
+{ "text": "Why did FLEX droplets break up?", "history": [{ "role": "user", "text": "…" }], "lang": "en" }
 ```
 
-Response (validated against `Conditions` in `Backend/api/contracts.py`; out-of-range
-values such as `"o2_frac": 34` are rejected):
+Response = `Answer` (v2): the written `text`, `decision`, `predictions`, `evidence`, `citations`, `tools_used`,
+`verification` (problems found by the verifier, empty = passed), `trace_id`, `assistant_version`.
 
-```json
-{ "conditions": { "family": "solids", "material": "sibal", "o2_frac": 0.34, "gravity_g": 0.165 },
-  "intent": "will_it_burn" }
-```
-
-Intents: `will_it_burn`, `which_variable`, `evidence`, `coverage`.
+`POST /ask` on the backend forwards the body as is, with a 90 s timeout and the bearer token, and validates the
+response against `Answer`. If the service is not configured, does not answer in time, returns an HTTP error or an
+invalid body, `/ask` does not fail: it returns the template answer (conditions read with simple rules, then
+`predict` + `coverage`) with `decision = "partial"` and
+`verification = ["assistant unavailable: template answer"]`.
