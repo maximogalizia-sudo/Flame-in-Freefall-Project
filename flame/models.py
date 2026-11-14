@@ -140,6 +140,9 @@ def predict_flex(c: Conditions) -> list[Prediction]:
     pb, blo, bhi, bcontrib = _logit_predict(mb, x)
     notes = []
     if o2 > 0.24: notes.append('High-O2 zone (above 24 %): little clean evidence, most tests there ended in droplet break-up')
+    if fuel == 'Methanol' and co2 > 0:
+        notes.append('For methanol the CO2 effect cannot be separated from the O2 effect: NASA lowered O2 while raising CO2 '
+                     'in the same tests and methanol went out almost always (model review, notebook 04)')
     if min(sens) < 0.5 < max(sens): notes.append('Counting the interrupted tests differently changes the conclusion: treat the estimate with care')
     nearest_ids = _flex_nearest(same, o2, co2, he)['flex_id'].tolist()
     return [
@@ -208,14 +211,30 @@ def predict_cfig(c: Conditions) -> list[Prediction]:
                       ci_high=round(hi, 3), in_domain=True, out_of_domain=[], contributions=contrib, nearest_tests=nearest,
                       model_version=f"{VERSION}:{m['name']}", assumptions=assumptions,
                       notes=['Contributions are log-hazard: positive = goes out sooner',
-                             'Flames stopped by the operator were counted as "still burning at that time", not as "never goes out"'])]
+                             'Flames stopped by the operator were counted as "still burning at that time", not as "never goes out"']
+                      + (['Moderate confidence: the inverse-flame model ranks flames correctly ~71 % of the time and its high '
+                          'probabilities are less reliable (model review, notebook 04)'] if ft == 'inverse' else []))]
     if ft == 'normal' and c.jet_fuel_frac is not None:
-        mi = model('cfig_ignition')
-        pi, ilo, ihi, icon = _logit_predict(mi, {'log10_jet_fuel_frac': float(np.log10(max(c.jet_fuel_frac, 0.005)))})
-        out.append(Prediction(family='cfig', target='ignition', probability=round(pi, 3), ci_low=round(ilo, 3), ci_high=round(ihi, 3),
-                              in_domain=0.005 <= c.jet_fuel_frac <= 1, out_of_domain=[], contributions=icon, nearest_tests=nearest,
-                              model_version=f"{VERSION}:cfig_ignition", notes=['Depends almost only on how diluted the fuel jet is']))
+        out.append(ignition_evidence(c.jet_fuel_frac, nearest))
     return out
+
+
+IGNITION_BANDS = [(0.0, 0.03, '<= 3 %'), (0.03, 0.06, '3-6 %'), (0.06, 0.2, '6-20 %'), (0.2, 1.0, '> 20 %')]
+
+
+def ignition_evidence(jet_fuel_frac: float, nearest: list[str] | None = None) -> Prediction:
+    """Ignition is answered with NASA's observed shares, not a model (LC, 2026-11-14, model review §3-4):
+    the data show a near threshold that the grouped-CV model could not learn (failures concentrated in two days)."""
+    g = table('cfig_tests'); g = g[g['ign_model']]
+    lines, here = [], None
+    for lo, hi, lab in IGNITION_BANDS:
+        b = g[(g['jet_fuel_frac'] > lo) & (g['jet_fuel_frac'] <= hi)] if lo > 0 else g[g['jet_fuel_frac'] <= hi]
+        txt = f"fuel in the jet {lab}: {int(b['ignited'].sum())} of {len(b)} normal flames lit"
+        lines.append(txt)
+        if (lo < jet_fuel_frac <= hi) or (lo == 0 and jet_fuel_frac <= hi): here = txt
+    return Prediction(family='cfig', target='ignition', probability=None, ci_low=None, ci_high=None, in_domain=True, out_of_domain=[],
+                      contributions={}, nearest_tests=nearest or [], model_version=f'{VERSION}:ignition_evidence',
+                      notes=([f'NASA observed, for your case: {here}'] if here else []) + ['NASA observed shares (no model): ' + '; '.join(lines)])
 
 
 # ----------------------------------------------------------------------------- public API
@@ -261,7 +280,7 @@ def coverage(c: Conditions, k: int = 10) -> list[EvidenceItem]:
 
 
 def explain(family: str) -> dict:
-    names = {'flex': ['flex_main', 'flex_breakup'], 'cfig': ['cfig_selfext_normal', 'cfig_selfext_inverse', 'cfig_ignition']}.get(family, [])
+    names = {'flex': ['flex_main', 'flex_breakup'], 'cfig': ['cfig_selfext_normal', 'cfig_selfext_inverse']}.get(family, [])
     out = {'family': family, 'model_version': VERSION, 'models': []}
     for n in names:
         m = model(n)
@@ -271,6 +290,8 @@ def explain(family: str) -> dict:
                               'coefficients': coef, 'coefficient_units': unit,
                               'input_sd': dict(zip(m['features'], np.round(m['sd'], 4).tolist())),
                               'cv_metrics': m['cv'], 'n': m['n'], 'training_ranges': m.get('training_ranges'), 'data': m.get('data')})
+    if family == 'cfig':
+        out['ignition_evidence'] = ignition_evidence(0.1).notes[-1]
     if family == 'solids':
         s = pd.read_csv(PROC / 'bass_material_summary.csv')
         out['evidence_summary'] = s.to_dict('records')

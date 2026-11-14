@@ -43,3 +43,13 @@ def test_solids_are_evidence_only():
 def test_explain():
     assert explain('flex')['models'][0]['coefficients']
     assert explain('solids')['evidence_summary']
+
+
+def test_ignition_is_evidence_not_model():
+    ig = [p for p in predict(C(fuel='propane', o2_frac=0.21, jet_fuel_frac=0.02)) if p.target == 'ignition'][0]
+    assert ig.probability is None and '0 of 14' in ig.notes[0]
+
+
+def test_notes_for_known_limits():
+    m = predict(C(fuel='methanol', o2_frac=0.18, co2_frac=0.15))[0]
+    assert any('cannot be separated' in n for n in m.notes)
