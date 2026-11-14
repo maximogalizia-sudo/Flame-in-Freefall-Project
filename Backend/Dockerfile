@@ -9,14 +9,12 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY Backend/requirements.txt Backend/requirements-rag.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-# Query embeddings for /rag/search: CPU-only torch, then the embedding model baked into the image (no download at start)
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu  && pip install --no-cache-dir -r requirements-rag.txt
-ENV HF_HOME=/app/hf
-RUN python -c "from sentence_transformers import SentenceTransformer as S; S('Qwen/Qwen3-Embedding-0.6B', device='cpu')"
-ENV HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false
-# The embedding model needs ~2.5 GB of RAM. Railway's trial plan (~512 MB) kills the container while loading it, so
-# query embeddings are OFF by default (text-only /rag/search). On a plan with >= 4 GB set RAG_QUERY_EMBEDDINGS=on.
-ENV RAG_QUERY_EMBEDDINGS=off
+# Query embeddings for /rag/search: fastembed (ONNX, no torch) and BAAI/bge-small-en-v1.5 baked into the image (no
+# download at start). The whole API stays around 300 MB of RAM with the model loaded.
+RUN pip install --no-cache-dir -r requirements-rag.txt
+ENV FASTEMBED_CACHE_PATH=/app/fastembed
+RUN python -c "from fastembed import TextEmbedding as T; T('BAAI/bge-small-en-v1.5')"
+ENV HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false RAG_QUERY_EMBEDDINGS=on
 
 # LC's models: package, JSON models and curated tables (flame.models resolves them relative to /app)
 COPY flame ./flame

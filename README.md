@@ -67,6 +67,7 @@ Validate the SQL without a server (PGlite) and refresh the offline JSON:
 `GET /health` · `/stats` · `/investigations` · `/tests` · `/tests/{test_id}`
 (`/measurements`, `/steps`) · `/log-entries` · `/envelope` · `/data-dictionary` ·
 `POST /predict` · `POST /coverage` · `POST /explain` (and `GET /explain/{family}`) ·
+`POST /risk` · `POST /sweep` · `GET /effects/{variable}` ·
 `POST /tests/search` · `POST /rag/search` · `GET /documents/search` · `POST /ask`.
 Interactive docs at `/docs`.
 
@@ -76,6 +77,11 @@ answer is "no data" with the reasons and the closest real tests. `/ask` forwards
 question to the assistant service and, if it is off or fails, answers with a template
 built from the same models (`decision = "partial"`).
 
+`/risk` (early-warning indicator for one atmosphere), `/sweep` (vary one input) and
+`/effects/{variable}` (how one variable acts) wrap LC's `flame/scenarios.py`. Gray means
+"NASA never tested this": unknown, never safe. The indicator comes from microgravity
+laboratory experiments; it is not a certified fire alarm.
+
 ## Deploy
 
 | Piece | Where | How |
@@ -84,7 +90,7 @@ built from the same models (`decision = "partial"`).
 | Frontend | Cloudflare Pages, project `nasa-dashboard` | `git archive <commit> Frontend` then `wrangler pages deploy Frontend --project-name nasa-dashboard --branch production`. The API URL is the `flame-api` meta tag of `index.html` |
 
 Backend variables (Railway): `DATABASE_URL`, `CORS_ORIGINS`, `ASSISTANT_API_TOKEN`,
-`LLM_SERVICE_URL`, `LLM_SERVICE_TOKEN`, optional `LLM_TIMEOUT_S` and `RAG_QUERY_EMBEDDINGS` (`off` on small plans). See
+`LLM_SERVICE_URL`, `LLM_SERVICE_TOKEN`, optional `LLM_TIMEOUT_S` and `RAG_QUERY_EMBEDDINGS` (`on` by default). See
 [`docs/SERVICES.md`](docs/SERVICES.md). Tokens are never committed.
 
 ## Use of AI

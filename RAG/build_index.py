@@ -11,8 +11,14 @@ Chunking (fixed by the plan): paragraphs packed into ~1,400 characters with ~220
 paragraph when it fits; page_from/page_to are real PDF page numbers (1-based); empty pages and the NASA STI
 Program boilerplate page are skipped. Word files have no pages (page_from/page_to = None).
 
-Embeddings (fixed by the plan): Qwen/Qwen3-Embedding-0.6B, normalized, 1024 dims. Documents are embedded WITHOUT
-an instruction; queries get QUERY_INSTRUCTION (the API uses the same constant, Backend/api/rag.py).
+Embeddings (LC's decision, 2026-11-14): BAAI/bge-small-en-v1.5 through fastembed (ONNX, no torch), normalized,
+384 dims. Documents are embedded WITHOUT a prefix; queries get QUERY_INSTRUCTION, the prefix BGE recommends (the API
+uses the same constant, Backend/api/rag.py). The model and the reports are English-only.
+
+chunk_kind: 'table' when more than 35 % of the words are numbers, or when at least 4 lines exist and half or more of
+them carry 4 numbers or more (LC's rule from assistant/retrieve.py is_table_like, with numbers also counted when
+written ".34" or as dates and times); 'text' otherwise.
+/rag/search leaves the 'table' chunks out: their numbers are answered by /tests/search.
 """
 from __future__ import annotations
 
@@ -35,8 +41,8 @@ DOWNLOADS = ROOT / "Backend" / "descargas"
 CATALOG = ROOT / "Backend" / "psi-combustion" / "catalog" / "psi_combustion_catalog.csv"
 OUT = ROOT / "RAG" / "index"
 
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
-EMBEDDING_DIM = 1024
+EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+EMBEDDING_DIM = 384
 CHUNK_CHARS, OVERLAP_CHARS, MIN_CHUNK_CHARS = 1400, 220, 200
 NTRS = "https://ntrs.nasa.gov/citations/"
 
@@ -178,6 +184,23 @@ def chunk(paragraphs: list[tuple[int | None, str]]) -> list[dict]:
     return chunks
 
 
+# ----------------------------------------------------------------------------- chunk kind
+# a word is a number also when written ".34", or as a date / time ("10/24/09", "15:15:24"): the FLEX test tables are
+# made of them and LC's original pattern missed 16 of those table chunks
+NUMBER_WORD = re.compile(r"[~<>±–-]?(?:\d+(?:[.,]\d+)?|[.,]\d+|\d+[/:]\d+(?:[/:]\d+)?)%?")
+NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
+
+
+def chunk_kind(content: str) -> str:
+    words = content.split()
+    if not words:
+        return "table"
+    num_share = sum(bool(NUMBER_WORD.fullmatch(w)) for w in words) / len(words)
+    lines = [ln for ln in content.splitlines() if ln.strip()]
+    many_nums = sum(len(NUMBER.findall(ln)) >= 4 for ln in lines) / max(len(lines), 1)
+    return "table" if num_share > 0.35 or (len(lines) >= 4 and many_nums >= 0.5) else "text"
+
+
 # ----------------------------------------------------------------------------- main
 def catalog() -> dict[str, dict]:
     with CATALOG.open(encoding="utf-8") as f:
@@ -185,7 +208,7 @@ def catalog() -> dict[str, dict]:
 
 
 def main() -> None:
-    from sentence_transformers import SentenceTransformer   # imported late: the chunking can be checked without torch
+    from fastembed import TextEmbedding   # imported late: the chunking can be checked without the model
 
     cat = catalog()
     rows, docs_meta = [], []
@@ -210,20 +233,22 @@ def main() -> None:
         print(f"{d.accession:8} {len(chunks):4} chunks  {n_pages or '-':>4} pages ({skipped} skipped)  {path.name}")
 
     df = pd.DataFrame(rows)
-    model = SentenceTransformer(EMBEDDING_MODEL, device="cpu", model_kwargs={"dtype": "float32"})   # bf16 is ~50x slower on CPU
-    df["tokens"] = [len(model.tokenizer(t, add_special_tokens=False)["input_ids"]) for t in df["content"]]
+    df["chunk_kind"] = [chunk_kind(t) for t in df["content"]]
+    model = TextEmbedding(EMBEDDING_MODEL)
+    tok = model.model.tokenizer
+    df["tokens"] = [len(tok.encode(t, add_special_tokens=False).ids) for t in df["content"]]
     t0 = time.time()
-    emb = model.encode(df["content"].tolist(), batch_size=8, normalize_embeddings=True, show_progress_bar=True,
-                       convert_to_numpy=True).astype(np.float32)
+    emb = np.array(list(model.embed(df["content"].tolist(), batch_size=32)), dtype=np.float32)
+    emb /= np.linalg.norm(emb, axis=1, keepdims=True)
     assert emb.shape == (len(df), EMBEDDING_DIM), emb.shape
     df["embedding"] = list(emb)
-    print(f"embedded {len(df)} chunks in {time.time() - t0:.0f} s")
+    print(f"embedded {len(df)} chunks in {time.time() - t0:.0f} s; chunk_kind: {df['chunk_kind'].value_counts().to_dict()}")
 
     OUT.mkdir(parents=True, exist_ok=True)
     parquet = OUT / "rag_index.parquet"
     df.to_parquet(parquet, index=False)
     manifest = {"embedding_model": EMBEDDING_MODEL, "embedding_dim": EMBEDDING_DIM, "normalized": True,
-                "document_instruction": None, "chunk_chars": CHUNK_CHARS, "overlap_chars": OVERLAP_CHARS,
+                "document_instruction": None, "n_table_chunks": int((df["chunk_kind"] == "table").sum()), "chunk_chars": CHUNK_CHARS, "overlap_chars": OVERLAP_CHARS,
                 "n_chunks": len(df), "documents": docs_meta,
                 "index_sha256": hashlib.sha256(parquet.read_bytes()).hexdigest()}
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")

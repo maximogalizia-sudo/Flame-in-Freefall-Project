@@ -10,14 +10,16 @@
 
 No reranker here: the assistant service (LC) reranks the candidates.
 
-The query is embedded with the SAME model that built the index (RAG/build_index.py): Qwen3-Embedding-0.6B,
-normalized, with QUERY_INSTRUCTION in front (documents were embedded without it). The model is loaded once,
-in a background thread at startup, so the first search does not pay for it.
+Both channels leave out the chunks marked chunk_kind = 'table' (mostly numbers, see RAG/build_index.py): those
+numbers are answered by /tests/search, and in the search they only added noise.
 
-The model needs ~2.5 GB of RAM (float32). Where that does not fit (Railway trial plan: ~512 MB, the process is
-killed while loading), set RAG_QUERY_EMBEDDINGS=off: /rag/search then runs on the text channel only (every
-candidate has rank_dense = None), which keeps the API up instead of crashing. The same fallback applies if the
-model cannot be loaded for any other reason.
+The query is embedded with the SAME model that built the index (RAG/build_index.py): BAAI/bge-small-en-v1.5 through
+fastembed (ONNX, no torch, ~70 MB on disk), normalized, 384 dims, with QUERY_INSTRUCTION in front (documents were
+embedded without it). English only, like the reports: the assistant translates Spanish questions before searching.
+The model is loaded once, in a background thread at startup, so the first search does not pay for it.
+
+RAG_QUERY_EMBEDDINGS=off turns the dense channel off (every candidate then has rank_dense = None); the same fallback
+applies if the model cannot be loaded, so the API keeps answering from the text channel instead of failing.
 """
 from __future__ import annotations
 
@@ -25,14 +27,15 @@ import logging
 import os
 import threading
 
+import numpy as np
+
 from . import db
 from .contracts import Citation, RagCandidate, RagSearchRequest, RagSearchResponse
 
 log = logging.getLogger("flame.rag")
 
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
-QUERY_INSTRUCTION = ("Instruct: Given a question about NASA microgravity combustion experiments, "
-                     "retrieve passages from NASA reports that answer it.\nQuery: ")
+EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
 RRF_K = 60
 MAX_CANDIDATES = 30
 COMMON_TERM_SHARE = 0.2
@@ -51,11 +54,10 @@ def _load_model():
         if _model is not None:
             return _model
         try:
-            import torch
-            from sentence_transformers import SentenceTransformer
+            from fastembed import TextEmbedding
 
-            torch.set_num_threads(max(1, int(os.environ.get("RAG_TORCH_THREADS", "4"))))
-            _model = SentenceTransformer(EMBEDDING_MODEL, device="cpu", model_kwargs={"dtype": "float32"})
+            threads = max(1, int(os.environ.get("RAG_EMBED_THREADS", "2")))
+            _model = TextEmbedding(EMBEDDING_MODEL, cache_dir=os.environ.get("FASTEMBED_CACHE_PATH"), threads=threads)
             _model_error = None
         except Exception as e:  # noqa: BLE001 - reported by /health and /rag/search
             _model_error = f"{type(e).__name__}: {e}"
@@ -82,15 +84,16 @@ def embed_query(text: str) -> list[float]:
     model = _load_model()
     if model is None:
         raise RuntimeError(f"embedding model unavailable ({_model_error})")
-    v = model.encode([QUERY_INSTRUCTION + text], normalize_embeddings=True, convert_to_numpy=True)[0]
-    return v.astype(float).tolist()
+    v = next(iter(model.embed([QUERY_INSTRUCTION + text])))
+    return (v / max(float(np.linalg.norm(v)), 1e-12)).astype(float).tolist()
 
 
 def _vector_literal(v: list[float]) -> str:
     return "[" + ",".join(f"{x:.7g}" for x in v) + "]"
 
 
-DOC_FILTER = "(cardinality(%(acc)s::text[]) = 0 OR d.accession = ANY(%(acc)s::text[]))"
+DOC_FILTER = ("c.chunk_kind = 'text' AND "
+              "(cardinality(%(acc)s::text[]) = 0 OR d.accession = ANY(%(acc)s::text[]))")
 DENSE_SQL = f"""
     SELECT c.chunk_id FROM rag.chunk c JOIN rag.document d USING (document_id)
     WHERE {DOC_FILTER}
@@ -98,8 +101,8 @@ DENSE_SQL = f"""
 # The query words as stems (the same 'english' configuration that built rag.chunk.tsv), with their share of chunks.
 LEXICAL_SQL = f"""
     WITH terms AS (SELECT unnest(tsvector_to_array(to_tsvector('english', %(text)s))) AS t),
-         stat  AS (SELECT word, ndoc FROM ts_stat('SELECT tsv FROM rag.chunk')),
-         total AS (SELECT greatest(count(*), 1)::float AS n FROM rag.chunk),
+         stat  AS (SELECT word, ndoc FROM ts_stat('SELECT tsv FROM rag.chunk WHERE chunk_kind = ''text''')),
+         total AS (SELECT greatest(count(*), 1)::float AS n FROM rag.chunk WHERE chunk_kind = 'text'),
          share AS (SELECT t, coalesce(s.ndoc, 0) / total.n AS frac FROM terms LEFT JOIN stat s ON s.word = terms.t, total),
          kept  AS (SELECT t FROM share WHERE frac <= %(common)s
                    UNION ALL

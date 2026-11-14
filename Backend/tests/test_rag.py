@@ -23,7 +23,7 @@ def fake_channels(monkeypatch):
         return [{"chunk_id": cid, "accession": "PSI-69", "doc_title": "FLEX report", "file_name": "flex.pdf",
                  "page_from": 5, "page_to": 6, "content": f"chunk {cid}", "source_url": None} for cid in params[0]]
 
-    monkeypatch.setattr(rag, "embed_query", lambda text: [0.0] * 1024)
+    monkeypatch.setattr(rag, "embed_query", lambda text: [0.0] * 384)
     monkeypatch.setattr(rag, "_ranked_ids", ranked)
     monkeypatch.setattr(rag.db, "query", details)
     return calls
@@ -39,7 +39,7 @@ def test_rrf_fusion_and_ranks(fake_channels):
     assert top.score_rrf == pytest.approx(1 / 63 + 1 / 61, rel=1e-4)
     only_text = next(c for c in res.candidates if c.chunk_id == 14)
     assert only_text.rank_dense is None and only_text.rank_lexical == 2
-    assert res.embedding_model == "Qwen/Qwen3-Embedding-0.6B"
+    assert res.embedding_model == "BAAI/bge-small-en-v1.5"
     assert all(p["acc"] == ["PSI-69"] and p["k"] == 5 for p in fake_channels["params"])
     assert fake_channels["exact"] == [True, False]         # dense = exact scan, lexical = GIN index
 
@@ -49,6 +49,11 @@ def test_endpoint_and_citations(fake_channels):
     assert r.status_code == 200 and len(r.json()["candidates"]) == 4
     cites = client.get("/documents/search", params={"q": "cool flame", "k": 2}).json()
     assert len(cites) == 2 and cites[0]["page_or_section"] == "pp. 5-6" and cites[0]["psi_id"] == "PSI-69"
+
+
+def test_table_chunks_are_left_out_of_both_channels():
+    for sql in (rag.DENSE_SQL, rag.LEXICAL_SQL):
+        assert "c.chunk_kind = 'text'" in sql
 
 
 def test_validation():

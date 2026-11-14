@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS rag.chunk (
     page_to     int,
     content     text NOT NULL,
     tokens      int,
-    embedding   vector(1024),
+    chunk_kind  text NOT NULL DEFAULT 'text' CHECK (chunk_kind IN ('text', 'table')),  -- 'table' = mostly numbers
+    embedding   vector(384),                    -- BAAI/bge-small-en-v1.5
     tsv         tsvector GENERATED ALWAYS AS (to_tsvector('english', content)) STORED,
     UNIQUE (document_id, chunk_index)
 );

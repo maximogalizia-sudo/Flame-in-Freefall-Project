@@ -38,8 +38,9 @@ Commits made with the assistant carry a `Co-Authored-By` line.
   `flame/`, `models/`) estimate probabilities. They answer only where NASA ran clean tests
   with the same combination of conditions; elsewhere they say "no data" and why.
 - **Document search**: reports are split into pages and embedded with an open-source
-  embedding model (`Qwen/Qwen3-Embedding-0.6B`); a hybrid search (vector + full text + rank
-  fusion) finds the passages. It only finds text; it does not write.
+  embedding model (`BAAI/bge-small-en-v1.5`); a hybrid search (vector + full text + rank
+  fusion) finds the passages. Chunks that are mostly numbers (tables) are left out: those
+  numbers come from the curated tables instead. It only finds text; it does not write.
 - **Assistant (language model)**: an open-source language model run by the team writes the
   chat answer **only from what the tools return** (the models, the curated NASA tables and
   the retrieved report passages). It labels each answer as answer / partial / not enough

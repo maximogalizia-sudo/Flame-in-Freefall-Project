@@ -1,3 +1,2 @@
-# Query embeddings for /rag/search (installed in the Docker image after torch CPU; see Backend/Dockerfile).
-sentence-transformers>=3.0
-transformers>=4.51
+# Query embeddings for /rag/search: BAAI/bge-small-en-v1.5 through ONNX (no torch). See Backend/Dockerfile.
+fastembed>=0.9,<0.10
