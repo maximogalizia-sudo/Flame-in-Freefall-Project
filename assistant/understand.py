@@ -47,7 +47,9 @@ EXPERIMENTS = {r"\bflex\b": "PSI-69", r"\bcfi-?g\b|cool flames investigation": "
                r"\bbass\b(?!-?ii)": "PSI-26", r"\bsaffire\b": "PSI-98"}
 COMBUSTION_WORDS = r"llama|fuego|incendi|combust|apag|arde|quem|prend|encend|ignic|ignit|flame|fire|burn|extingu|extinc|radiat|" \
                    r"hollin|soot|propagac|spread|microgravedad|microgravity|oxigeno|oxygen|supresi|suppress|" \
-                   r"gota|droplet|oxigen|oxygen|nasa|experiment|prueba|ensayo|test|material|flex|cfi|bass|saffire"
+                   r"gota|droplet|oxigen|oxygen|nasa|experiment|prueba|ensayo|test|material|flex|cfi|bass|saffire|" \
+                   r"dataset|\bdatos\b|\bdata\b|supreso|suppressant|nitrogen|helio|helium|cabina|cabin|habitat|" \
+                   r"marte|mars|\bluna\b|\bmoon\b|espacio|space|\biss\b|inflamab|flammab|atmosfera|atmosphere"
 
 VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X changes")
     "aire enriquecido": "o2_frac", "enriched air": "o2_frac", "enriquecid[ao] en oxigeno": "o2_frac", "oxygen.?rich": "o2_frac",
@@ -60,6 +62,20 @@ VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X 
 }
 
 INTENT_RULES: list[tuple[str, str]] = [   # order matters: first match wins
+    # --- analytic questions over ALL the data (ranges/thresholds, rankings, gaps) ---
+    ("gaps", r"\bfalta\w*|limitacion\w*|limitation\w*|que (?:condiciones|combinaciones|cosas|variables) nunca|que no se (?:probo|midio)|"
+             r"what (?:was|were) never (?:tested|measured)|which conditions were never|futur\w*|suger\w*|suggest\w*|recomend\w*|recommend\w*|"
+             r"nuev[oa]s? (?:ensayos|experimentos|pruebas|tests)|new (?:tests|experiments)|que experimentos|which experiments|"
+             r"que habria que|gaps?\b|huecos|lagunas|weak(?:ness|nesses)? of the data|debilidad\w*"),
+    ("rank", r"\b(?:las|los|top)\s+\d+\b|\b\d+\s+(?:configuraciones|condiciones|combinaciones|pruebas|atmosferas|materiales|conditions|configurations|combinations|tests)|"
+             r"ranking|\brank\b|mas (?:tienden|probable\w*|peligros\w*|inflamable\w*|dificil\w* de apagar|tardan|duran|tiempo|rapido)|"
+             r"menos (?:inflamable\w*|tardan|duran)|(?:cuales|que) (?:fueron|son) (?:las|los) (?:configuraciones|condiciones|pruebas|combinaciones|atmosferas|materiales)|"
+             r"(?:que|cuales) (?:configuraciones|combinaciones|atmosferas|materiales)|which (?:\d+ )?(?:conditions|configurations|combinations|tests|atmospheres|materials)|"
+             r"\b(?:most|least) (?:often|flammable|likely)|longest|fastest|quickest|mas rapido|se apagaron siempre|always went out"),
+    ("profile", r"\brango\w*|umbral\w*|a partir de que|a partir de cuant\w*|desde que|por debajo de|por encima de|minim\w*|maxim\w*|"
+                r"threshold\w*|\brange\b|below which|above which|at which|hay alg[uo]n\w* (?:nivel|porcentaje|tamano|valor|rango)|"
+                r"is there (?:any|a) .{0,20}(?:level|value|size|range)|en que (?:nivel|niveles|porcentaje\w*|rango|valores)|con que niveles|"
+                r"what (?:range|level)|que niveles"),
     ("risk", r"riesgo de (?:la|esta|una) atmosfera|atmosfera (?:de (?:la )?(?:cabina|iss|estacion)|de exploracion|del habitat)|es segur[ao]|"
              r"(?:que tan |cuan )?(?:riesgos[ao]|peligros[ao]) (?:es|seria) (?:la|esta|una) (?:atmosfera|cabina)|"
              r"alerta|alarma|semaforo|cabin atmosphere|exploration atmosphere|habitat atmosphere|is (?:it|this) safe|early warning|"
@@ -94,7 +110,32 @@ class Understanding:
     accessions: list[str] = field(default_factory=list)                    # experiments named in the question (PSI ids)
     unknown_terms: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
-    variable: str | None = None                 # variable asked about (scenario / explain_variable)
+    variable: str | None = None                 # variable asked about (scenario / explain_variable / profile)
+    analytic_family: str | None = None          # flex / cfig / solids for analytic questions (None = all)
+    rank_target: str | None = None              # persistence / extinction / burn_time / fastest_out
+
+
+FAMILY_WORDS = [('flex', r"\bgotas?\b|droplets?|liquid|liquidos?|metanol|methanol|heptan\w*|\bflex\b"),
+                ('cfig', r"llamas? de gas|gas flames?|\bgases\b|\bgas\b|etano|ethane|propan\w*|butan\w*|cfi-?g|quemador|burner"),
+                ('solids', r"solid\w*|materiales|materials?|telas?|fabric|nomex|pmma|acrilic\w*|acrylic|algodon|cotton|sibal|"
+                           r"ultem|velas?|candles?|bass")]
+
+
+def find_family(t: str) -> str | None:
+    hits = [(m.start(), fam) for fam, pat in FAMILY_WORDS for m in [re.search(pat, t)] if m]
+    return sorted(hits)[0][1] if hits else None
+
+
+def find_rank_target(t: str) -> str:
+    if re.search(r"tard\w* en apagar|duran|dura mas|mas tiempo|ardieron|longest|kept burning the longest|burn\w* (?:the )?longest|"
+                 r"longer|tiempo de quemado|burn time", t):
+        return 'burn_time'
+    if re.search(r"mas rapido|apagaran? mas rapido|se apagan? primero|fastest|quickest|faster", t):
+        return 'fastest_out'
+    if re.search(r"se apagaron siempre|always went out|apagan? mas|menos inflamable|least (?:flammable|likely to burn)|"
+                 r"mas facil\w* de apagar|easiest to (?:put out|extinguish)", t):
+        return 'extinction'
+    return 'persistence'
 
 
 def find_variable(t: str) -> str | None:
@@ -205,6 +246,16 @@ def understand(text: str) -> Understanding:
             r"conviene|en vez de|instead of|better|mejor|grandes?|chic[ao]s?|big\w*|small\w*|large\w*|"
             r"ayuda\w*|sirve\w*|favorec\w*|dificult\w*|facilit\w*|hace que|makes?)\b", t):
         intent = "explain_variable"      # "with more CO2, is it harder for the droplet to keep burning?" -> learned effect
+    if intent in ("off_topic", "explain_doc") and variable and not substances and re.search(
+            r"peligr\w*|riesg\w*|danger\w*|risk\w*|efecto|effect|impact\w*|influ\w*|afect\w*", t):
+        intent = "explain_variable"      # "what is the danger of high pressure?" -> what the models learned about pressure
+    if intent == "off_topic" and re.search(r"configuracion\w*|combinacion\w*|condiciones|configurations?|conditions|experiment", t) \
+            and re.search(r"incendi|prend|inflamab|flammab|apag|extingu|burn|arde", t):
+        intent = "rank"
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
+    analytic_family = (vals.get("family") or find_family(t)) if intent in ("profile", "rank", "gaps") else None
+    if intent == "profile" and not variable:
+        variable = "pressure_kpa" if re.search(r"presion|pressure", t) else "o2_frac"
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
-                         substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable)
+                         substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable,
+                         analytic_family=analytic_family, rank_target=find_rank_target(t) if intent == "rank" else None)

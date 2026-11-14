@@ -44,6 +44,8 @@ class LLM:
             model = self.models[k]
             body = {'model': model, 'temperature': temperature, 'max_tokens': max_tokens,
                     'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': user}]}
+            if 'gpt-oss' in model:   # reasoning models: keep reasoning short so it does not eat the answer (empty text)
+                body.update(reasoning_effort='low', max_tokens=max_tokens * 3)
             try:
                 with httpx.Client(timeout=self.timeout, transport=self.transport) as cl:
                     r = cl.post(self.url, json=body, headers=self.headers)
