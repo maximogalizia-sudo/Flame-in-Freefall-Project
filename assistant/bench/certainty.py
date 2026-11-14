@@ -53,7 +53,7 @@ def main(api: bool) -> None:
         h = hedges(d.get('text') or '')
         rows.append({'id': it['id'], 'certain': it['certain'], 'decision': d.get('decision'), 'intent': d.get('intent'),
                      'version': d.get('assistant_version'), 'hedges': h, 'text': (d.get('text') or '')[:500]})
-        time.sleep(14)    # free-tier LLM budget
+        time.sleep(20)    # free-tier LLM budget
     cert = [r for r in rows if r['certain']]
     unc = [r for r in rows if not r['certain']]
     summary = {
@@ -61,6 +61,7 @@ def main(api: bool) -> None:
         'certain_labelled_answer': round(sum(r['decision'] == 'answer' for r in cert) / len(cert), 2),
         'certain_labelled_partial_or_abstain': round(sum(r['decision'] != 'answer' for r in cert) / len(cert), 2),
         'certain_text_with_hedges': round(sum(bool(r['hedges']) for r in cert) / len(cert), 2),
+        'llm_drafted': round(sum(str(r['version']).endswith(':llm') for r in rows) / len(rows), 2),   # if low, hedges are not measured
         'uncertain_n': len(unc),
         'uncertain_claimed_answer': round(sum(r['decision'] == 'answer' for r in unc) / len(unc), 2),
     }

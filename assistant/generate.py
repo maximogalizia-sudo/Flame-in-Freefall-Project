@@ -84,10 +84,10 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
     for j, e in enumerate(g.evidence[:5], 1):
         labels.add(f'E{j}')
         items.append(f'[E{j}] closest real NASA test {e.test_id} ({e.psi_id}): outcome {e.outcome}; source {e.source[:160]}')
-    for j, d in enumerate(g.passages[:6], 1):
+    for j, d in enumerate(g.passages[:5], 1):
         labels.add(f'D{j}')
         page = f" p.{d['page_from']}" if d.get('page_from') else ''
-        items.append(f"[D{j}] NASA report '{d.get('doc_title') or d['file_name']}'{page}: \"{d['content'][:650]}\"")
+        items.append(f"[D{j}] NASA report '{d.get('doc_title') or d['file_name']}'{page}: \"{d['content'][:520]}\"")
     if 'rag_search' in g.unavailable:
         items.append('[note] Search in NASA reports is not available right now.')
     if u.unknown_terms:

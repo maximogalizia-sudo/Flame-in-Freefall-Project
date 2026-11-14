@@ -45,3 +45,14 @@ def test_table_filter():
     cands = [{'content': table, 'file_name': 'a', 'page_from': 1}, {'content': text, 'file_name': 'a', 'page_from': 2},
              {'content': text + ' again', 'file_name': 'a', 'page_from': 2}]
     assert [c['page_from'] for c in select_passages(cands)] == [2]
+
+
+def test_rate_limited_model_falls_back_to_next_for_this_call():
+    import json as _j
+    def handler(request):
+        m = _j.loads(request.content)['model']
+        if m == 'busy':
+            return httpx.Response(429, headers={'x-ratelimit-reset-tokens': '30s'})
+        return httpx.Response(200, json={'choices': [{'message': {'content': 'ok'}}]})
+    llm = LLM('https://x/v1', 'k', 'busy,free', transport=httpx.MockTransport(handler))
+    assert llm.chat('s', 'u') == 'ok' and llm.active_model == 'busy'   # still first choice next time

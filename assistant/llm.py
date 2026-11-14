@@ -34,23 +34,34 @@ class LLM:
         return self.models[self.idx] if self.idx < len(self.models) else None
 
     def chat(self, system: str, user: str, max_tokens: int = 450, temperature: float = 0.1,
-             max_wait_s: float = 12.0) -> str | None:
-        waited = False
-        while self.active_model:
-            body = {'model': self.active_model, 'temperature': temperature, 'max_tokens': max_tokens,
+             max_wait_s: float = 8.0) -> str | None:
+        """Try the active model; if it is rate-limited (each model has its own per-minute token budget on the free
+        tier) try the next models for THIS call, then wait once for the shortest reset; retired models (404) are
+        skipped permanently."""
+        tried_429: dict[int, float | None] = {}
+        k, waited = self.idx, False
+        while k < len(self.models):
+            model = self.models[k]
+            body = {'model': model, 'temperature': temperature, 'max_tokens': max_tokens,
                     'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': user}]}
             try:
                 with httpx.Client(timeout=self.timeout, transport=self.transport) as cl:
                     r = cl.post(self.url, json=body, headers=self.headers)
-                if r.status_code == 429 and not waited:          # free-tier token budget per minute: wait once
-                    wait = _retry_after(r)
-                    if wait is not None and wait <= max_wait_s:
-                        log.warning('llm rate-limited, waiting %.1f s', wait)
-                        time.sleep(wait); waited = True
-                        continue
+                if r.status_code == 429:
+                    tried_429[k] = _retry_after(r)
+                    log.warning('llm %s rate-limited, trying the next model', model)
+                    k += 1
+                    if k >= len(self.models) and not waited and tried_429:
+                        best = min(tried_429, key=lambda i: tried_429[i] if tried_429[i] is not None else 1e9)
+                        wait = tried_429[best]
+                        if wait is not None and wait <= max_wait_s:
+                            time.sleep(wait); waited = True; k = best
+                    continue
                 if r.status_code == 404 or (r.status_code == 400 and 'model' in r.text.lower()):
-                    log.warning('llm model %s not available (%s): trying the next one', self.active_model, r.status_code)
-                    self.idx += 1
+                    log.warning('llm model %s not available (%s): skipping it from now on', model, r.status_code)
+                    if k == self.idx:
+                        self.idx += 1
+                    k += 1
                     continue
                 r.raise_for_status()
                 text = r.json()['choices'][0]['message']['content'] or ''
