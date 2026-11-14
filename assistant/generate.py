@@ -8,9 +8,14 @@ with [[DECISION:ANSWER|PARTIAL|ABSTAIN]], cite every fact, add nothing, and writ
 from __future__ import annotations
 
 from .llm import get_llm
+from .ml_insight import drivers, relevant_rows
 from .verify import dumps, parse_decision, verify
 
 SYSTEM = """You are the assistant of a NASA microgravity-combustion data tool. You write the final answer for the user.
+
+YOUR ROLE: explain what the team's MACHINE-LEARNING SYSTEM understood. The ML models are the brain: lead with their
+conclusion and WHY (the 'WHY_according_to_the_model' drivers and what the models learned about each variable). NASA test
+tables [T..], closest real tests [E..] and report passages [D..] are SUPPORT for that explanation, not the answer itself.
 
 STRICT RULES
 1. Use ONLY the facts in the EVIDENCE block. Do not add numbers, tests, materials, causes or physics that are not there.
@@ -39,8 +44,8 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         d = {'about': label or (u.conditions.fuel or u.conditions.material), 'target': p.target, 'probability': p.probability,
              'interval_95': [p.ci_low, p.ci_high], 'sensitivity_range': p.range_sensitivity, 'in_the_data': p.in_domain,
              'why_not_in_data': p.out_of_domain, 'assumptions': p.assumptions, 'notes': p.notes,
-             'top_contributions_log_odds': dict(sorted(p.contributions.items(), key=lambda kv: -abs(kv[1]))[:3])}
-        items.append(f'[T{k}] model prediction: {dumps(d)}')
+             'WHY_according_to_the_model': drivers(p)}       # what the ML understood for this case, strongest first
+        items.append(f'[T{k}] ML model prediction: {dumps(d)}')
     for label, req, resp in g.counts:
         k += 1; labels.add(f'T{k}')
         items.append(f'[T{k}] NASA test table query {dumps({"about": label, "filters": {x: v for x, v in req.items() if x not in ("limit", "group_by")}})}: '
@@ -57,10 +62,11 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         pts = ', '.join(f'{p.x:g}->{p.probability if p.probability is not None else "not tested"}' for p in sw.points)
         items.append(f'[T{k}] scenario sweep of {sw.variable} (target {sw.target}; probability that the flame goes out): {pts}; '
                      f'tested range {sw.tested_range}; notes {dumps(sw.notes)}')
-    if g.effects is not None:                    # v3: per-variable explanation
+    for e in g.effects:                          # v3: what the models learned about a variable
+        if u.intent not in ('explain_variable', 'scenario'):
+            e = e.model_copy(update={'rows': relevant_rows(e, u.conditions)})
         k += 1; labels.add(f'T{k}')
-        e = g.effects
-        items.append(f'[T{k}] how {e.variable} acts (ratio > 1 = more likely / sooner to go out): '
+        items.append(f'[T{k}] what the ML models learned about {e.variable} (ratio > 1 = more likely / sooner to go out): '
                      + '; '.join(f'{r.scenario}, {r.effect}: x{r.ratio} (95% {r.ci_low}-{r.ci_high}) {r.direction}' for r in e.rows)
                      + f'. Tested: {dumps(e.tested)}. Never tested: {dumps(e.not_tested)}. Caveats: {dumps(e.caveats)}')
     for j, e in enumerate(g.evidence[:5], 1):

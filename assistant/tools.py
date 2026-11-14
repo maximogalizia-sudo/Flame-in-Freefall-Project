@@ -159,16 +159,28 @@ class HttpTools:
         body = req.model_dump()
         return _timed('rag_search', body, lambda: RagSearchResponse(**self._req('POST', '/rag/search', body)))
 
+    # v3 endpoints: if MG's API does not serve them yet (404) or fails, compute them in-process with the same
+    # flame code (pure functions over models/ and data/processed/, shipped with this service).
+    def _with_local(self, r: ToolResult, local) -> ToolResult:
+        if r.ok:
+            return r
+        lr = local()
+        lr.meta['fallback'] = f'local (api: {r.error})'
+        return lr
+
     def risk(self, req: RiskRequest) -> ToolResult:
         body = req.model_dump()
-        return _timed('risk', body, lambda: RiskResponse(**self._req('POST', '/risk', body)))
+        return self._with_local(_timed('risk', body, lambda: RiskResponse(**self._req('POST', '/risk', body))),
+                                lambda: LocalTools().risk(req))
 
     def sweep(self, req: SweepRequest) -> ToolResult:
         body = req.model_dump(exclude_none=True)
-        return _timed('sweep', body, lambda: SweepResponse(**self._req('POST', '/sweep', body)))
+        return self._with_local(_timed('sweep', body, lambda: SweepResponse(**self._req('POST', '/sweep', body))),
+                                lambda: LocalTools().sweep(req))
 
     def effects(self, variable: str) -> ToolResult:
-        return _timed('effects', {'variable': variable}, lambda: EffectsResponse(**self._req('GET', f'/effects/{variable}')))
+        return self._with_local(_timed('effects', {'variable': variable}, lambda: EffectsResponse(**self._req('GET', f'/effects/{variable}'))),
+                                lambda: LocalTools().effects(variable))
 
 
 def get_tools():

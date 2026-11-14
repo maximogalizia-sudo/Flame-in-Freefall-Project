@@ -16,6 +16,7 @@ from . import VERSION
 from . import templates as TP
 from .config import get_settings
 from .plan import OUTCOME_COL, Plan, make_plan
+from .ml_insight import drivers, relevant_rows
 from .retrieve import select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, understand
@@ -35,7 +36,7 @@ class Gathered:
     query_translation: str | None = None                                      # as_is / llm / glossary
     risk: object | None = None                                                # RiskResponse (v3)
     sweep: object | None = None                                               # SweepResponse (v3)
-    effects: object | None = None                                             # EffectsResponse (v3)
+    effects: list = field(default_factory=list)                               # EffectsResponse list (v3)
 
 
 def merge_history(u: Understanding, req: AskRequest) -> Understanding:
@@ -83,7 +84,10 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
         elif call.tool in ('risk', 'sweep', 'effects'):
             r = getattr(tools, call.tool)(call.args)
             if r.ok:
-                setattr(g, call.tool, r.data)
+                if call.tool == 'effects':
+                    g.effects.append(r.data)
+                else:
+                    setattr(g, call.tool, r.data)
         elif call.tool == 'rag_search':
             r = tools.rag_search(call.args)
             if r.ok:
@@ -192,6 +196,10 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             continue
         prefix = f'[{label}] ' if label and label != 'gravity_check' else ''
         s += [prefix + x for x in TP.prediction_sentences(p, lang)]
+        why = drivers(p, top=3)
+        if why and p.target != 'droplet_breakup':
+            s.append({'es': 'Por qué, según el modelo (frente a una prueba promedio de NASA): ',
+                      'en': 'Why, according to the model (vs an average NASA test): '}[lang] + '; '.join(why) + '.')
         if p.probability is not None:
             answered = True
         elif p.target == 'ignition' or (p.target == 'no_model' and not any('above 22.7' in r for r in p.out_of_domain)):
@@ -226,9 +234,13 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
     if g.sweep is not None:
         s += sweep_sentences(g.sweep, lang)
         answered = answered or any(p.in_domain for p in g.sweep.points)
-    if g.effects is not None:
-        s += effects_sentences(g.effects, lang)
-        answered = answered or bool(g.effects.rows)
+    for e in g.effects:
+        if u.intent in ('explain_variable', 'scenario'):
+            s += effects_sentences(e, lang)
+            answered = answered or bool(e.rows)
+        else:   # with a prediction, only what the model learned about the variables asked, for this fuel
+            e2 = e.model_copy(update={'rows': relevant_rows(e, u.conditions)})
+            s += effects_sentences(e2, lang)[:1 + len(e2.rows)]
     if g.failures:
         s.append(TP.t('tool_failed', lang, x=', '.join(sorted(set(g.failures)))))
     decision = 'answer' if answered else ('partial' if partial else 'abstain')
