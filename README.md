@@ -84,7 +84,7 @@ built from the same models (`decision = "partial"`).
 | Frontend | Cloudflare Pages, project `nasa-dashboard` | `git archive <commit> Frontend` then `wrangler pages deploy Frontend --project-name nasa-dashboard --branch production`. The API URL is the `flame-api` meta tag of `index.html` |
 
 Backend variables (Railway): `DATABASE_URL`, `CORS_ORIGINS`, `ASSISTANT_API_TOKEN`,
-`LLM_SERVICE_URL`, `LLM_SERVICE_TOKEN`, optional `LLM_TIMEOUT_S`. See
+`LLM_SERVICE_URL`, `LLM_SERVICE_TOKEN`, optional `LLM_TIMEOUT_S` and `RAG_QUERY_EMBEDDINGS` (`off` on small plans). See
 [`docs/SERVICES.md`](docs/SERVICES.md). Tokens are never committed.
 
 ## Use of AI

@@ -27,6 +27,7 @@ Frontend (Cloudflare Pages) ──HTTPS──► Backend API (FastAPI + Postgres
 | `LLM_SERVICE_URL` | Base URL of the assistant service. `https://` only (plain `http://` is accepted for `localhost`). If unset, `/ask` answers with the template fallback |
 | `LLM_SERVICE_TOKEN` | Secret the API sends as `Authorization: Bearer …` to the assistant service |
 | `LLM_TIMEOUT_S` | How long `/ask` waits for the assistant, default 90 s |
+| `RAG_QUERY_EMBEDDINGS` | `on` / `off`. The query-embedding model needs ~2.5 GB of RAM. The Docker image sets `off` (Railway trial plan, ~512 MB, kills the container while loading it): `/rag/search` then runs on the text channel only (`rank_dense = null`, `embedding_model = "lexical-only (query embeddings off)"`, `/health` shows `rag: lexical_only`). Set `on` on a plan with >= 4 GB |
 | `RAG_TORCH_THREADS` | CPU threads used to embed a search query, default 4 |
 
 ## Tool endpoints (called by the assistant)
@@ -45,7 +46,8 @@ Frontend (Cloudflare Pages) ──HTTPS──► Backend API (FastAPI + Postgres
 1,400 characters with 220 of overlap, embedded with `Qwen/Qwen3-Embedding-0.6B` (normalized, 1,024 dimensions,
 documents without instruction, queries with the instruction prefix). `Backend/pipeline/load_rag.py` loads it into
 `rag.document` / `rag.chunk` (schema `RAG/sql/001_rag.sql`) on every container start, skipping the reload when the
-same index is already there. The API embeds each query with the same model on CPU.
+same index is already there. With `RAG_QUERY_EMBEDDINGS=on` the API embeds each query with the same model on CPU; the
+text channel ignores query words found in more than 20 % of the chunks and ranks by `ts_rank_cd` normalized by length.
 
 ## Assistant service contract
 
