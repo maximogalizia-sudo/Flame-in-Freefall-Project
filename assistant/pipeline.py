@@ -133,8 +133,8 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
         s += [prefix + x for x in TP.prediction_sentences(p, lang)]
         if p.probability is not None:
             answered = True
-        elif p.target in ('ignition', 'no_model'):
-            partial = True
+        elif p.target == 'ignition' or (p.target == 'no_model' and not any('above 22.7' in r for r in p.out_of_domain)):
+            partial = True   # solids at > 22.7 % O2: nothing NASA tested is related enough -> stays an abstention
     first_in = next((p for _, p in g.predictions if p.probability is not None), None)
     if first_in and first_in.assumptions:
         s.append(TP.t('assumed', lang, x='; '.join(first_in.assumptions)))

@@ -1,0 +1,55 @@
+{
+ "summary": {
+  "predict_in": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "n": 8,
+   "invented_numbers": 0,
+   "median_ms": 17
+  },
+  "predict_out": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "n": 6,
+   "invented_numbers": 0,
+   "median_ms": 11
+  },
+  "count": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "n": 6,
+   "invented_numbers": 0,
+   "median_ms": 12
+  },
+  "trap": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "n": 6,
+   "invented_numbers": 0,
+   "median_ms": 5
+  },
+  "ALL": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "n": 26,
+   "invented_numbers": 0,
+   "median_ms": 12
+  }
+ },
+ "failures": []
+}

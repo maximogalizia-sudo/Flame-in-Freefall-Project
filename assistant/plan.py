@@ -95,8 +95,7 @@ def make_plan(u: Understanding) -> Plan:
 
     # predict, coverage and compare-with-one-substance
     if not fam and c.gravity_g is None and not u.unknown_terms:
-        p.notes.append('no_subject')
-        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
+        p.notes.append('no_subject')     # e.g. a material NASA did not test (Kevlar): say what was tested, call nothing
         return p
     if fam or c.gravity_g is not None:
         p.calls.append(ToolCall('predict', c if fam else Conditions(**{**c.model_dump(exclude_none=True), 'family': 'flex', 'fuel': 'methanol', 'o2_frac': c.o2_frac or 0.21}),

@@ -140,9 +140,10 @@ def extract_conditions(t: str) -> tuple[dict, list[tuple[str, str, str]], list[s
 
 
 def classify(t: str, has_substance: bool, has_numbers: bool) -> str:
+    on_topic = has_substance or has_numbers or bool(re.search(COMBUSTION_WORDS, t))
     for intent, pattern in INTENT_RULES:
         if re.search(pattern, t):
-            return intent
+            return intent if on_topic else "off_topic"     # "what is the best pizza?" is not a document question
     if has_substance and has_numbers:
         return "predict"
     if has_substance or re.search(COMBUSTION_WORDS, t):
@@ -160,6 +161,8 @@ def understand(text: str) -> Understanding:
         intent = "explain_doc"
     if intent == "off_topic" and ("gravity_g" in vals or unknown):
         intent = "coverage"              # "what about lunar gravity / humidity?" asks what NASA measured
+    if intent == "explain_doc" and substances and "gravity_g" in vals:
+        intent = "predict"               # "what happens on Mars with a methanol droplet?" asks for an outcome
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
                          substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions)
