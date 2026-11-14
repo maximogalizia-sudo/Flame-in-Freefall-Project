@@ -1,0 +1,15 @@
+# Only api/, pipeline/, sql/, requirements.txt and Dockerfile are needed in the image.
+.venv/
+data/
+descargas/
+psi-combustion/
+psi-combustion.zip
+psi_combustion_catalog.json
+psi_download.py
+rag_documentos_pdf.csv
+tests/
+tools/
+node_modules/
+.pytest_cache/
+__pycache__/
+app.js
