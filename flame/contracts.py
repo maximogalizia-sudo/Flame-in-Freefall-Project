@@ -74,12 +74,79 @@ class Answer(BaseModel):
     understood: Conditions
     intent: str
     unknown_terms: list[str]
-    text: str                            # English answer built from templates
+    text: str                            # answer written by the assistant ONLY from tool outputs (v2)
     predictions: list[Prediction]
     evidence: list[EvidenceItem]
     citations: list[Citation]
     chart: dict | None
+    # v2 (2026-11-14): grounded assistant
+    decision: Literal["answer", "partial", "abstain"] = "answer"   # abstain = the data cannot answer the central question
+    tools_used: list[str] = []           # e.g. ["predict", "rag_search"]
+    verification: list[str] = []         # problems found by the verifier (empty = passed)
+    trace_id: str | None = None          # to find the full trace in the assistant's audit log
+    assistant_version: str | None = None
+
+
+class ChatTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    text: str
 
 
 class AskRequest(BaseModel):
     text: str = Field(..., min_length=3, max_length=500)
+    history: list[ChatTurn] = Field(default_factory=list, max_length=10)   # v2: previous turns of the chat (optional)
+    lang: Literal["es", "en"] | None = None                                # v2: answer language; None = same as the question
+
+
+# ============================================================================ v2: tool endpoints
+# The assistant (LLM service, LC) calls these endpoints of the backend API (MG). The LLM never gets DB credentials
+# and never writes SQL: only these whitelisted, typed requests.
+
+class TestsSearchRequest(BaseModel):
+    """Tabular tool over the curated tables (data/processed/*.parquet loaded into Postgres)."""
+    family: Literal["flex", "cfig", "solids"]
+    fuel: str | None = None              # flex: methanol / heptane ; cfig: ethane / propane / butane
+    material: str | None = None          # solids: material family as in bass_tests.material (e.g. "Nomex", "SIBAL fabric")
+    flame_type: Literal["normal", "inverse"] | None = None
+    o2_min: float | None = Field(None, ge=0, le=1)
+    o2_max: float | None = Field(None, ge=0, le=1)
+    pressure_kpa_min: float | None = None
+    pressure_kpa_max: float | None = None
+    diluent: Literal["CO2", "He", "N2 only"] | None = None   # flex
+    outcome: str | None = None           # value of the family's outcome column (test_end / end / outcome_group)
+    only_model_rows: bool = False        # flex: in_main_model ; cfig: ext_model
+    group_by: list[str] = Field(default_factory=list, max_length=3)   # whitelisted columns -> counts per group
+    limit: int = Field(20, ge=1, le=200)
+
+
+class TestsSearchResponse(BaseModel):
+    family: str
+    n_total: int                         # rows matching the filters
+    counts: list[dict]                   # one dict per group: {<group cols>..., "n": int} (empty if no group_by)
+    rows: list[dict]                     # up to `limit` rows with test_id, conditions, outcome, source (+ observation for solids)
+
+
+class RagSearchRequest(BaseModel):
+    query: str = Field(..., min_length=2, max_length=500)
+    accessions: list[str] = Field(default_factory=list)   # e.g. ["PSI-69"]; empty = all documents
+    k: int = Field(30, ge=1, le=60)                       # candidates per channel before fusion
+
+
+class RagCandidate(BaseModel):
+    chunk_id: int
+    accession: str                       # 'PSI-69'
+    doc_title: str | None
+    file_name: str
+    page_from: int | None
+    page_to: int | None
+    content: str
+    source_url: str | None
+    rank_dense: int | None               # position in the vector search (None = not retrieved there)
+    rank_lexical: int | None             # position in the full-text search
+    score_rrf: float                     # reciprocal-rank fusion score (diagnostic, not a probability)
+
+
+class RagSearchResponse(BaseModel):
+    query: str
+    embedding_model: str                 # must be the same model used to index
+    candidates: list[RagCandidate]       # sorted by score_rrf; reranking happens in the assistant
