@@ -25,4 +25,6 @@ RUN python -m pytest -q -p no:cacheprovider tests/test_flame_models.py && rm -rf
 
 ENV PORT=8000
 EXPOSE 8000
-CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]
+# On every start, reload LC's curated tables from the parquet files shipped in this image, so that
+# /tests/search and flame.models always read the same data. If the load fails, the API still starts.
+CMD ["sh", "-c", "python -m pipeline.load_curated || echo 'WARNING: curated tables not loaded'; uvicorn api.main:app --host 0.0.0.0 --port ${PORT}"]
