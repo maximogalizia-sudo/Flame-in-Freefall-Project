@@ -6,6 +6,7 @@ if the LLM is missing or its draft fails verification, the template text is used
 from __future__ import annotations
 
 import json
+import re
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -91,7 +92,9 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
         elif call.tool == 'rag_search':
             r = tools.rag_search(call.args)
             if r.ok:
-                g.passages = select_passages([c.model_dump() for c in r.data.candidates], k=6)
+                one_test = bool(re.search(r'(?:test|prueba)\s*[#-]?\s*\d+|flex\s*[-–−]\s*\d+', call.args.query, re.I))
+                g.passages = select_passages([c.model_dump() for c in r.data.candidates], k=6, prefer_narrative=not one_test,
+                                             query=call.args.query)
         else:
             continue
         g.results.append(r)

@@ -30,7 +30,8 @@ def test_translate_query():
     assert how == 'glossary' and 'droplets' in q and 'disruption' in q
     fake = LLM('https://x/v1', 'k', 'm', transport=httpx.MockTransport(
         lambda r: httpx.Response(200, json={'choices': [{'message': {'content': 'why FLEX droplets disrupted'}}]})))
-    assert translate_query('¿Por qué se rompían las gotas en FLEX?', 'es', fake) == ('why FLEX droplets disrupted', 'llm')
+    q2, how2 = translate_query('¿Por qué se rompían las gotas en FLEX?', 'es', fake)
+    assert how2 == 'llm+glossary' and q2.startswith('why FLEX droplets disrupted') and 'disruption' in q2
 
 
 def test_glossary_compound_terms():
