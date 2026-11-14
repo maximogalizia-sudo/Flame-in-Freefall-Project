@@ -183,8 +183,10 @@ def answer(req: AskRequest, tools=None, drafter=None) -> Answer:
     text, decision = template_draft(u, plan, g)
     verification, version = [], f'{VERSION}:template'
     if drafter is not None:
-        drafted = drafter(u, plan, g, text, decision)
-        if drafted is not None:
+        drafted = drafter(u, plan, g, text, decision) if 'off_topic' not in plan.notes else None
+        if drafted is None:
+            verification = ['llm not used or unavailable: template answer']
+        else:
             d_text, d_decision, problems = drafted
             if problems:
                 verification = ['llm draft rejected: ' + p for p in problems]
