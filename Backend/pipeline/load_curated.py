@@ -20,10 +20,10 @@ import psycopg2
 import psycopg2.extras
 from psycopg2 import sql
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+_HERE = Path(__file__).resolve()
+sys.path[:0] = [str(_HERE.parents[1]), str(_HERE.parents[2])]   # Backend/ (api) and repo root (flame) when run locally
 from api.settings import get_settings  # noqa: E402
-
-PROC = Path(__file__).resolve().parents[2] / "data" / "processed"
+from flame.models import PROC  # noqa: E402  - the same directory the models read (repo root locally, /app in Docker)
 TABLES = {
     "flex_tests": "flex_tests.parquet",
     "cfig_tests": "cfig_tests.parquet",
