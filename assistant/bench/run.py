@@ -75,9 +75,8 @@ def run(http: bool = False, llm: bool = False, pace: float = 15.0) -> dict:
 
 
 if __name__ == '__main__':
-    if '--llm' in sys.argv:
-        from assistant.envfile import load_env
-        load_env()
+    from assistant.envfile import load_env
+    load_env()      # API_BASE_URL / tokens / LLM settings from .env (local runs)
     rep = run(http='--http' in sys.argv, llm='--llm' in sys.argv)
     for k, v in rep['summary'].items():
         print(f'{k:12s} {v}')
