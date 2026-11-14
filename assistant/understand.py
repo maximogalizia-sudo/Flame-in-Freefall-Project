@@ -48,7 +48,23 @@ EXPERIMENTS = {r"\bflex\b": "PSI-69", r"\bcfi-?g\b|cool flames investigation": "
 COMBUSTION_WORDS = r"llama|fuego|incendi|combust|apag|arde|quem|prend|encend|ignic|ignit|flame|fire|burn|extingu|" \
                    r"gota|droplet|oxigen|oxygen|nasa|experiment|prueba|ensayo|test|material|flex|cfi|bass|saffire"
 
+VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X changes")
+    "co2": "co2_frac", "dioxido de carbono": "co2_frac", "carbon dioxide": "co2_frac",
+    "helio": "he_frac", "helium": "he_frac", "oxigeno": "o2_frac", "oxygen": "o2_frac", "o2": "o2_frac",
+    "presion": "pressure_kpa", "pressure": "pressure_kpa", "tamano de (?:la )?gota": "droplet_d0_mm",
+    "diametro": "droplet_d0_mm", "droplet size": "droplet_d0_mm", "diameter": "droplet_d0_mm",
+}
+
 INTENT_RULES: list[tuple[str, str]] = [   # order matters: first match wins
+    ("risk", r"riesgo de (?:la|esta|una) atmosfera|atmosfera (?:de (?:la )?cabina|de exploracion|del habitat)|es segur[ao]|"
+             r"alerta|alarma|semaforo|cabin atmosphere|exploration atmosphere|habitat atmosphere|is (?:it|this) safe|early warning|"
+             r"risk (?:of|for) (?:this|the|a) (?:atmosphere|cabin)|que tan peligros|how dangerous"),
+    ("scenario", r"que pasa(?:ria)? si|que pasaria con|y si (?:sub|baj|aument|reduc|pong|agreg)|what if|what happens if|si (?:subo|bajo|aumento|reduzco)|"
+                 r"(?:subiendo|bajando|aumentando|reduciendo|variando) (?:el|la)|(?:increase|decrease|vary|varying|raise|lower)\w* (?:the )?"
+                 r"(?:co2|oxygen|o2|helium|pressure|droplet)|escenario|scenario|de \d+(?:[.,]\d+)? a \d+(?:[.,]\d+)? ?%"),
+    ("explain_variable", r"como (?:incide|influye|afecta|actua|impacta)|que (?:efecto|papel|rol) (?:tiene|cumple)|efecto del?|"
+                         r"how does (?:the )?(?:co2|oxygen|o2|helium|pressure|droplet size|carbon dioxide) (?:affect|influence|act|matter)|"
+                         r"effect of|role of|con que (?:variables )?se relaciona|what (?:is it|does it) relate|influencia del?"),
     ("count", r"cuant[ao]s|how many|numero de (?:pruebas|ensayos|experimentos)|number of (?:tests|experiments)|en cuant[ao]s|"
               r"que porcentaje de (?:las )?pruebas|what share of (?:the )?tests|cuantas veces"),
     ("coverage", r"hay datos|hay pruebas|is there (?:any )?data|are there (?:any )?(?:data|tests)|se probo|se probaron|probo nasa|"
@@ -73,6 +89,18 @@ class Understanding:
     accessions: list[str] = field(default_factory=list)                    # experiments named in the question (PSI ids)
     unknown_terms: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    variable: str | None = None                 # variable asked about (scenario / explain_variable)
+
+
+def find_variable(t: str) -> str | None:
+    """The variable the question is about: the one right after 'subo/how does/efecto del', else the first mentioned."""
+    m = re.search(r"(?:subo|bajo|aumento|reduzco|subiendo|bajando|aumentando|reduciendo|variando|incide|influye|afecta|actua|"
+                  r"impacta|efecto del?|influencia del?|increase|decrease|vary|varying|raise|lower|does|effect of|role of)\s+(?:el |la |the )?(.{0,25})", t)
+    for seg in ([m.group(1)] if m else []) + [t]:
+        hits = [(mm.start(), var) for word, var in VARIABLES.items() for mm in [re.search(rf"\b{word}\b", seg)] if mm]
+        if hits:
+            return sorted(hits)[0][1]
+    return None
 
 
 def normalize(text: str) -> str:
@@ -139,11 +167,11 @@ def extract_conditions(t: str) -> tuple[dict, list[tuple[str, str, str]], list[s
     return vals, substances, notes
 
 
-def classify(t: str, has_substance: bool, has_numbers: bool) -> str:
-    on_topic = has_substance or has_numbers or bool(re.search(COMBUSTION_WORDS, t))
+def classify(t: str, has_substance: bool, has_numbers: bool, has_variable: bool = False) -> str:
+    on_topic = has_substance or has_numbers or has_variable or bool(re.search(COMBUSTION_WORDS, t))
     for intent, pattern in INTENT_RULES:
         if re.search(pattern, t):
-            return intent if on_topic else "off_topic"     # "what is the best pizza?" is not a document question
+            return intent if (on_topic or intent == "risk") else "off_topic"   # "best pizza?" is not a document question
     if has_substance and has_numbers:
         return "predict"
     if has_substance or re.search(COMBUSTION_WORDS, t):
@@ -155,7 +183,10 @@ def understand(text: str) -> Understanding:
     t = normalize(text)
     vals, substances, notes = extract_conditions(t)
     has_numbers = any(k in vals for k in ("o2_frac", "co2_frac", "he_frac", "pressure_kpa", "droplet_d0_mm"))
-    intent = classify(t, bool(substances), has_numbers)
+    variable = find_variable(t)
+    intent = classify(t, bool(substances), has_numbers, bool(variable))
+    if intent in ("scenario", "explain_variable") and not variable:
+        intent = "predict" if intent == "scenario" else "explain_doc"
     unknown = sorted({v for k, v in UNMEASURED.items() if re.search(rf"\b{k}\b", t)})
     if intent == "off_topic" and re.search(COMBUSTION_WORDS, t):
         intent = "explain_doc"
@@ -165,4 +196,4 @@ def understand(text: str) -> Understanding:
         intent = "predict"               # "what happens on Mars with a methanol droplet?" asks for an outcome
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
-                         substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions)
+                         substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable)

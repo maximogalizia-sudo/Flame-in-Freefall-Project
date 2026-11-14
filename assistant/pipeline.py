@@ -33,6 +33,9 @@ class Gathered:
     unavailable: list[str] = field(default_factory=list)
     results: list[ToolResult] = field(default_factory=list)
     query_translation: str | None = None                                      # as_is / llm / glossary
+    risk: object | None = None                                                # RiskResponse (v3)
+    sweep: object | None = None                                               # SweepResponse (v3)
+    effects: object | None = None                                             # EffectsResponse (v3)
 
 
 def merge_history(u: Understanding, req: AskRequest) -> Understanding:
@@ -77,6 +80,10 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
             r = tools.tests_search(call.args)
             if r.ok:
                 g.counts.append((call.label, call.args.model_dump(exclude_none=True), r.data))
+        elif call.tool in ('risk', 'sweep', 'effects'):
+            r = getattr(tools, call.tool)(call.args)
+            if r.ok:
+                setattr(g, call.tool, r.data)
         elif call.tool == 'rag_search':
             r = tools.rag_search(call.args)
             if r.ok:
@@ -118,6 +125,54 @@ def _counts_sentence(label: str, req: dict, resp, lang: str) -> str:
         n = row.get('n'); key = ', '.join(f'{v}' for k, v in row.items() if k != 'n')
         parts.append(f'{key}: {n}')
     return TP.t('count', lang, label=name, n=resp.n_total, flt=flt, x='; '.join(parts) or '—')
+
+
+LEVEL_WORD = {'es': {'red': 'ROJO (tiende a seguir quemando)', 'yellow': 'AMARILLO (depende)', 'green': 'VERDE (tiende a apagarse)',
+                     'gray': 'GRIS (NASA no lo probó: no se sabe)'},
+              'en': {'red': 'RED (tends to keep burning)', 'yellow': 'YELLOW (it depends)', 'green': 'GREEN (tends to go out)',
+                     'gray': 'GRAY (not tested by NASA: unknown)'}}
+
+
+def risk_sentences(r, lang: str) -> list[str]:
+    a = r.atmosphere
+    head = {'es': f'Indicador temprano de riesgo para O₂ {a.o2_frac * 100:g} %, {a.pressure_kpa:g} kPa: nivel {LEVEL_WORD[lang][r.level]}.',
+            'en': f'Early-warning indicator for O₂ {a.o2_frac * 100:g} %, {a.pressure_kpa:g} kPa: level {LEVEL_WORD[lang][r.level]}.'}[lang]
+    out = [head]
+    for i in r.items:
+        out.append(f'· {i.scenario}: {LEVEL_WORD[lang][i.level]} — {i.reasons[0]}.')
+    out.append(r.disclaimer)
+    return out
+
+
+def sweep_sentences(sw, lang: str) -> list[str]:
+    pts = [p for p in sw.points if p.in_domain]
+    if not pts:
+        return [{'es': 'Para ese escenario NASA no tiene pruebas en ningún punto del rango: no se sabe.',
+                 'en': 'NASA has no tests anywhere in that range for this scenario: unknown.'}[lang]]
+    v = sw.variable
+    fmt = (lambda x: f'{x * 100:g} %') if v.endswith('_frac') else (lambda x: f'{x:g}')
+    first, last = pts[0], pts[-1]
+    out = [{'es': f'Escenario: variando {v} de {fmt(first.x)} a {fmt(last.x)}, la probabilidad pasa de {first.probability * 100:.0f} % a {last.probability * 100:.0f} %.',
+            'en': f'Scenario: varying {v} from {fmt(first.x)} to {fmt(last.x)}, the probability goes from {first.probability * 100:.0f} % to {last.probability * 100:.0f} %.'}[lang]]
+    gaps = [p.x for p in sw.points if not p.in_domain]
+    if gaps:
+        out.append({'es': f'Fuera de {fmt(sw.tested_range[0])}–{fmt(sw.tested_range[1])} NASA no probó esta combinación: ahí no hay número.',
+                    'en': f'Outside {fmt(sw.tested_range[0])}–{fmt(sw.tested_range[1])} NASA did not test this combination: no number there.'}[lang])
+    return out
+
+
+def effects_sentences(e, lang: str) -> list[str]:
+    word = {'es': {'helps extinction': 'ayuda a que se apague', 'keeps it burning': 'la mantiene prendida', 'no clear effect': 'sin efecto claro'},
+            'en': {'helps extinction': 'helps it go out', 'keeps it burning': 'keeps it burning', 'no clear effect': 'no clear effect'}}[lang]
+    out = [{'es': f'Cómo actúa {e.variable} según los modelos:', 'en': f'How {e.variable} acts according to the models:'}[lang]]
+    for r in e.rows:
+        out.append(f'· {r.scenario}, {r.effect}: {word[r.direction]} (×{r.ratio:g}, 95 %: {r.ci_low:g}–{r.ci_high:g}).')
+    if e.tested:
+        out.append({'es': 'Dónde se probó: ', 'en': 'Where it was tested: '}[lang] + '; '.join(e.tested) + '.')
+    if e.not_tested:
+        out.append({'es': 'Nunca se probó: ', 'en': 'Never tested: '}[lang] + '; '.join(e.not_tested) + '.')
+    out += e.caveats
+    return out
 
 
 def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]:
@@ -162,6 +217,18 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             s.append(TP.t('docs_unavailable', lang))
         else:
             s.append(TP.t('docs_none', lang))
+    if 'risk_needs_o2' in plan.notes:
+        s.append({'es': 'Para el indicador de riesgo necesito al menos el % de oxígeno de la atmósfera (y si podés, la presión).',
+                  'en': 'For the risk indicator I need at least the oxygen % of the atmosphere (and the pressure if possible).'}[lang])
+    if g.risk is not None:
+        s += risk_sentences(g.risk, lang)
+        answered = answered or g.risk.level != 'gray'
+    if g.sweep is not None:
+        s += sweep_sentences(g.sweep, lang)
+        answered = answered or any(p.in_domain for p in g.sweep.points)
+    if g.effects is not None:
+        s += effects_sentences(g.effects, lang)
+        answered = answered or bool(g.effects.rows)
     if g.failures:
         s.append(TP.t('tool_failed', lang, x=', '.join(sorted(set(g.failures)))))
     decision = 'answer' if answered else ('partial' if partial else 'abstain')

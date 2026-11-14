@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from flame.contracts import Conditions, RagSearchRequest, TestsSearchRequest
+from flame.contracts import Conditions, RagSearchRequest, RiskRequest, SweepRequest, TestsSearchRequest
 
 from .understand import SOLID_FAMILY_NAME, Understanding, normalize
 
@@ -65,6 +65,36 @@ def make_plan(u: Understanding) -> Plan:
 
     if u.intent == 'off_topic':
         p.notes.append('off_topic')
+        return p
+
+    # v3 (mentors): early-warning risk by atmosphere, hypothetical scenarios, per-variable explanation
+    if u.intent == 'risk':
+        if c.o2_frac is None:
+            p.notes.append('risk_needs_o2')
+            return p
+        p.calls.append(ToolCall('risk', RiskRequest(o2_frac=c.o2_frac, pressure_kpa=c.pressure_kpa or 101.325,
+                                                    co2_frac=c.co2_frac or 0.0, he_frac=c.he_frac or 0.0,
+                                                    horizon_s=c.horizon_s or 30.0)))
+        return p
+
+    if u.intent == 'scenario':
+        if not fam:
+            p.notes.append('no_subject')
+            return p
+        values = None
+        if m := re.search(r'de (\d+(?:[.,]\d+)?) a (\d+(?:[.,]\d+)?) ?%|from (\d+(?:[.,]\d+)?) ?%? to (\d+(?:[.,]\d+)?) ?%', normalize(u.text)):
+            a, b = [float(x.replace(',', '.')) / 100 for x in m.groups() if x][:2]
+            if u.variable in ('o2_frac', 'co2_frac', 'he_frac') and b > a:
+                values = [round(a + k * (b - a) / 8, 4) for k in range(9)]
+        cond = c.model_copy(update={u.variable: None}) if u.variable in ('co2_frac', 'he_frac', 'o2_frac') and values else c
+        p.calls.append(ToolCall('sweep', SweepRequest(conditions=cond, variable=u.variable, values=values)))
+        p.calls.append(ToolCall('effects', u.variable))
+        return p
+
+    if u.intent == 'explain_variable':
+        p.calls.append(ToolCall('effects', u.variable))
+        q = f'{u.variable.replace("_frac", "").replace("_kpa", "").replace("_", " ")} effect on flame extinction microgravity'
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=q, accessions=accessions, k=30)))
         return p
 
     if u.intent == 'explain_doc':

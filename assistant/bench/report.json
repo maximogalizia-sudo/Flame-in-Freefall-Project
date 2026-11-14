@@ -6,10 +6,10 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
-   "llm_used": 1.0,
+   "llm_used": 0.0,
    "n": 8,
    "invented_numbers": 0,
-   "median_ms": 2099
+   "median_ms": 14
   },
   "predict_out": {
    "intent_ok": 1.0,
@@ -17,10 +17,10 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
-   "llm_used": 1.0,
+   "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 1898
+   "median_ms": 15
   },
   "count": {
    "intent_ok": 1.0,
@@ -28,10 +28,10 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
-   "llm_used": 1.0,
+   "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 1694
+   "median_ms": 16
   },
   "trap": {
    "intent_ok": 1.0,
@@ -39,10 +39,43 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
-   "llm_used": 0.67,
+   "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 1407
+   "median_ms": 5
+  },
+  "explain_variable": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "llm_used": 0.0,
+   "n": 3,
+   "invented_numbers": 0,
+   "median_ms": 12
+  },
+  "scenario": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "llm_used": 0.0,
+   "n": 2,
+   "invented_numbers": 0,
+   "median_ms": 277
+  },
+  "risk": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "llm_used": 0.0,
+   "n": 3,
+   "invented_numbers": 0,
+   "median_ms": 76
   },
   "ALL": {
    "intent_ok": 1.0,
@@ -50,10 +83,10 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
-   "llm_used": 0.92,
-   "n": 26,
+   "llm_used": 0.0,
+   "n": 34,
    "invented_numbers": 0,
-   "median_ms": 1694
+   "median_ms": 14
   }
  },
  "failures": []

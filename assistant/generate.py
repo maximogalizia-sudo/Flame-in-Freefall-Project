@@ -23,7 +23,10 @@ STRICT RULES
    Use the SUGGESTED DECISION unless the evidence clearly says otherwise.
 5. If something was never tested or is outside the data, say so plainly and explain why, using the evidence.
 6. Mention the assumptions and limits that the evidence lists (assumed values, moderate confidence, effects that cannot be separated).
-7. Write in {lang_name}. Be clear for a non-expert: short paragraphs, no jargon without a one-line explanation. At most ~170 words.
+7. Scenario sweeps: give the probability at the start and at the end of the TESTED part of the range (they are in the
+   evidence) and say clearly where NASA's data end; do not refuse just because part of the range was not tested.
+   Risk indicator: give the overall level, the scenarios behind it, the untested ones, and always the disclaimer.
+8. Write in {lang_name}. Be clear for a non-expert: short paragraphs, no jargon without a one-line explanation. At most ~170 words.
 """
 LANG = {'es': 'Spanish (Rioplatense, neutral)', 'en': 'English'}
 
@@ -42,6 +45,24 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         k += 1; labels.add(f'T{k}')
         items.append(f'[T{k}] NASA test table query {dumps({"about": label, "filters": {x: v for x, v in req.items() if x not in ("limit", "group_by")}})}: '
                      f'{resp.n_total} tests; outcome counts {dumps(resp.counts[:8])}')
+    if g.risk is not None:                       # v3: early-warning indicator
+        k += 1; labels.add(f'T{k}')
+        r = g.risk
+        items.append(f'[T{k}] early-warning risk indicator for atmosphere {dumps(r.atmosphere.model_dump())}: overall level {r.level}; '
+                     f'{r.headline} Per scenario: ' + '; '.join(f'{i.scenario}: {i.level} ({i.reasons[0]})' for i in r.items)
+                     + f'. DISCLAIMER (must be stated): {r.disclaimer}')
+    if g.sweep is not None:                      # v3: hypothetical scenario
+        k += 1; labels.add(f'T{k}')
+        sw = g.sweep
+        pts = ', '.join(f'{p.x:g}->{p.probability if p.probability is not None else "not tested"}' for p in sw.points)
+        items.append(f'[T{k}] scenario sweep of {sw.variable} (target {sw.target}; probability that the flame goes out): {pts}; '
+                     f'tested range {sw.tested_range}; notes {dumps(sw.notes)}')
+    if g.effects is not None:                    # v3: per-variable explanation
+        k += 1; labels.add(f'T{k}')
+        e = g.effects
+        items.append(f'[T{k}] how {e.variable} acts (ratio > 1 = more likely / sooner to go out): '
+                     + '; '.join(f'{r.scenario}, {r.effect}: x{r.ratio} (95% {r.ci_low}-{r.ci_high}) {r.direction}' for r in e.rows)
+                     + f'. Tested: {dumps(e.tested)}. Never tested: {dumps(e.not_tested)}. Caveats: {dumps(e.caveats)}')
     for j, e in enumerate(g.evidence[:5], 1):
         labels.add(f'E{j}')
         items.append(f'[E{j}] closest real NASA test {e.test_id} ({e.psi_id}): outcome {e.outcome}; source {e.source[:160]}')

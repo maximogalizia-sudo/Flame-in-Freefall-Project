@@ -150,3 +150,86 @@ class RagSearchResponse(BaseModel):
     query: str
     embedding_model: str                 # must be the same model used to index
     candidates: list[RagCandidate]       # sorted by score_rrf; reranking happens in the assistant
+
+
+# ============================================================================ v3 (2026-11-14): mentors' feedback
+# Early-warning risk indicator by atmosphere, hypothetical scenarios (sweeps) and per-variable explanations.
+# Served by MG's API as thin wrappers of flame.scenarios (like /predict); also used by the assistant.
+
+RiskLevel = Literal["green", "yellow", "red", "gray"]
+
+
+class RiskRequest(BaseModel):
+    """A cabin / habitat atmosphere to evaluate."""
+    o2_frac: float = Field(..., ge=0.05, le=1)
+    pressure_kpa: float = Field(101.325, gt=0)
+    co2_frac: float = Field(0.0, ge=0, le=1)
+    he_frac: float = Field(0.0, ge=0, le=1)
+    horizon_s: float = Field(30.0, gt=0)          # gas flames: "goes out by itself within this time"
+
+
+class RiskItem(BaseModel):
+    scenario: str                        # e.g. "methanol droplet", "propane gas flame", "Nomex (fabric)"
+    family: Literal["flex", "cfig", "solids"]
+    level: RiskLevel                     # red = flames tend to keep burning; green = tend to go out; gray = not tested
+    persistence: float | None            # probability that the flame keeps burning (1 - P(goes out)); None = no model
+    ci_low: float | None
+    ci_high: float | None
+    in_domain: bool
+    reasons: list[str]                   # why this level (incl. why "not tested")
+    nearest_tests: list[str] = []
+
+
+class RiskResponse(BaseModel):
+    atmosphere: RiskRequest
+    level: RiskLevel                     # worst level among scenarios that have data ("gray" if none has)
+    items: list[RiskItem]
+    headline: str                        # one sentence, English, built from the items (no new numbers)
+    disclaimer: str                      # always shown: indicator from microgravity lab experiments, not a certified alarm
+    model_version: str
+
+
+SweepVariable = Literal["o2_frac", "co2_frac", "he_frac", "pressure_kpa", "droplet_d0_mm", "horizon_s"]
+
+
+class SweepRequest(BaseModel):
+    """Hypothetical scenario: vary one input, keep the rest of `conditions`."""
+    conditions: Conditions
+    variable: SweepVariable
+    values: list[float] | None = Field(None, max_length=60)   # None = a grid over the tested range
+
+
+class SweepPoint(BaseModel):
+    x: float
+    probability: float | None            # None where the combination was never tested ("we don't know")
+    ci_low: float | None
+    ci_high: float | None
+    in_domain: bool
+
+
+class SweepResponse(BaseModel):
+    variable: str
+    target: str
+    points: list[SweepPoint]
+    tested_range: list[float] | None     # [min, max] of the variable in clean NASA tests of this combination
+    notes: list[str] = []
+    model_version: str
+
+
+class EffectRow(BaseModel):
+    scenario: str                        # e.g. "methanol droplets", "heptane droplets", "normal gas flames"
+    effect: str                          # e.g. "+5 points of CO2"
+    ratio: float                         # odds ratio (droplets) or hazard ratio (gas flames); > 1 = goes out more / sooner
+    ci_low: float
+    ci_high: float
+    direction: Literal["helps extinction", "keeps it burning", "no clear effect"]
+
+
+class EffectsResponse(BaseModel):
+    """Per-variable explanation built from the models + the data (the assistant adds NASA report passages)."""
+    variable: str
+    rows: list[EffectRow]
+    tested: list[str]                    # where NASA tested this variable (ranges per fuel / pressure)
+    not_tested: list[str]                # combinations never tested
+    caveats: list[str]                   # what cannot be separated, moderate confidence, etc.
+    model_version: str

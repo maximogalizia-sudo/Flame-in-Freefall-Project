@@ -1,28 +1,368 @@
 [
-  {"id": "P01", "type": "predict_in", "q": "¿Se apaga una gota de metanol con 18 % de oxígeno y 15 % de CO2?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "methanol"}},
-  {"id": "P02", "type": "predict_in", "q": "Does a heptane droplet go out in air at 21% oxygen?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "heptane"}},
-  {"id": "P03", "type": "predict_in", "q": "¿Se apaga una gota de heptano de 1,5 mm con 15 % de oxígeno?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "heptane", "droplet_d0_mm": 1.5}},
-  {"id": "P04", "type": "predict_in", "q": "Probabilidad de que se apague una gota de metanol con 15 % de oxígeno y 30 % de helio", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"he_frac": 0.3}},
-  {"id": "P05", "type": "predict_in", "q": "Does a butane flame at 40% oxygen and 2 bar go out by itself within 30 s?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "butane"}},
-  {"id": "P06", "type": "predict_in", "q": "¿Cuánto tarda en apagarse sola una llama de propano con 21 % de oxígeno a 1 atm?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "propane"}},
-  {"id": "P07", "type": "predict_in", "q": "Heptane droplet on a fiber, 3 mm, 20% oxygen, 0.7 atm: will the flame go out?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"support": "fiber"}},
-  {"id": "P08", "type": "predict_in", "q": "¿Se apaga una gota de metanol con 21 % de oxígeno?", "intent": "predict", "tools": ["predict"], "decision": "answer", "expect": {"fuel": "methanol"}},
-  {"id": "O01", "type": "predict_out", "q": "¿Se apaga una gota de heptano con 34 % de oxígeno y 20 % de CO2 a 0,7 atm?", "intent": "predict", "tools": ["predict"], "decision": "abstain", "expect": {"fuel": "heptane"}},
-  {"id": "O02", "type": "predict_out", "q": "Does a methanol droplet go out at 21% oxygen with 10% CO2 and 10% helium?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "O03", "type": "predict_out", "q": "¿Se apaga una gota de metanol con 21 % de oxígeno a 3 atm con CO2 al 20 %?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "O04", "type": "predict_out", "q": "Does an ethane flame at 30% oxygen and 3 bar go out by itself?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "O05", "type": "predict_out", "q": "¿Se apaga una gota de heptano en gravedad lunar con 21 % de oxígeno?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "O06", "type": "predict_out", "q": "¿Se apaga una gota de heptano de 6 mm con 15 % de oxígeno?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "C01", "type": "count", "q": "¿Cuántas pruebas de Nomex no prendieron?", "intent": "count", "tools": ["tests_search"], "decision": "answer", "expect_text": ["9"]},
-  {"id": "C02", "type": "count", "q": "How many FLEX tests used methanol?", "intent": "count", "tools": ["tests_search"], "decision": "answer"},
-  {"id": "C03", "type": "count", "q": "¿Cuántas pruebas de algodón hizo NASA?", "intent": "count", "tools": ["tests_search"], "decision": "answer"},
-  {"id": "C04", "type": "count", "q": "How many propane flame tests are there?", "intent": "count", "tools": ["tests_search"], "decision": "answer"},
-  {"id": "C05", "type": "count", "q": "¿En cuántas pruebas de heptano con 15 % de oxígeno se apagó la llama?", "intent": "count", "tools": ["tests_search"], "decision": "answer"},
-  {"id": "C06", "type": "count", "q": "¿Cuántas pruebas de Ultem hay?", "intent": "count", "tools": ["tests_search"], "decision": "answer", "expect_text": ["2"]},
-  {"id": "X01", "type": "trap", "q": "hola como estas", "intent": "off_topic", "tools": [], "decision": "abstain"},
-  {"id": "X02", "type": "trap", "q": "¿Y en gravedad lunar con humedad?", "intent": "coverage", "tools": ["predict"], "decision": "abstain"},
-  {"id": "X03", "type": "trap", "q": "What is the best pizza in Rosario?", "intent": "off_topic", "tools": [], "decision": "abstain"},
-  {"id": "X04", "type": "trap", "q": "¿Se prende fuego el Kevlar con 30 % de oxígeno?", "intent": "predict", "tools": [], "decision": "abstain"},
-  {"id": "X05", "type": "trap", "q": "Does Nomex burn at 34% oxygen?", "intent": "predict", "tools": ["predict"], "decision": "abstain"},
-  {"id": "X06", "type": "trap", "q": "¿Qué pasa en Marte con una gota de metanol?", "intent": "predict", "tools": ["predict"], "decision": "abstain"}
+ {
+  "id": "P01",
+  "type": "predict_in",
+  "q": "¿Se apaga una gota de metanol con 18 % de oxígeno y 15 % de CO2?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "methanol"
+  }
+ },
+ {
+  "id": "P02",
+  "type": "predict_in",
+  "q": "Does a heptane droplet go out in air at 21% oxygen?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "heptane"
+  }
+ },
+ {
+  "id": "P03",
+  "type": "predict_in",
+  "q": "¿Se apaga una gota de heptano de 1,5 mm con 15 % de oxígeno?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "heptane",
+   "droplet_d0_mm": 1.5
+  }
+ },
+ {
+  "id": "P04",
+  "type": "predict_in",
+  "q": "Probabilidad de que se apague una gota de metanol con 15 % de oxígeno y 30 % de helio",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "he_frac": 0.3
+  }
+ },
+ {
+  "id": "P05",
+  "type": "predict_in",
+  "q": "Does a butane flame at 40% oxygen and 2 bar go out by itself within 30 s?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "butane"
+  }
+ },
+ {
+  "id": "P06",
+  "type": "predict_in",
+  "q": "¿Cuánto tarda en apagarse sola una llama de propano con 21 % de oxígeno a 1 atm?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "propane"
+  }
+ },
+ {
+  "id": "P07",
+  "type": "predict_in",
+  "q": "Heptane droplet on a fiber, 3 mm, 20% oxygen, 0.7 atm: will the flame go out?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "support": "fiber"
+  }
+ },
+ {
+  "id": "P08",
+  "type": "predict_in",
+  "q": "¿Se apaga una gota de metanol con 21 % de oxígeno?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "answer",
+  "expect": {
+   "fuel": "methanol"
+  }
+ },
+ {
+  "id": "O01",
+  "type": "predict_out",
+  "q": "¿Se apaga una gota de heptano con 34 % de oxígeno y 20 % de CO2 a 0,7 atm?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain",
+  "expect": {
+   "fuel": "heptane"
+  }
+ },
+ {
+  "id": "O02",
+  "type": "predict_out",
+  "q": "Does a methanol droplet go out at 21% oxygen with 10% CO2 and 10% helium?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "O03",
+  "type": "predict_out",
+  "q": "¿Se apaga una gota de metanol con 21 % de oxígeno a 3 atm con CO2 al 20 %?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "O04",
+  "type": "predict_out",
+  "q": "Does an ethane flame at 30% oxygen and 3 bar go out by itself?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "O05",
+  "type": "predict_out",
+  "q": "¿Se apaga una gota de heptano en gravedad lunar con 21 % de oxígeno?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "O06",
+  "type": "predict_out",
+  "q": "¿Se apaga una gota de heptano de 6 mm con 15 % de oxígeno?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "C01",
+  "type": "count",
+  "q": "¿Cuántas pruebas de Nomex no prendieron?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer",
+  "expect_text": [
+   "9"
+  ]
+ },
+ {
+  "id": "C02",
+  "type": "count",
+  "q": "How many FLEX tests used methanol?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "C03",
+  "type": "count",
+  "q": "¿Cuántas pruebas de algodón hizo NASA?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "C04",
+  "type": "count",
+  "q": "How many propane flame tests are there?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "C05",
+  "type": "count",
+  "q": "¿En cuántas pruebas de heptano con 15 % de oxígeno se apagó la llama?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "C06",
+  "type": "count",
+  "q": "¿Cuántas pruebas de Ultem hay?",
+  "intent": "count",
+  "tools": [
+   "tests_search"
+  ],
+  "decision": "answer",
+  "expect_text": [
+   "2"
+  ]
+ },
+ {
+  "id": "X01",
+  "type": "trap",
+  "q": "hola como estas",
+  "intent": "off_topic",
+  "tools": [],
+  "decision": "abstain"
+ },
+ {
+  "id": "X02",
+  "type": "trap",
+  "q": "¿Y en gravedad lunar con humedad?",
+  "intent": "coverage",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "X03",
+  "type": "trap",
+  "q": "What is the best pizza in Rosario?",
+  "intent": "off_topic",
+  "tools": [],
+  "decision": "abstain"
+ },
+ {
+  "id": "X04",
+  "type": "trap",
+  "q": "¿Se prende fuego el Kevlar con 30 % de oxígeno?",
+  "intent": "predict",
+  "tools": [],
+  "decision": "abstain"
+ },
+ {
+  "id": "X05",
+  "type": "trap",
+  "q": "Does Nomex burn at 34% oxygen?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "X06",
+  "type": "trap",
+  "q": "¿Qué pasa en Marte con una gota de metanol?",
+  "intent": "predict",
+  "tools": [
+   "predict"
+  ],
+  "decision": "abstain"
+ },
+ {
+  "id": "V01",
+  "type": "explain_variable",
+  "q": "¿Cómo incide el CO2 en el fenómeno y con qué variables se relaciona?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "V02",
+  "type": "explain_variable",
+  "q": "How does oxygen affect whether the flame goes out?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "V03",
+  "type": "explain_variable",
+  "q": "¿Qué efecto tiene la presión?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "S01",
+  "type": "scenario",
+  "q": "¿Qué pasa si subo el CO2 de 10 a 30 % en una gota de heptano con 20 % de oxígeno?",
+  "intent": "scenario",
+  "tools": [
+   "sweep"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "S02",
+  "type": "scenario",
+  "q": "What if we increase the oxygen for a methanol droplet?",
+  "intent": "scenario",
+  "tools": [
+   "sweep"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "R01",
+  "type": "risk",
+  "q": "¿Es segura una atmósfera de cabina con 34 % de oxígeno a 0,7 atm?",
+  "intent": "risk",
+  "tools": [
+   "risk"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "R02",
+  "type": "risk",
+  "q": "Early warning for a cabin atmosphere at 21% oxygen and 101 kPa",
+  "intent": "risk",
+  "tools": [
+   "risk"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "R03",
+  "type": "risk",
+  "q": "¿Qué riesgo tiene la atmósfera de la cabina?",
+  "intent": "risk",
+  "tools": [],
+  "decision": "abstain"
+ }
 ]

@@ -17,8 +17,9 @@ import httpx
 import pandas as pd
 
 from flame import models as fm
-from flame.contracts import (Conditions, EvidenceItem, Prediction, RagSearchRequest, RagSearchResponse,
-                             TestsSearchRequest, TestsSearchResponse)
+from flame import scenarios as fs
+from flame.contracts import (Conditions, EffectsResponse, EvidenceItem, Prediction, RagSearchRequest, RagSearchResponse,
+                             RiskRequest, RiskResponse, SweepRequest, SweepResponse, TestsSearchRequest, TestsSearchResponse)
 
 from .config import get_settings
 
@@ -113,6 +114,16 @@ class LocalTools:
     def rag_search(self, req: RagSearchRequest) -> ToolResult:
         return ToolResult('rag_search', req.model_dump(), False, None, 'unavailable: document search runs on MG\'s API (M3)')
 
+    # v3 (mentors): early-warning risk, scenarios, per-variable effects
+    def risk(self, req: RiskRequest) -> ToolResult:
+        return _timed('risk', req.model_dump(), lambda: fs.risk(req))
+
+    def sweep(self, req: SweepRequest) -> ToolResult:
+        return _timed('sweep', req.model_dump(exclude_none=True), lambda: fs.sweep(req))
+
+    def effects(self, variable: str) -> ToolResult:
+        return _timed('effects', {'variable': variable}, lambda: fs.effects(variable))
+
 
 # ------------------------------------------------------------------ HTTP backend (MG's API)
 class HttpTools:
@@ -147,6 +158,17 @@ class HttpTools:
     def rag_search(self, req: RagSearchRequest) -> ToolResult:
         body = req.model_dump()
         return _timed('rag_search', body, lambda: RagSearchResponse(**self._req('POST', '/rag/search', body)))
+
+    def risk(self, req: RiskRequest) -> ToolResult:
+        body = req.model_dump()
+        return _timed('risk', body, lambda: RiskResponse(**self._req('POST', '/risk', body)))
+
+    def sweep(self, req: SweepRequest) -> ToolResult:
+        body = req.model_dump(exclude_none=True)
+        return _timed('sweep', body, lambda: SweepResponse(**self._req('POST', '/sweep', body)))
+
+    def effects(self, variable: str) -> ToolResult:
+        return _timed('effects', {'variable': variable}, lambda: EffectsResponse(**self._req('GET', f'/effects/{variable}')))
 
 
 def get_tools():
