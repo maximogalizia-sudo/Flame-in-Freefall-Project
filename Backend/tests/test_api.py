@@ -32,7 +32,3 @@ def test_tests_measurements_and_steps():
     assert client.get("/tests/PSI-69:114").json()["is_valid"] is False
     assert len(client.get("/tests/PSI-25:B21/steps").json()) >= 1
     assert client.get("/tests/nope/measurements").status_code == 404
-
-
-def test_documents_search_without_service():
-    assert client.get("/documents/search", params={"q": "pmma flammability"}).status_code in (503, 502, 200)

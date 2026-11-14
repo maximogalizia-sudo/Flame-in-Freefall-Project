@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 ENV HF_HOME=/app/hf
 RUN python -c "from sentence_transformers import SentenceTransformer as S; S('Qwen/Qwen3-Embedding-0.6B', device='cpu')"
 ENV HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false
+# The embedding model needs ~2.5 GB of RAM. Railway's trial plan (~512 MB) kills the container while loading it, so
+# query embeddings are OFF by default (text-only /rag/search). On a plan with >= 4 GB set RAG_QUERY_EMBEDDINGS=on.
+ENV RAG_QUERY_EMBEDDINGS=off
 
 # LC's models: package, JSON models and curated tables (flame.models resolves them relative to /app)
 COPY flame ./flame

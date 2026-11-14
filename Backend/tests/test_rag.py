@@ -56,8 +56,21 @@ def test_validation():
     assert client.post("/rag/search", json={"query": "cool flame", "k": 61}).status_code == 422
 
 
-def test_model_unavailable_is_503(monkeypatch):
+def test_model_unavailable_falls_back_to_text_only(fake_channels, monkeypatch):
     def broken(text):
         raise RuntimeError("embedding model unavailable (test)")
     monkeypatch.setattr(rag, "embed_query", broken)
-    assert client.post("/rag/search", json={"query": "cool flame"}).status_code == 503
+    r = client.post("/rag/search", json={"query": "cool flame"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["embedding_model"] == rag.LEXICAL_ONLY
+    assert {c["chunk_id"] for c in body["candidates"]} == {13, 14}          # only the text channel
+    assert all(c["rank_dense"] is None and c["rank_lexical"] for c in body["candidates"])
+
+
+def test_embeddings_off_never_touches_the_model(fake_channels, monkeypatch):
+    monkeypatch.setattr(rag, "EMBEDDINGS_ENABLED", False)
+    monkeypatch.setattr(rag, "embed_query", lambda text: pytest.fail("the model must not be used"))
+    res = rag.search(RagSearchRequest(query="why did FLEX droplets disrupt?"))
+    assert res.embedding_model == rag.LEXICAL_ONLY and rag.status() == "lexical_only"
+    assert fake_channels["exact"] == [False]                                  # only the lexical query ran

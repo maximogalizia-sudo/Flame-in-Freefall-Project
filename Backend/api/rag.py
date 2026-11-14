@@ -13,6 +13,11 @@ No reranker here: the assistant service (LC) reranks the candidates.
 The query is embedded with the SAME model that built the index (RAG/build_index.py): Qwen3-Embedding-0.6B,
 normalized, with QUERY_INSTRUCTION in front (documents were embedded without it). The model is loaded once,
 in a background thread at startup, so the first search does not pay for it.
+
+The model needs ~2.5 GB of RAM (float32). Where that does not fit (Railway trial plan: ~512 MB, the process is
+killed while loading), set RAG_QUERY_EMBEDDINGS=off: /rag/search then runs on the text channel only (every
+candidate has rank_dense = None), which keeps the API up instead of crashing. The same fallback applies if the
+model cannot be loaded for any other reason.
 """
 from __future__ import annotations
 
@@ -31,6 +36,9 @@ QUERY_INSTRUCTION = ("Instruct: Given a question about NASA microgravity combust
 RRF_K = 60
 MAX_CANDIDATES = 30
 COMMON_TERM_SHARE = 0.2
+
+EMBEDDINGS_ENABLED = os.environ.get("RAG_QUERY_EMBEDDINGS", "on").strip().lower() not in {"off", "0", "false", "no"}
+LEXICAL_ONLY = "lexical-only (query embeddings off)"
 
 _model = None
 _model_error: str | None = None
@@ -56,11 +64,15 @@ def _load_model():
 
 
 def warm_up() -> None:
-    """Load the embedding model in the background (called at API startup)."""
+    """Load the embedding model in the background (called at API startup), unless query embeddings are off."""
+    if not EMBEDDINGS_ENABLED:
+        return
     threading.Thread(target=_load_model, name="rag-warm-up", daemon=True).start()
 
 
 def status() -> str:
+    if not EMBEDDINGS_ENABLED:
+        return "lexical_only"
     if _model is not None:
         return "ok"
     return f"error: {_model_error}" if _model_error else "loading"
@@ -112,8 +124,14 @@ def _ranked_ids(sql: str, params: dict, exact: bool = False) -> list[int]:
 
 def search(req: RagSearchRequest) -> RagSearchResponse:
     acc = [a.strip().upper() for a in req.accessions if a.strip()]
-    vec = _vector_literal(embed_query(req.query))
-    dense = _ranked_ids(DENSE_SQL, {"acc": acc, "vec": vec, "k": req.k}, exact=True)
+    dense, model_name = [], LEXICAL_ONLY
+    if EMBEDDINGS_ENABLED:
+        try:
+            vec = _vector_literal(embed_query(req.query))
+            dense = _ranked_ids(DENSE_SQL, {"acc": acc, "vec": vec, "k": req.k}, exact=True)
+            model_name = EMBEDDING_MODEL
+        except RuntimeError as e:          # the model could not be loaded: keep answering from the text channel
+            log.warning("dense search unavailable, using the text channel only: %s", e)
     lexical = _ranked_ids(LEXICAL_SQL, {"acc": acc, "text": req.query, "k": req.k, "common": COMMON_TERM_SHARE})
 
     rank_dense = {cid: i + 1 for i, cid in enumerate(dense)}
@@ -125,7 +143,7 @@ def search(req: RagSearchRequest) -> RagSearchResponse:
     details = {r["chunk_id"]: r for r in db.query(DETAIL_SQL, (top,))} if top else {}
     candidates = [RagCandidate(**details[cid], rank_dense=rank_dense.get(cid), rank_lexical=rank_lexical.get(cid),
                                score_rrf=round(scores[cid], 6)) for cid in top]
-    return RagSearchResponse(query=req.query, embedding_model=EMBEDDING_MODEL, candidates=candidates)
+    return RagSearchResponse(query=req.query, embedding_model=model_name, candidates=candidates)
 
 
 def citations(query: str, accessions: list[str] | None = None, k: int = 5) -> list[Citation]:
