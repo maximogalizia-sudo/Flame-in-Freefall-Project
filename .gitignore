@@ -4,3 +4,7 @@
 # Downloaded PSI PDFs (~740 MB) and archives: kept locally, not in git
 Backend/descargas/
 Backend/*.zip
+
+.venv/
+__pycache__/
+.ipynb_checkpoints/
