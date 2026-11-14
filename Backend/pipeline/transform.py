@@ -6,13 +6,15 @@ Every judgment call lives in mappings/*.csv, not in code:
   variables.csv       shared variable catalog with canonical unit (R5) and measured/calculated (R13)
   materials.csv       ordered regex rules that normalize materials and fuels
   families.csv        PSI families grouped for the dashboard
-  decisions.csv       data decisions (DD-Pxx) and their status: proposed / approved / rejected
+  decisions.csv       data decisions (DD-xxx, docs/DECISIONES_DATOS.md): proposed / approved / rejected
   overrides.csv       per-cell actions (corrections gated by a decision, or R12 invalid marks)
   value_fixes.csv     per-column regex fixes, gated by a decision
 
 Rules from docs/DOCUMENTO_TECNICO.md §6 that this module enforces:
   * nothing is deleted or imputed; corrections apply only when their decision is approved,
     otherwise the row is flagged `pending:<decision>` (R2, D8);
+  * a corrected cell keeps its original text (measurement.source_raw, attributes.source_raw)
+    and a flag: corrected / imputed / unit_suspect (R3, R4);
   * known errors are marked is_valid=False and the value is kept (R12);
   * special values carry flags (R4); flow sequences go to test_steps (R6);
   * stable test_id "<psi_id>:<source id>" (R9).
@@ -119,7 +121,7 @@ def _spice_burn_time(raw: dict) -> dict:
     return {"burn_time_s": secs} if secs > 0 else {}
 
 
-DERIVED = {"PSI-107::spice": ("DD-P04", _spice_burn_time)}
+DERIVED = {"PSI-107::spice": ("DD-004", _spice_burn_time)}
 
 # Values that cannot be negative: a negative value is kept but flagged as a sensor error (R12).
 NON_NEGATIVE = {"flow_cm_s", "pressure_kpa", "burn_time_s", "o2_frac", "fuel_mass_flow_mg_s",
@@ -371,10 +373,15 @@ def build_dimensions(st: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
 
 
 # ---------------------------------------------------------------- rows of one table
+OVERRIDE_FLAG = {"replace": "corrected", "fill_down": "imputed", "unit_suspect": "unit_suspect"}
+
+
 def _iter_rows(table_key, values, rows_meta, overrides, fixes, approved):
-    """Yield (row_idx, row_type, cells, raw, flags, marks) applying approved fixes only.
+    """Yield (row_idx, row_type, cells, raw, flags, marks, fixed) applying approved fixes only.
 
     `marks` collects R12 invalid marks: {column: reason}.
+    `fixed` describes every changed cell: {column: {"source_raw", "flag", "note"}}; the original
+    text is never lost (R3).
     """
     tv = values[values["table_id"] == table_key]
     meta = rows_meta[(rows_meta["table_id"] == table_key) & (rows_meta["row_type"] != "note")]
@@ -385,13 +392,24 @@ def _iter_rows(table_key, values, rows_meta, overrides, fixes, approved):
         cells = {r["column_name"]: dict(r) for r in tv[tv["row_idx"] == row_idx].to_dict("records")}
         flags: list[str] = []
         marks: dict[str, str] = {}
+        fixed: dict[str, dict] = {}
+
+        def change(col, new, flag, dec, note=None):
+            original = cells[col]["value_raw"] if col in cells else None
+            if new == original:                  # the pattern matched an already correct value
+                return
+            fixed.setdefault(col, {"source_raw": original, "flag": flag, "note": note})
+            cells[col] = {"value_raw": new, **_reparse(new)}
+            flags.extend([f"fixed:{dec}", f"{flag}:{col}"])
+
         for _, f in t_fix.iterrows():
             c = cells.get(f["column_name"])
             if c and re.search(f["pattern"], c["value_raw"]):
                 if f["decision_id"] in approved:
                     new = re.sub(f["pattern"], f["replacement"], c["value_raw"]).strip()
-                    cells[f["column_name"]] = {"value_raw": new, **_reparse(new)}
-                    flags.append(f"fixed:{f['decision_id']}")
+                    removed = re.search(f["pattern"], c["value_raw"]).group(0).strip(" :")
+                    change(f["column_name"], new, "corrected", f["decision_id"],
+                           note=removed if not f["replacement"] else None)
                 else:
                     flags.append(f"pending:{f['decision_id']}")
         for _, o in t_over[t_over["row_idx"].astype(int) == row_idx].iterrows():
@@ -402,15 +420,15 @@ def _iter_rows(table_key, values, rows_meta, overrides, fixes, approved):
                 row_type = o["new_value"]
             elif dec and dec not in approved:
                 flags.append(f"pending:{dec}")
-            elif action == "replace":
-                cells[col] = {"value_raw": o["new_value"], **_reparse(o["new_value"])}
-                flags.append(f"fixed:{dec}")
+            elif action in ("replace", "unit_suspect"):
+                change(col, o["new_value"], OVERRIDE_FLAG[action], dec)
             elif action == "fill_down" and prev_raw.get(col):
-                cells[col] = {"value_raw": prev_raw[col], "kind": "text"}
-                flags.append(f"fixed:{dec}")
+                change(col, prev_raw[col], "imputed", dec)
+                if col in cells:
+                    cells[col]["kind"] = "text"
         raw = {c: v["value_raw"] for c, v in cells.items()}
         prev_raw = raw
-        yield int(row_idx), row_type, cells, raw, sorted(set(flags)), marks
+        yield int(row_idx), row_type, cells, raw, sorted(set(flags)), marks, fixed
 
 
 def _reparse(raw: str) -> dict:
@@ -499,36 +517,37 @@ def build_facts(st: dict[str, pd.DataFrame], dims: dict[str, pd.DataFrame]) -> d
                      if any(r[0] == "attribute" for r in rs)}
         first = lambda raw, role: next((raw[c] for c in _cols_with(roles, role) if raw.get(c)), None)  # noqa: E731
 
-        for row_idx, row_type, cells, raw, flags, marks in _iter_rows(
+        for row_idx, row_type, cells, raw, flags, marks, fixed in _iter_rows(
                 table_key, values, rows_meta, overrides, fixes, approved):
             material_raw = next((raw[c] for c in mat_cols if raw.get(c)), None) or (cfg["default_material"] or None)
             mat = matcher.match(material_raw)
             if material_raw and mat is None and not any(f.startswith("pending:") for f in flags) \
                     and row_type != "cleaning":
                 issues.append({"source": table_key, "key": row_idx, "issue": "no material rule", "value": material_raw})
-            comment = " | ".join(raw[c] for c in comment_cols if raw.get(c)) or None
+            notes = [fx["note"] for fx in fixed.values() if fx["note"]]
+            comment = " | ".join([raw[c] for c in comment_cols if raw.get(c)] + notes) or None
             attributes = {name: _attr_value(raw[c]) for c, name in attr_cols.items() if raw.get(c)}
+            if fixed:                                    # R3: original text of every corrected cell
+                attributes["source_raw"] = {c: fx["source_raw"] for c, fx in fixed.items()}
             test_dt = _parse_date(cfg["date_rule"], raw)
             if cfg["date_rule"] and test_dt is None:
                 flags.append("date_unparsed")
 
             # ---------------------------------------- logs, matrices, sessions
             if cfg["fact"] == "log_entry":
-                merge = row_type == "sparse" and logs and logs[-1]["_table"] == table_key
-                if merge and table_key == "PSI-22::acme_e_field_flames" and "DD-P07" not in approved:
-                    flags.append("pending:DD-P07")
-                    merge = False
-                if merge:
-                    for k, v in attributes.items():          # continuation of the previous day
-                        prev = logs[-1]["attributes"].setdefault(k, [])
-                        logs[-1]["attributes"][k] = (prev if isinstance(prev, list) else [prev]) + [v]
-                    logs[-1]["quality_flags"].append(f"merged_row:{row_idx}")
-                    continue
+                # Rows are never merged (D8). DD-007: E-FIELD continuation rows become notes linked to their day.
+                log_type, parent_row = ("continuation" if row_type == "sparse" else "log"), None
+                if row_type == "sparse" and table_key == "PSI-22::acme_e_field_flames":
+                    if "DD-007" in approved:
+                        day = next((e for e in reversed(logs) if e["_table"] == table_key and e["row_type"] == "log"), None)
+                        log_type, parent_row = "note", (day["source_row"] if day else None)
+                    else:
+                        flags.append("pending:DD-007")
                 n_fl = first(raw, "n_flames")
                 logs.append({
                     "_table": table_key,
                     "investigation_id": inv_ids[table_key], "source_table_id": st_ids[table_key],
-                    "source_row": row_idx, "row_type": "continuation" if row_type == "sparse" else "log",
+                    "source_row": row_idx, "row_type": log_type, "parent_row": parent_row,
                     "entry_type": cfg["entry_type"],
                     "entry_date_key": int(test_dt.strftime("%Y%m%d")) if test_dt else None,
                     "label": first(raw, "log_label"),
@@ -592,14 +611,17 @@ def build_facts(st: dict[str, pd.DataFrame], dims: dict[str, pd.DataFrame]) -> d
                         flags.append(f"midpoint:{var}")
                     if m["value_num"] is None and m["value_text"] is None:
                         continue
+                    if col in fixed:
+                        m["flag"] = fixed[col]["flag"]
                     if col in marks:
                         m["flag"] = "sensor_error"
                         invalid.append(marks[col])
                     if var in NON_NEGATIVE and m["value_num"] is not None and m["value_num"] < 0:
                         m["flag"] = "sensor_error"
-                        invalid.append(f"negative {var} ({cells[col]['value_raw']}); see DD-P03")
+                        invalid.append(f"negative {var} ({cells[col]['value_raw']}); see DD-003")
                     seen_vars.add(var)
-                    add_measurement(test_run_id, var, col, cells[col]["value_raw"], m)
+                    src_raw = fixed[col]["source_raw"] if col in fixed else cells[col]["value_raw"]
+                    add_measurement(test_run_id, var, col, src_raw, m)
                     if var in CORE_COLUMNS and m["value_num"] is not None:
                         run[var] = round(m["value_num"], 6)
 
@@ -650,7 +672,7 @@ def build_facts(st: dict[str, pd.DataFrame], dims: dict[str, pd.DataFrame]) -> d
 
     fact_logs = pd.DataFrame(logs).drop(columns=["_table"])
     fact_logs.insert(0, "log_entry_id", range(1, len(fact_logs) + 1))
-    for c in ("entry_date_key", "material_id", "n_flames_ignited"):
+    for c in ("entry_date_key", "material_id", "n_flames_ignited", "parent_row"):
         fact_logs[c] = fact_logs[c].astype("Int64")
     fact_logs["attributes"] = fact_logs["attributes"].map(lambda d: json.dumps(d, ensure_ascii=False) if d else None)
 

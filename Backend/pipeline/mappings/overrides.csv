@@ -1,9 +1,13 @@
 table_id,row_idx,column_name,action,new_value,decision_id,reason
-PSI-99::saffire_2,4,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
-PSI-99::saffire_2,5,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
-PSI-99::saffire_2,6,sample_thickness,replace,0.37 mm,DD-P01,"""037 mm"": missing decimal point"
-PSI-99::saffire_2,6,material,fill_down,,DD-P02,Merged cell in the source: same material as 2-5
-PSI-99::saffire_2,9,material,fill_down,,DD-P02,Merged cell in the source: same material as 2-8
+PSI-99::saffire_2,4,sample_thickness,replace,0.37 mm,DD-001,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,5,sample_thickness,replace,0.37 mm,DD-001,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,6,sample_thickness,replace,0.37 mm,DD-001,"""037 mm"": missing decimal point"
+PSI-99::saffire_2,6,material,fill_down,,DD-002,Merged cell in the source: same material as 2-5
+PSI-99::saffire_2,9,material,fill_down,,DD-002,Merged cell in the source: same material as 2-8
+PSI-98::saffire_1,1,sample_thickness,unit_suspect,0.37 mm,DD-009,"Header says cm, but 3.7 mm is implausible for SIBAL fabric (NASA Table 1: 0.33 mm)"
+PSI-98::saffire_1,2,sample_thickness,unit_suspect,0.37 mm,DD-009,"Header says cm, but 3.7 mm is implausible for SIBAL fabric (NASA Table 1: 0.33 mm)"
+PSI-100::saffire_3,1,sample_thickness,unit_suspect,0.33 mm,DD-009,"Cell says .33 cm, but 3.3 mm is implausible for SIBAL fabric (NASA Table 1: 0.33 mm)"
+PSI-100::saffire_3,2,sample_thickness,unit_suspect,0.33 mm,DD-009,"Cell says .33 cm, but 3.3 mm is implausible for SIBAL fabric (NASA Table 1: 0.33 mm)"
 PSI-69::flex,114,ambient_pressure,invalid,,,Known sensor error: 0 mmHg (R12)
 PSI-25::bass_ii,97,calibrated_final_o2_pct_by_vol,invalid,,,Known sensor error: final O2 39.1 % (R12)
 PSI-25::bass_ii,128,calibrated_final_o2_pct_by_vol,invalid,,,Known sensor error: final O2 40.4 % (R12)

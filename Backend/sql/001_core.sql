@@ -208,7 +208,8 @@ CREATE TABLE fact_measurement (
     value_text     text,                 -- original value when it is not numeric ("Insignificant", "RAMP")
     is_approx      boolean NOT NULL DEFAULT false,
     flag           text CHECK (flag IN ('approx', 'censored', 'ramped', 'excel_error', 'encoding_loss',
-                                        'sensor_error', 'derived')),   -- R4
+                                        'sensor_error', 'derived',
+                                        'corrected', 'imputed', 'unit_suspect')),   -- R4; the last three come from approved decisions
     censored       text CHECK (censored IN ('>', '<')),
     censor_limit   double precision,
     source_column  text NOT NULL,
@@ -234,7 +235,8 @@ CREATE TABLE fact_log_entry (
     investigation_id int      NOT NULL REFERENCES dim_investigation,
     source_table_id  smallint NOT NULL REFERENCES dim_source_table,
     source_row       int      NOT NULL,
-    row_type         text NOT NULL CHECK (row_type IN ('log', 'continuation')),
+    row_type         text NOT NULL CHECK (row_type IN ('log', 'continuation', 'note')),
+    parent_row       int,                      -- for row_type 'note': source_row of the day it belongs to (DD-007)
     entry_type       text NOT NULL CHECK (entry_type IN ('operation_day', 'test_matrix', 'sampling_session', 'dataset_index')),
     entry_date_key   int      REFERENCES dim_date,
     label            text,

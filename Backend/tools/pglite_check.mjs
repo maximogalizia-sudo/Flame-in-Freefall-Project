@@ -55,7 +55,7 @@ const one = async (sql) => (await db.query(sql)).rows[0];
 const checks = [
   ["24 investigations", "SELECT count(*) = 24 AS ok FROM core.dim_investigation"],
   ["1871 table rows in fact_test_run", "SELECT count(*) = 1871 AS ok FROM core.fact_test_run"],
-  // 119 log rows + 11 E-FIELD continuation rows kept separate while DD-P07 is pending.
+  // 119 log rows + 11 E-FIELD continuation rows, never merged (DD-007: row_type 'note' + parent_row).
   ["130 log entries", "SELECT count(*) = 130 AS ok FROM core.fact_log_entry"],
   ["all 22 tables mapped and loaded", `SELECT bool_and(n > 0) AND count(*) = 22 AS ok FROM (
      SELECT st.source_table_id, (SELECT count(*) FROM core.fact_test_run r WHERE r.source_table_id = st.source_table_id)
@@ -68,7 +68,13 @@ const checks = [
   ["R4 censored values carry a limit", "SELECT bool_and(censor_limit IS NOT NULL AND censored IS NOT NULL) AS ok FROM core.fact_measurement WHERE flag = 'censored'"],
   ["R6 flow sequences in test_step", "SELECT count(*) > 100 AS ok FROM core.test_step"],
   ["R13 Tad and Zst marked as calculated", "SELECT bool_and(measured_or_calculated = 'calculated') AS ok FROM core.dim_variable WHERE code IN ('tad_k', 'zst')"],
-  ["pending decisions are not applied", "SELECT count(*) = 0 AS ok FROM core.fact_test_run WHERE EXISTS (SELECT 1 FROM unnest(quality_flags) f WHERE f LIKE 'fixed:%')"],
+  ["only approved decisions are applied", `SELECT count(*) = 0 AS ok FROM core.fact_test_run r, unnest(r.quality_flags) f
+     WHERE f LIKE 'fixed:%' AND substr(f, 7) NOT IN (SELECT decision_id FROM core.data_decision WHERE status = 'approved')`],
+  ["corrected cells keep the original (R3)", "SELECT bool_and(source_raw IS NOT NULL) AS ok FROM core.fact_measurement WHERE flag IN ('corrected', 'unit_suspect')"],
+  ["DD-001/DD-009 SIBAL thickness in tenths of mm", `SELECT bool_and(m.value_num < 1) AND count(*) = 7 AS ok FROM core.fact_measurement m
+     JOIN core.fact_test_run r USING (test_run_id) JOIN core.dim_variable v USING (variable_id)
+     WHERE v.code = 'thickness_mm' AND m.flag IN ('corrected', 'unit_suspect')`],
+  ["DD-007 E-FIELD notes linked to a day", "SELECT count(*) = 11 AND bool_and(parent_row IS NOT NULL) AS ok FROM core.fact_log_entry WHERE row_type = 'note'"],
   ["FLEX: 186 extinctions", "SELECT count(*) = 186 AS ok FROM mart.v_tests WHERE psi_id = 'PSI-69' AND outcome = 'extinction'"],
   ["mart views respond", "SELECT (SELECT count(*) FROM mart.v_investigations) = 24 AND (SELECT count(*) FROM mart.v_tested_envelope) > 0 AS ok"],
 ];
