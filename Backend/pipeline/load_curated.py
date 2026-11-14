@@ -78,6 +78,9 @@ def main() -> None:
     if not url:
         raise SystemExit("DATABASE_URL is not set")
     with psycopg2.connect(url) as conn, conn.cursor() as cur:
+        cur.execute("SELECT version(), (SELECT default_version FROM pg_available_extensions WHERE name = 'vector')")
+        version, pgvector = cur.fetchone()
+        print(f"postgres: {version.split(',')[0]} | pgvector available: {pgvector or 'NO'}")
         cur.execute("CREATE SCHEMA IF NOT EXISTS mart")
         for name, file_name in TABLES.items():
             df = read(file_name)
