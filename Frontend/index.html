@@ -80,14 +80,16 @@
         <header class="card-head">
           <div>
             <h2 id="t-chat">Ask the data</h2>
-            <p class="sub" id="chat-sub">Ask in plain English. The answer shows what was understood, the closest NASA tests and where the data ends.</p>
+            <p class="sub" id="chat-sub">Ask in plain English. Answers are written only from the NASA data, the interpretable models and the NASA reports; each one shows its sources and where the data ends.</p>
           </div>
+          <button type="button" class="chat-clear" id="chat-clear" hidden>New conversation</button>
         </header>
+        <div class="chat-log" id="chat-log" role="log" aria-live="polite" aria-label="Conversation"></div>
+        <div class="chat-examples" id="chat-examples" aria-label="Example questions"></div>
         <form class="chat-form" id="chat-form">
-          <input type="text" id="chat-input" placeholder="Would cotton fabric burn at 34% oxygen in a lunar habitat?" aria-label="Question" maxlength="500">
+          <input type="text" id="chat-input" placeholder="Would cotton fabric burn at 34% oxygen in a lunar habitat?" aria-label="Question" maxlength="500" autocomplete="off">
           <button type="submit" id="chat-btn">Ask</button>
         </form>
-        <div class="answer" id="answer" aria-live="polite"></div>
       </section>
 
       <details class="card span-3 fold" id="inv-fold">

@@ -152,7 +152,51 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .top { display: flex; flex-wrap: wrap-reverse; justify-content: space-between; align-items: flex-end; gap: 12px; }  /* wrap-reverse flips the cross axis: flex-end = top */
 .top > div { flex: 1 1 320px; min-width: 0; }
 .mode { color: var(--muted); font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
-.answer { margin-top: 12px; font-size: 14px; }
-.answer h3 { font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
-.evidence { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
 .chat-form button:not(:disabled) { opacity: 1; cursor: pointer; }
+
+/* ---------------------------------------------------------------- chat (M5) */
+.chat .card-head { align-items: flex-start; }
+.chat-clear, .chip { font: inherit; font-size: 13px; color: var(--accent); background: transparent; border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+.chat-clear:hover, .chip:hover, .chat-clear:focus-visible, .chip:focus-visible { background: var(--page); }
+.chat-log { display: grid; gap: 12px; margin: 4px 0 12px; }
+.chat-log:empty { display: none; }
+.chat-examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; font-size: 13px; }
+.chip { text-align: left; border-radius: 10px; color: var(--ink-2); }
+.turn { max-width: 100%; font-size: 14px; line-height: 1.5; }
+.turn p { margin: 0 0 8px; }
+.turn-user { justify-self: end; max-width: min(640px, 92%); background: var(--accent); color: #fff; border-radius: 12px 12px 2px 12px; padding: 8px 12px; }
+.turn-user p { margin: 0; }
+.turn-bot { justify-self: stretch; background: var(--page); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; min-width: 0; overflow-wrap: anywhere; }
+.turn h3 { font-size: 13px; font-weight: 600; margin: 14px 0 6px; }
+.turn code { font-size: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+.muted { color: var(--muted); font-size: 12px; }
+.decision { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; font-weight: 600; border: 1px solid currentColor; border-radius: 999px; padding: 2px 10px; margin-bottom: 8px; }
+.decision-answer { color: var(--out-ext); }
+.decision-partial { color: var(--out-burn); }
+.decision-abstain, .decision-error { color: var(--ink-2); border-style: dashed; }
+.pred { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.pred h4 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+.pred p { margin: 4px 0; }
+.pred ul { margin: 4px 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.pred-value b { font-size: 24px; font-weight: 650; margin-right: 6px; }
+.pred-bar { position: relative; height: 10px; border-radius: 5px; background: var(--grid); margin: 6px 0 8px; }
+.pred-ci { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--accent) 35%, transparent); border-radius: 5px; }
+.pred-dot { position: absolute; top: -3px; width: 4px; height: 16px; margin-left: -2px; background: var(--accent); border-radius: 2px; }
+.pred-out { border-style: dashed; }
+.pred .note { font-size: 12px; color: var(--ink-2); background: var(--page); border-radius: 6px; padding: 4px 8px; margin: 6px 0; }
+.pred-flag { font-weight: 600; color: var(--ink-2); }
+.sens { font-size: 13px; color: var(--ink-2); }
+.evidence, .cites { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.evidence li { margin: 3px 0; }
+.cites { list-style: none; padding: 0; display: grid; gap: 8px; }
+.cites li { border-left: 3px solid var(--border); padding-left: 10px; }
+.cites q { display: block; font-size: 13px; color: var(--ink); quotes: none; }
+.cites .muted { display: block; margin-top: 2px; }
+.tag { font-size: 11px; border: 1px solid var(--border); border-radius: 999px; padding: 0 7px; color: var(--ink); background: var(--surface); }
+.more > summary, .how > summary { cursor: pointer; font-size: 13px; color: var(--accent); }
+.how { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 8px; }
+.how dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 8px 0 0; font-size: 13px; }
+.how dt { color: var(--muted); }
+.how dd { margin: 0; min-width: 0; }
+.how dd p, .how dd ul { margin: 0; }
+@media (max-width: 560px) { .how dl { grid-template-columns: 1fr; gap: 0; } .how dd { margin-bottom: 8px; } }

@@ -1,4 +1,5 @@
-import { API_BASE, ask, getInvestigations, getMeasurements, getStats, getSteps, getTests, isOnline } from "./api.js";
+import { API_BASE, getInvestigations, getMeasurements, getStats, getSteps, getTests, isOnline } from "./api.js";
+import { setupChat } from "./chat.js";
 
 const SVG = "http://www.w3.org/2000/svg";
 const $ = (sel) => document.querySelector(sel);
@@ -322,39 +323,6 @@ function renderInvestigations(invs) {
       <td><a href="${esc(i.doi_url)}" target="_blank" rel="noopener">${esc(i.doi)}</a></td></tr>`).join("")}</tbody>`;
 }
 
-// ------------------------------------------------------------------ ask
-function setupAsk() {
-  const form = $("#chat-form"), input = $("#chat-input"), btn = $("#chat-btn"), out = $("#answer");
-  if (!isOnline()) {
-    input.disabled = btn.disabled = true;
-    $("#chat-sub").textContent = "Needs the backend API. This page is running offline on static data.";
-    return;
-  }
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const text = input.value.trim() || input.placeholder;
-    btn.disabled = true;
-    out.innerHTML = `<p class="flags">Thinking…</p>`;
-    try {
-      const a = await ask(text);
-      const p = a.predictions[0];
-      out.innerHTML =
-        `<p>${esc(a.text)}</p>` +
-        (a.unknown_terms.length ? `<p class="flags">Not measured by NASA: ${esc(a.unknown_terms.join(", "))}</p>` : "") +
-        (p ? `<p class="flags">Estimate: ${p.probability == null ? "—" : pct(p.probability)} self-extinguished` +
-          (p.ci_low != null ? ` (95 % CI ${pct(p.ci_low)}–${pct(p.ci_high)})` : "") + ` · ${p.in_domain ? "inside" : "outside"} the tested range · ${esc(p.model_version)}</p>` : "") +
-        (a.evidence.length ? `<h3>Closest NASA tests</h3><ul class="evidence">${a.evidence.map((e) =>
-          `<li><b>${esc(e.test_id)}</b> · ${esc(e.outcome)} · ${esc(e.source)}</li>`).join("")}</ul>` : "") +
-        (a.citations.length ? `<h3>Documents</h3><ul class="evidence">${a.citations.map((c) =>
-          `<li>${esc(c.snippet)} <span class="flags">${esc(c.title ?? c.doc_id)}${c.page_or_section ? `, ${esc(c.page_or_section)}` : ""}</span></li>`).join("")}</ul>` : "");
-    } catch (err) {
-      out.innerHTML = `<p class="flags">Could not get an answer: ${esc(err.message)}</p>`;
-    } finally {
-      btn.disabled = false;
-    }
-  });
-}
-
 // ------------------------------------------------------------------ filters
 function fillSelect(sel, items) {
   const keep = sel.value;
@@ -385,6 +353,9 @@ for (const [id, key] of [["#f-group", "group"], ["#f-inv", "inv"], ["#f-mat", "m
 }
 
 // ------------------------------------------------------------------ boot
+// The chat does not need the dashboard data: start it first, so a question sent while the charts load is not
+// submitted as a plain form (which would reload the page and lose ?api=).
+setupChat();
 try {
   $("#mode").textContent = isOnline() ? `Live API · ${new URL(API_BASE).host}` : "Offline data";
   const [stats, invs, tests] = await Promise.all([getStats(), getInvestigations(), getTests()]);
@@ -395,7 +366,6 @@ try {
   renderInvestigations(invs);
   refreshFilters();
   render();
-  setupAsk();
   let raf;
   new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }).observe($("#chart-bars"));
 } catch (err) {

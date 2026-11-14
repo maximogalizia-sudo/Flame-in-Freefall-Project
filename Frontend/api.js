@@ -41,11 +41,14 @@ export async function getSteps(testId) {
   return (await offline("test_steps.json")).filter((s) => s.test_id === testId);
 }
 
-export async function ask(text) {
+// POST /ask. `history` = previous turns [{role: "user"|"assistant", text}] (the API accepts up to 10).
+// The assistant service can take up to 90 s, so the browser waits a little longer than the API does.
+export async function ask(text, history = [], lang) {
   if (!API_BASE) throw new Error("The question box needs the backend API (offline mode).");
   return getJSON(`${API_BASE}/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, history: history.slice(-10), ...(lang ? { lang } : {}) }),
+    signal: AbortSignal.timeout(100_000),
   });
 }
