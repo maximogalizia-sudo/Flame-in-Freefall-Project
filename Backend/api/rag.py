@@ -1,7 +1,11 @@
 """Hybrid search over the NASA reports for the assistant: POST /rag/search (docs/PLAN_ASISTENTE.md, M3).
 
-  dense   : pgvector cosine distance between the query embedding and each chunk (top k)
-  lexical : Postgres full-text search, any query word may match (OR), ranked by ts_rank_cd (top k)
+  dense   : pgvector cosine distance between the query embedding and each chunk (top k), exact scan (the corpus
+            has a few thousand chunks, so an exact scan costs milliseconds and the report filter is always exact)
+  lexical : Postgres full-text search, any query word may match (OR), ranked by ts_rank_cd divided by the chunk
+            length (top k). Words that appear in more than COMMON_TERM_SHARE of the chunks ("FLEX", "droplet",
+            "flame"...) say nothing about which passage answers the question, so they are ignored unless every
+            query word is that common.
   fusion  : reciprocal-rank fusion, score = sum over channels of 1 / (60 + rank); up to 30 candidates
 
 No reranker here: the assistant service (LC) reranks the candidates.
@@ -26,6 +30,7 @@ QUERY_INSTRUCTION = ("Instruct: Given a question about NASA microgravity combust
                      "retrieve passages from NASA reports that answer it.\nQuery: ")
 RRF_K = 60
 MAX_CANDIDATES = 30
+COMMON_TERM_SHARE = 0.2
 
 _model = None
 _model_error: str | None = None
@@ -78,20 +83,29 @@ DENSE_SQL = f"""
     SELECT c.chunk_id FROM rag.chunk c JOIN rag.document d USING (document_id)
     WHERE {DOC_FILTER}
     ORDER BY c.embedding <=> %(vec)s::vector LIMIT %(k)s"""
+# The query words as stems (the same 'english' configuration that built rag.chunk.tsv), with their share of chunks.
 LEXICAL_SQL = f"""
-    WITH q AS (SELECT to_tsquery('english', replace(plainto_tsquery('english', %(text)s)::text, ' & ', ' | ')) AS tq)
+    WITH terms AS (SELECT unnest(tsvector_to_array(to_tsvector('english', %(text)s))) AS t),
+         stat  AS (SELECT word, ndoc FROM ts_stat('SELECT tsv FROM rag.chunk')),
+         total AS (SELECT greatest(count(*), 1)::float AS n FROM rag.chunk),
+         share AS (SELECT t, coalesce(s.ndoc, 0) / total.n AS frac FROM terms LEFT JOIN stat s ON s.word = terms.t, total),
+         kept  AS (SELECT t FROM share WHERE frac <= %(common)s
+                   UNION ALL
+                   SELECT t FROM share WHERE NOT EXISTS (SELECT 1 FROM share WHERE frac <= %(common)s)),
+         q     AS (SELECT to_tsquery('simple', string_agg(quote_literal(t), ' | ')) AS tq FROM kept)
     SELECT c.chunk_id FROM rag.chunk c JOIN rag.document d USING (document_id), q
-    WHERE {DOC_FILTER} AND numnode(q.tq) > 0 AND c.tsv @@ q.tq
-    ORDER BY ts_rank_cd(c.tsv, q.tq) DESC, c.chunk_id LIMIT %(k)s"""
+    WHERE {DOC_FILTER} AND q.tq IS NOT NULL AND numnode(q.tq) > 0 AND c.tsv @@ q.tq
+    ORDER BY ts_rank_cd(c.tsv, q.tq, 2) DESC, c.chunk_id LIMIT %(k)s"""
 DETAIL_SQL = """
     SELECT c.chunk_id, d.accession, d.title AS doc_title, d.file_name, c.page_from, c.page_to, c.content, d.source_url
     FROM rag.chunk c JOIN rag.document d USING (document_id) WHERE c.chunk_id = ANY(%s)"""
 
 
-def _ranked_ids(sql: str, params: dict) -> list[int]:
+def _ranked_ids(sql: str, params: dict, exact: bool = False) -> list[int]:
     with db.connection() as conn, conn.cursor() as cur:
-        # with an accession filter, keep scanning the HNSW index until k rows pass it (pgvector >= 0.8)
-        cur.execute("SET LOCAL hnsw.iterative_scan = relaxed_order")
+        if exact:      # exact vector scan instead of the approximate HNSW index
+            cur.execute("SET LOCAL enable_indexscan = off")
+            cur.execute("SET LOCAL enable_bitmapscan = off")
         cur.execute(sql, params)
         return [r[0] for r in cur.fetchall()]
 
@@ -99,8 +113,8 @@ def _ranked_ids(sql: str, params: dict) -> list[int]:
 def search(req: RagSearchRequest) -> RagSearchResponse:
     acc = [a.strip().upper() for a in req.accessions if a.strip()]
     vec = _vector_literal(embed_query(req.query))
-    dense = _ranked_ids(DENSE_SQL, {"acc": acc, "vec": vec, "k": req.k})
-    lexical = _ranked_ids(LEXICAL_SQL, {"acc": acc, "text": req.query, "k": req.k})
+    dense = _ranked_ids(DENSE_SQL, {"acc": acc, "vec": vec, "k": req.k}, exact=True)
+    lexical = _ranked_ids(LEXICAL_SQL, {"acc": acc, "text": req.query, "k": req.k, "common": COMMON_TERM_SHARE})
 
     rank_dense = {cid: i + 1 for i, cid in enumerate(dense)}
     rank_lexical = {cid: i + 1 for i, cid in enumerate(lexical)}

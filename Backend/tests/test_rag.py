@@ -14,8 +14,9 @@ client = TestClient(app)
 def fake_channels(monkeypatch):
     calls = {}
 
-    def ranked(sql, params):
+    def ranked(sql, params, exact=False):
         calls.setdefault("params", []).append(params)
+        calls.setdefault("exact", []).append(exact)
         return [11, 12, 13] if sql is rag.DENSE_SQL else [13, 14]
 
     def details(sql, params):
@@ -40,6 +41,7 @@ def test_rrf_fusion_and_ranks(fake_channels):
     assert only_text.rank_dense is None and only_text.rank_lexical == 2
     assert res.embedding_model == "Qwen/Qwen3-Embedding-0.6B"
     assert all(p["acc"] == ["PSI-69"] and p["k"] == 5 for p in fake_channels["params"])
+    assert fake_channels["exact"] == [True, False]         # dense = exact scan, lexical = GIN index
 
 
 def test_endpoint_and_citations(fake_channels):

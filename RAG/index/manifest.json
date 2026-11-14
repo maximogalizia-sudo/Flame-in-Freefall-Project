@@ -1,0 +1,96 @@
+{
+  "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+  "embedding_dim": 1024,
+  "normalized": true,
+  "document_instruction": null,
+  "chunk_chars": 1400,
+  "overlap_chars": 220,
+  "n_chunks": 855,
+  "documents": [
+    {
+      "accession": "PSI-69",
+      "file": "NASA-TP-2015-216046_FLEX_Detailed_Results.pdf",
+      "pages": 314,
+      "pages_skipped": 7,
+      "chunks": 248
+    },
+    {
+      "accession": "PSI-159",
+      "file": "PSI-159_Reports_FinalRpt_ACME.CFI-G.pdf",
+      "pages": 93,
+      "pages_skipped": 0,
+      "chunks": 195
+    },
+    {
+      "accession": "PSI-25",
+      "file": "PSI-25_Reports_BASS-II Summary Report.pdf",
+      "pages": 144,
+      "pages_skipped": 9,
+      "chunks": 314
+    },
+    {
+      "accession": "PSI-25",
+      "file": "PSI-25_Science Documents_BASS-II_SRD.pdf",
+      "pages": 16,
+      "pages_skipped": 0,
+      "chunks": 10
+    },
+    {
+      "accession": "PSI-25",
+      "file": "PSI-25_Science Documents_BASS-II_ReadMe.docx",
+      "pages": null,
+      "pages_skipped": 0,
+      "chunks": 15
+    },
+    {
+      "accession": "PSI-26",
+      "file": "PSI-26_Science Documents_SRD_BASS.pdf",
+      "pages": 11,
+      "pages_skipped": 1,
+      "chunks": 12
+    },
+    {
+      "accession": "PSI-26",
+      "file": "PSI-26_Science Documents_DLD_BASS.pdf",
+      "pages": 1,
+      "pages_skipped": 0,
+      "chunks": 1
+    },
+    {
+      "accession": "PSI-26",
+      "file": "PSI-26_Presentations_BASS_Overview of Recent ISS Results.pdf",
+      "pages": 63,
+      "pages_skipped": 10,
+      "chunks": 11
+    },
+    {
+      "accession": "PSI-26",
+      "file": "PSI-26_Presentations_Flammability Aspects of Fabric_USNationalCombustion2013.pdf",
+      "pages": 39,
+      "pages_skipped": 5,
+      "chunks": 10
+    },
+    {
+      "accession": "PSI-26",
+      "file": "PSI-26_Presentations_FlammabilityAspectsofCottonFiberglassFabric_ASGSR2012.pdf",
+      "pages": 39,
+      "pages_skipped": 7,
+      "chunks": 8
+    },
+    {
+      "accession": "PSI-98",
+      "file": "PSI-98_Science Documents_SAFFIRE Objectives, Development and Status.pdf",
+      "pages": 6,
+      "pages_skipped": 0,
+      "chunks": 26
+    },
+    {
+      "accession": "PSI-98",
+      "file": "PSI-98_Science Documents_SAFFIRE-I and SAFFIRE-III Readme.docx",
+      "pages": null,
+      "pages_skipped": 0,
+      "chunks": 5
+    }
+  ],
+  "index_sha256": "bcb2e1d86083d47b94f847a6562c8527684ec984ac6cbf215e15f4e68202341c"
+}
