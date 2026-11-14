@@ -12,7 +12,12 @@ from flame.contracts import Answer, AskRequest
 
 from . import VERSION
 from .config import get_settings
+from .envfile import load_env
+from .generate import make_drafter
+from .llm import get_llm
 from .pipeline import answer
+
+load_env()   # local runs only: reads ./.env if present (Railway passes real environment variables)
 from .tools import get_tools
 
 app = FastAPI(title='Flame in Freefall assistant', version=VERSION,
@@ -28,23 +33,26 @@ def require_token(authorization: str | None = Header(default=None)) -> None:
         raise HTTPException(401, 'Missing or invalid service token', headers={'WWW-Authenticate': 'Bearer'})
 
 
-def get_drafter():
-    """Step 3 plugs the LLM drafter here; None = template answers."""
-    try:
-        from .generate import make_drafter
-    except ImportError:
-        return None
-    return make_drafter()
+_LLM = None
+
+
+def get_llm_instance():
+    """One LLM client per process, so the model fallback (LLM_MODEL list) is remembered between requests."""
+    global _LLM
+    if _LLM is None:
+        _LLM = get_llm()
+    return _LLM
 
 
 @app.get('/health')
 def health() -> dict:
-    s = get_settings()
+    s, llm = get_settings(), get_llm_instance()
     return {'status': 'ok', 'version': VERSION, 'tools_mode': get_tools().mode,
-            'llm': 'configured' if s.llm_base_url else 'not_configured', 'llm_model': s.llm_model if s.llm_base_url else None,
-            'reranker': s.reranker_model or 'off'}
+            'llm': 'configured' if llm else 'not_configured', 'llm_model_active': llm.active_model if llm else None,
+            'llm_models': llm.models if llm else [], 'reranker': s.reranker_model or 'off'}
 
 
 @app.post('/answer', response_model=Answer, dependencies=[Depends(require_token)])
 def answer_endpoint(req: AskRequest) -> Answer:
-    return answer(req, drafter=get_drafter())
+    llm = get_llm_instance()
+    return answer(req, drafter=make_drafter(llm) if llm else None, llm=llm)

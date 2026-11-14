@@ -16,6 +16,7 @@ from . import VERSION
 from . import templates as TP
 from .config import get_settings
 from .plan import OUTCOME_COL, Plan, make_plan
+from .retrieve import select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, understand
 
@@ -31,6 +32,7 @@ class Gathered:
     failures: list[str] = field(default_factory=list)
     unavailable: list[str] = field(default_factory=list)
     results: list[ToolResult] = field(default_factory=list)
+    query_translation: str | None = None                                      # as_is / llm / glossary
 
 
 def merge_history(u: Understanding, req: AskRequest) -> Understanding:
@@ -52,9 +54,13 @@ def merge_history(u: Understanding, req: AskRequest) -> Understanding:
     return u
 
 
-def run_tools(plan: Plan, tools) -> Gathered:
+def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
     g = Gathered()
     for call in plan.calls:
+        if call.tool == 'rag_search':     # English-only index: translate the search query, keep the user's question
+            q, method = translate_query(call.args.query, lang, llm)
+            call.args = call.args.model_copy(update={'query': q})
+            g.query_translation = method
         if call.tool == 'predict':
             r = tools.predict(call.args)
             if r.ok:
@@ -74,7 +80,7 @@ def run_tools(plan: Plan, tools) -> Gathered:
         elif call.tool == 'rag_search':
             r = tools.rag_search(call.args)
             if r.ok:
-                g.passages = [c.model_dump() for c in r.data.candidates[:8]]
+                g.passages = select_passages([c.model_dump() for c in r.data.candidates], k=6)
         else:
             continue
         g.results.append(r)
@@ -171,7 +177,7 @@ def _citations(g: Gathered) -> list[Citation]:
     return out
 
 
-def answer(req: AskRequest, tools=None, drafter=None) -> Answer:
+def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
     """`drafter` (step 3) = callable(u, plan, gathered, template_text) -> (text, decision, problems) or None."""
     t0 = time.perf_counter()
     tools = tools or get_tools()
@@ -179,7 +185,7 @@ def answer(req: AskRequest, tools=None, drafter=None) -> Answer:
     if req.lang:
         u.lang = req.lang
     plan = make_plan(u)
-    g = run_tools(plan, tools)
+    g = run_tools(plan, tools, lang=u.lang, llm=llm)
     text, decision = template_draft(u, plan, g)
     verification, version = [], f'{VERSION}:template'
     if drafter is not None:
@@ -205,7 +211,7 @@ def answer(req: AskRequest, tools=None, drafter=None) -> Answer:
 def _trace(req, u, plan, g, ans, ms):
     try:
         rec = {'trace_id': ans.trace_id, 'ts': time.time(), 'ms': ms, 'question': req.text, 'lang': u.lang, 'intent': u.intent,
-               'conditions': u.conditions.model_dump(exclude_none=True), 'plan': [c.tool for c in plan.calls],
+               'conditions': u.conditions.model_dump(exclude_none=True), 'plan': [c.tool for c in plan.calls], 'rag_query_translation': g.query_translation,
                'tools': [{'name': r.name, 'ok': r.ok, 'ms': r.ms, 'error': r.error} for r in g.results],
                'decision': ans.decision, 'version': ans.assistant_version, 'verification': ans.verification}
         with get_settings().trace_path.open('a', encoding='utf-8') as fh:

@@ -48,7 +48,7 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
     for j, d in enumerate(g.passages[:6], 1):
         labels.add(f'D{j}')
         page = f" p.{d['page_from']}" if d.get('page_from') else ''
-        items.append(f"[D{j}] NASA report '{d.get('doc_title') or d['file_name']}'{page}: \"{d['content'][:900]}\"")
+        items.append(f"[D{j}] NASA report '{d.get('doc_title') or d['file_name']}'{page}: \"{d['content'][:650]}\"")
     if 'rag_search' in g.unavailable:
         items.append('[note] Search in NASA reports is not available right now.')
     if u.unknown_terms:
@@ -63,9 +63,10 @@ def make_drafter(llm=None):
 
     def drafter(u, plan, g, template_text: str, template_decision: str):
         evidence, labels = build_evidence(u, plan, g)
+        # The template text is NOT sent (it repeats the evidence and costs tokens on the free tier); it is still
+        # passed to the verifier as an allowed source of numbers.
         user = (f'QUESTION: {u.text}\n\nUNDERSTOOD: {dumps(u.conditions.model_dump(exclude_none=True))} intent={u.intent}\n\n'
-                f'SUGGESTED DECISION: {template_decision.upper()}\n\nCORRECT FACTS (template answer, for reference): {template_text}\n\n'
-                f'EVIDENCE:\n{evidence}')
+                f'SUGGESTED DECISION: {template_decision.upper()}\n\nEVIDENCE:\n{evidence}')
         raw = llm.chat(SYSTEM.format(lang_name=LANG.get(u.lang, 'English')), user)
         if raw is None:
             return None                       # LLM unavailable -> template

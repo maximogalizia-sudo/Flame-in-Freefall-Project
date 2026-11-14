@@ -31,7 +31,7 @@ def get_settings() -> Settings:
         service_token=e("LLM_SERVICE_TOKEN") or None,
         llm_base_url=e("LLM_BASE_URL") or None,
         llm_api_key=e("LLM_API_KEY") or None,
-        llm_model=e("LLM_MODEL") or "llama-3.3-70b-versatile",
+        llm_model=e("LLM_MODEL") or "qwen/qwen3.8-27b,openai/gpt-oss-120b,openai/gpt-oss-20b",
         llm_timeout_s=float(e("LLM_TIMEOUT_S") or 30),
         trace_path=Path(e("ASSISTANT_TRACE_PATH") or "assistant_traces.jsonl"),
         reranker_model=e("RERANKER_MODEL") or None,
