@@ -40,3 +40,12 @@ def test_assistant_answers_analytic_questions(q, intent, tool, tmp_path, monkeyp
     monkeypatch.setenv('ASSISTANT_TRACE_PATH', str(tmp_path / 't.jsonl'))
     a = answer(AskRequest(text=q), tools=LocalTools())
     assert a.intent == intent and tool in a.tools_used and a.decision == 'answer'
+
+
+def test_duration_curve_and_observed():
+    from flame.contracts import Conditions as C
+    from flame.scenarios import duration
+    r = duration(C(fuel='butane', o2_frac=0.39, pressure_kpa=101.3))
+    assert r.in_domain and r.curve[0].still_burning == 1.0 and r.curve[-1].still_burning < r.curve[1].still_burning and r.observed
+    assert not duration(C(fuel='propane', o2_frac=0.40, pressure_kpa=200)).in_domain
+    assert duration(C(fuel='heptane', o2_frac=0.21)).observed

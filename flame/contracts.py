@@ -233,3 +233,23 @@ class EffectsResponse(BaseModel):
     not_tested: list[str]                # combinations never tested
     caveats: list[str]                   # what cannot be separated, moderate confidence, etc.
     model_version: str
+
+
+# ============================================================================ v4 (2026-11-14): flame duration
+class DurationPoint(BaseModel):
+    t_s: float
+    still_burning: float                 # share of flames still burning at t (model), 0..1
+    ci_low: float
+    ci_high: float
+
+
+class DurationResponse(BaseModel):
+    """How long a lit flame lasts before going out by itself (gas flames: survival model; droplets: observed NASA times)."""
+    family: str
+    in_domain: bool
+    reasons: list[str] = []              # why no curve (not tested combination)
+    median_s: float | None = None        # model: time at which half of such flames have gone out by themselves
+    curve: list[DurationPoint] = []      # empty when there is no model for this case
+    observed: list[dict] = []            # closest real NASA tests: test_id, conditions, burn_time_s, how it ended
+    notes: list[str] = []
+    model_version: str

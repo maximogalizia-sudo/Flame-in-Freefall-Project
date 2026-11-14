@@ -163,16 +163,18 @@ class HttpTools:
             r.raise_for_status()
             return r.json()
 
+    # Model tools (predict, coverage, explain, risk, sweep, effects) are pure functions of flame + models/ +
+    # data/processed, which ship WITH this service: computed in-process, so the assistant never depends on the
+    # version of flame deployed in MG's API (it was behind once: no time curve). MG's API is used only for what
+    # lives in the database: the tabular search and the report search.
     def predict(self, c: Conditions) -> ToolResult:
-        body = c.model_dump(exclude_none=True)
-        return _timed('predict', body, lambda: [Prediction(**p) for p in self._req('POST', '/predict', body)])
+        return LocalTools().predict(c)
 
     def coverage(self, c: Conditions, k: int = 5) -> ToolResult:
-        body = c.model_dump(exclude_none=True)
-        return _timed('coverage', {**body, 'k': k}, lambda: [EvidenceItem(**e) for e in self._req('POST', '/coverage', body)][:k])
+        return LocalTools().coverage(c, k)
 
     def explain(self, family: str) -> ToolResult:
-        return _timed('explain', {'family': family}, lambda: self._req('GET', f'/explain/{family}'))
+        return LocalTools().explain(family)
 
     def tests_search(self, req: TestsSearchRequest) -> ToolResult:
         body = req.model_dump(exclude_none=True)
@@ -191,19 +193,14 @@ class HttpTools:
         lr.meta['fallback'] = f'local (api: {r.error})'
         return lr
 
-    def risk(self, req: RiskRequest) -> ToolResult:
-        body = req.model_dump()
-        return self._with_local(_timed('risk', body, lambda: RiskResponse(**self._req('POST', '/risk', body))),
-                                lambda: LocalTools().risk(req))
+    def risk(self, req: RiskRequest) -> ToolResult:       # pure flame: in-process (see predict)
+        return LocalTools().risk(req)
 
     def sweep(self, req: SweepRequest) -> ToolResult:
-        body = req.model_dump(exclude_none=True)
-        return self._with_local(_timed('sweep', body, lambda: SweepResponse(**self._req('POST', '/sweep', body))),
-                                lambda: LocalTools().sweep(req))
+        return LocalTools().sweep(req)
 
     def effects(self, variable: str) -> ToolResult:
-        return self._with_local(_timed('effects', {'variable': variable}, lambda: EffectsResponse(**self._req('GET', f'/effects/{variable}'))),
-                                lambda: LocalTools().effects(variable))
+        return LocalTools().effects(variable)
 
 
 def get_tools():

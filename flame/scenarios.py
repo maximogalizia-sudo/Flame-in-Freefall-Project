@@ -10,6 +10,7 @@ Honesty: the risk indicator comes from microgravity laboratory experiments; it i
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 
 from .contracts import (Conditions, EffectRow, EffectsResponse, RiskItem, RiskRequest, RiskResponse,
                         SweepPoint, SweepRequest, SweepResponse)
@@ -163,3 +164,66 @@ def effects(variable: str) -> EffectsResponse:
         caveats.append(f'No model uses {variable}; answer from NASA evidence and reports only')
     return EffectsResponse(variable=variable, rows=rows, tested=tested, not_tested=not_tested, caveats=caveats,
                            model_version=f'{VERSION}:effects')
+
+
+# ----------------------------------------------------------------------------- duration (v4)
+def duration(c: Conditions, horizon_s: int = 300, step_s: int = 5) -> 'DurationResponse':
+    """How long the flame lasts. Gas flames: full survival curve from the Cox model (+ median); droplets: no duration
+    model (out of scope, DOCUMENTO_TECNICO 11.1) -> observed burn times of the closest clean NASA tests."""
+    from .contracts import DurationPoint, DurationResponse
+    from .models import _cox_predict, _family, model as get_model
+    fam = _family(c)
+    preds = predict(c)
+    p = preds[0] if preds else None
+    if fam == 'cfig' and p is not None:
+        observed = []
+        t = table('cfig_tests')
+        for tid in p.nearest_tests[:5]:
+            r = t[t['test_id'] == tid].iloc[0]
+            observed.append({'test_id': tid, 'o2_pct': round(float(r['o2_mid']) * 100, 1), 'pressure_bar': round(float(r['pressure_bar']), 2),
+                             'fuel_flow_mg_s': float(r['fuel_flow_mg_s']), 'burn_time_s': None if pd.isna(r['burn_time_s']) else float(r['burn_time_s']),
+                             'ended': 'went out by itself' if r['end'] == 'self_ext' else ('still burning when cut' if r['end'] == 'flow_term' else 'did not ignite')})
+        if p.probability is None:
+            return DurationResponse(family=fam, in_domain=False, reasons=p.out_of_domain, observed=observed,
+                                    notes=['No curve: NASA did not test this combination; the closest real flames are listed.'],
+                                    model_version=f'{VERSION}:duration')
+        ft = c.flame_type or 'normal'
+        m = get_model(f'cfig_selfext_{ft}')
+        tt = table('cfig_tests'); d = tt[(tt['flame_type'] == ft) & tt['ext_model'] & (tt['fuel'] == c.fuel)]
+        x = {'o2_pct': c.o2_frac * 100, 'pressure_bar': (c.pressure_kpa or 101.3) / 100,
+             'fuel_flow_mg_s': c.fuel_flow_mg_s or float(d['fuel_flow_mg_s'].median()),
+             'ethane': float(c.fuel == 'ethane'), 'propane': float(c.fuel == 'propane')}
+        if ft == 'normal':
+            x['jet_fuel_frac'] = c.jet_fuel_frac if c.jet_fuel_frac is not None else float(d['jet_fuel_frac'].median())
+        else:
+            x['atm_fuel_pct'] = (c.atm_fuel_frac if c.atm_fuel_frac is not None else float(d['atm_fuel_frac'].median())) * 100
+        curve, median = [], None
+        for ts in range(0, horizon_s + 1, step_s):
+            q, lo, hi, _ = _cox_predict(m, x, float(max(ts, 0.5)))
+            curve.append(DurationPoint(t_s=ts, still_burning=round(1 - q, 3), ci_low=round(1 - hi, 3), ci_high=round(1 - lo, 3)))
+            if median is None and q >= 0.5:
+                median = float(ts)
+        notes = ['Curve from the gas-flame survival model (flames cut by the operator count as still burning at that time).']
+        if median is None:
+            notes.append(f'More than half of such flames are still burning at {horizon_s} s.')
+        if ft == 'inverse':
+            notes.append('Moderate confidence (inverse-flame model).')
+        return DurationResponse(family=fam, in_domain=True, median_s=median, curve=curve, observed=observed, notes=notes,
+                                model_version=f'{VERSION}:duration')
+    if fam == 'flex':
+        f = table('flex_tests'); f = f[f['clean'] & f['burn_time_s'].notna()]
+        fuel = 'Heptane' if (c.fuel or '').startswith(('hept', 'n_hept', 'n-hept')) else 'Methanol'
+        pool = f[f['fuel'] == fuel]
+        dist = np.sqrt(((pool['o2_frac'] - (c.o2_frac or 0.21)) / 0.02) ** 2 + ((pool['co2_frac'] - (c.co2_frac or 0)) / 0.05) ** 2
+                       + ((pool['he_frac'] - (c.he_frac or 0)) / 0.05) ** 2)
+        near = pool.assign(dd=dist).sort_values('dd').head(6)
+        observed = [{'test_id': r['flex_id'], 'o2_pct': round(r['o2_frac'] * 100, 1), 'co2_pct': round(r['co2_frac'] * 100, 1),
+                     'he_pct': round(r['he_frac'] * 100, 1), 'd0_mm': None if pd.isna(r['d0_mm']) else float(r['d0_mm']),
+                     'burn_time_s': float(r['burn_time_s']), 'ended': 'flame went out' if r['extinct'] else 'droplet burned completely'}
+                    for _, r in near.iterrows()]
+        return DurationResponse(family=fam, in_domain=bool(p and p.probability is not None), reasons=(p.out_of_domain if p else []),
+                                observed=observed, notes=['Droplets: no duration model (out of scope for lack of time); these are the '
+                                                          'observed burn times of the closest clean NASA tests.'],
+                                model_version=f'{VERSION}:duration')
+    return DurationResponse(family=fam or 'unknown', in_domain=False, reasons=['No duration data for this family (solids: the air '
+                            'flow was changed during the tests)'], model_version=f'{VERSION}:duration')
