@@ -8,6 +8,7 @@ Cells file format:
 Usage: python tools/nb_add.py <notebook.ipynb> <cells.py>
 """
 import sys, re, nbformat
+sys.stdout.reconfigure(encoding='utf-8')
 from nbconvert.preprocessors import ExecutePreprocessor
 
 path, cells_path = sys.argv[1], sys.argv[2]
