@@ -1,157 +1,147 @@
 {
  "summary": {
   "certain_n": 20,
-  "certain_labelled_answer": 0.4,
-  "certain_labelled_partial_or_abstain": 0.6,
-  "certain_text_with_hedges": 0.25,
+  "certain_labelled_answer": 1.0,
+  "certain_labelled_partial_or_abstain": 0.0,
+  "certain_text_with_hedges": 0.0,
   "uncertain_n": 5,
-  "uncertain_claimed_answer": 0.2
+  "uncertain_claimed_answer": 0.0
  },
  "rows": [
   {
    "id": "K01",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Una llama fría es una combustión que ocurre a temperaturas extremadamente bajas, aproximadamente 600 °C [D1]. Para ponerlo en perspectiva, una vela típica arde a unos 1.400 °C, lo que significa que la llama fría es considerablemente más fría [D2].\n\nEstas llamas son casi imposibles de crear en la gravedad de la Tierra, pero se generan con facilidad en microgravedad, como en la Estación Espacial Internacional [D1]. Su estudio es crucial porque la química de las llamas frías influye directamente en"
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 77: \"Cool flames, which burn at extremely low temperatures, are nearly impossible to create in Earth’s gravity, but are easily created in microgravity;\nstudying them may improve the understanding of combustion and fires on Earth. 2021 Sept. 22: GMT 265 Cool Flames Investigation with G…\" [D2] ACME Cool Flames Investigatio"
   },
   {
    "id": "K02",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
-   "hedges": [
-    "no (?:proporciona|ofrece|detalla|especifica)"
-   ],
-   "text": "El sistema de inteligencia artificial no proporcionó una conclusión directa sobre la primera observación, pero los documentos de soporte aclaran la cronología. Las llamas frías se descubrieron por primera vez en la Estación Espacial en 2012, pero utilizando combustible líquido [D1].\n\nLa observación de llamas frías con **gases** ocurrió más recientemente, durante la investigación \"Cool Flames Investigation with Gases\" (CFI-G), parte de la serie ACME [D1]. Los registros indican que la tripulación "
+   "version": "assistant-v0.1:template",
+   "hedges": [],
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 70: \"Week of August 23, 2021 Other investigations on which the crew performed work:\n• Cool Flames Investigation with Gases, part of the ACME series of studies, observes chemical reactions of cool flames, which burn at lower temperatures. Cool flames were first discovered aboard the sp…\" [D2] ACME Cool Flames Investigatio"
   },
   {
    "id": "K03",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "El experimento FLEX utilizó dos combustibles líquidos: metanol y n-heptano [D3]. Estos se inyectaron como gotas de diámetro inicial entre 2 y 5 mm [D3]. El informe destaca que la heptana produce hollín, lo que permite medir su fracción volumétrica, mientras que el metanol no [D4]. Ambos combustibles se quemaron en atmósferas oxidantes con dilución de oxígeno [D3]."
+   "text": "Entendí: no reconocí condiciones concretas. FLEX: NASA tiene 275 pruebas. Resultados: Methanol: 157; Heptane: 118. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 9: \"The MDCA facility, which is described in detail elsewhere (Robbins and Shinn, 2010), is based on the design of the space shuttle Droplet Combustion Experiment (DCE, Nayagam et al., 1998).\nStainl"
   },
   {
    "id": "K04",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Según los registros del informe final de la NASA, el experimento CFI-G utilizó tres combustibles gaseosos principales: etano, butano y propano [D2], [D4], [D6]. Estos gases se diluyeron con nitrógeno para controlar la temperatura de la llama [D2], [D4].\n\nEl oxígeno también fue un componente clave, ya que se inyectó desde el quemador, a veces diluido con nitrógeno, para interactuar con la mezcla de combustible en la cámara de combustión [D2], [D5]. Los tests se realizaron con concentraciones de o"
+   "text": "Entendí: no reconocí condiciones concretas. CFI-G: NASA tiene 333 pruebas. Resultados: butane: 140; propane: 99; ethane: 94. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 51: \"CFI-G will study flames with unusually low temperatures known as cool flames. These flames were discovered in 2012 with the first subrack payload to use CIR, but this investigation only used liquid fuels.\nACME’s hardware will allow CFI-"
   },
   {
    "id": "K05",
    "certain": true,
    "decision": "answer",
    "intent": "predict",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Según el modelo de aprendizaje automático, la llama de una gota de metanol con 15 % de oxígeno tiene una probabilidad del 99,4 % de extinguirse antes de que la gota se consuma por completo [T1]. La razón principal es que el nivel de oxígeno empuja fuertemente hacia la extinción de la llama [T1].\n\nEl riesgo de que la gota se rompa es muy bajo (2,7 %) [T2]. El modelo indica que esto podría deberse a problemas experimentales, como agujas contaminadas, y no a la física de la llama [T2].\n\nLos datos d"
+   "text": "Entendí: combustible = methanol, O₂ = 15 %. Probabilidad de que la llama se apague antes de que la gota se queme entera (si la gota no se rompe): 99 % (intervalo 95 %: 98–100 %). Si las pruebas interrumpidas se cuentan de otra forma: 98–99 %. Por qué, según el modelo (frente a una prueba promedio de NASA): oxygen level: pushes towards the flame going out (strong); helium level: pushes towards the droplet burning completely (weak); low pressure (0.7 atm): pushes towards the flame going out (weak)"
   },
   {
    "id": "K06",
    "certain": true,
    "decision": "answer",
    "intent": "predict",
-   "version": "assistant-v0.1:llm",
-   "hedges": [
-    "limitaci[oó]n"
-   ],
-   "text": "Sí, la gota de metanol se apaga. El modelo de aprendizaje automático estima una probabilidad del 95,9 % de que la llama se extinga antes de que la gota se consuma por completo [T1].\n\n¿Por qué? Según el modelo, el nivel de oxígeno (21 %) empuja hacia que la gota se queme por completo, pero este efecto no es suficiente para evitar la extinción en estas condiciones [T1]. El modelo aprendió que, para el metanol, aumentar el oxígeno en 1 punto reduce la probabilidad de extinción (factor 0.73), lo que"
+   "version": "assistant-v0.1:template",
+   "hedges": [],
+   "text": "Entendí: combustible = methanol, O₂ = 21 %. Probabilidad de que la llama se apague antes de que la gota se queme entera (si la gota no se rompe): 96 % (intervalo 95 %: 90–99 %). Si las pruebas interrumpidas se cuentan de otra forma: 85–97 %. Por qué, según el modelo (frente a una prueba promedio de NASA): oxygen level: pushes towards the droplet burning completely (moderate); helium level: pushes towards the droplet burning completely (weak); low pressure (0.7 atm): pushes towards the flame goin"
   },
   {
    "id": "K07",
    "certain": true,
-   "decision": "partial",
-   "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "decision": "answer",
+   "intent": "explain_variable",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "El CO2 ayuda a apagar la gota, pero no es la única causa. Los modelos indican que el CO2 actúa como diluyente: al reemplazar oxígeno, reduce la tasa de combustión y favorece la extinción radiativa.\n\nLa evidencia de la NASA confirma esto. En pruebas con heptano, se usaron atmósferas con CO2 (por ejemplo, 0.25 de CO2 en FLEX-179 [D3] o 0.40 en FLEX-119 [D4]). En estos casos, la llama se extinguió, a menudo de forma radiativa [D3, D4]. Sin embargo, la extinción también depende de la presión y la me"
+   "text": "Entendí: combustible = heptane. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 10: \"The framing rate for the majority of the tests was 30 fps, with a smaller number at 15 fps as an attempt to improve flame contrast for very dim flames. The intensifier gain did vary somewhat over the tests in this report.\nexceeded values acceptable to the science team or for "
   },
   {
    "id": "K08",
    "certain": true,
    "decision": "answer",
    "intent": "explain_variable",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Sí, según los modelos de aprendizaje automático, más oxígeno hace que la llama dure más. El sistema concluye que aumentar el oxígeno reduce la probabilidad de extinción. Por ejemplo, en gotas de metanol, cada punto extra de O2 multiplica la duración por 0.73 (intervalo 0.62-0.82) [T1]. En gotas de heptano, el factor es 0.47 (0.34-0.66) [T1]. En llamas de gas normales, el factor es 0.77 (0.73-0.81) [T1].\n\nEsta tendencia se observó en condiciones probadas: gotas de heptano (O2 0.13-0.30) y metanol"
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Flammability aspects of cotton-fiberglass fabric, ASGSR 2012 (presentation) p. 3: \"Typical Flammability Boundary for a Solid Fuel\n0.23\n0.22\n0.21\nFlammable\n0.20\n0.19\nO2 Mole Fraction\n1-g buoyant flow limit\n0.18\n0.17\n0.16\nNot Flammable\n0.15\nHypotheses: ♦Materials in microgravity, with adequate ventilation, may burn more readily compared to normal gravity with oth…\" [D2] BASS: overview of"
   },
   {
    "id": "K09",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "count",
-   "version": "assistant-v0.1:llm",
-   "hedges": [
-    "no (?:proporciona|ofrece|detalla|especifica)"
-   ],
-   "text": "El informe de la NASA documenta los resultados de las pruebas FLEX realizadas entre marzo de 2009 y diciembre de 2011 [D4]. La evidencia muestra que las pruebas se numeraron secuencialmente, llegando al menos hasta la prueba FLEX-280, realizada el 8 de diciembre de 2011 [D6]. Esto indica que hubo al menos 280 pruebas registradas en ese período. Sin embargo, el texto no proporciona un número total definitivo de todas las pruebas realizadas, ya que solo muestra fragmentos de las tablas y el final "
+   "version": "assistant-v0.1:template",
+   "hedges": [],
+   "text": "Entendí: no reconocí condiciones concretas. FLEX: NASA tiene 275 pruebas. Resultados: Extinction: 185; Disruption: 62; Completion: 28."
   },
   {
    "id": "K10",
    "certain": true,
    "decision": "answer",
    "intent": "count",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Según los registros de la NASA, de las 9 pruebas realizadas con Nomex, 7 no sostuvieron la llama [T1]. Esto significa que en la mayoría de los casos el material no se incendió.\n\nEl resto de los resultados fueron: 1 prueba donde el material sobrevivió (probablemente se quemó pero no se consumió por completo) y 1 con resultado no claro [T1].\n\nPor lo tanto, la respuesta directa a tu pregunta es: **7 pruebas**."
+   "text": "Entendí: material = nomex. nomex: NASA tiene 9 pruebas. Resultados: no_flame: 7; survived: 1; unclear: 1."
   },
   {
    "id": "K11",
    "certain": true,
    "decision": "answer",
    "intent": "predict",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Yes, the model predicts a propane flame at 21% oxygen and 1 atm will self-extinguish within 30 seconds with a probability of 1.0 (95% interval: 0.951–1.0) [T1]. The model identifies the oxygen level as the strong driver causing the flame to go out sooner, while pressure and fuel flow have weak effects [T1]. This prediction is supported by five closest real NASA tests (21137D1, 21137D2, 21137C1, 21112H2, 21112H3), all of which resulted in self-extinction [E1][E2][E3][E5]. One test (21112H3) resul"
+   "text": "Understood: fuel = propane, O₂ = 21 %, pressure = 101.325 kPa (1.00 atm). Probability that the flame goes out by itself within 30s: 100 % (95 % interval 95–100 %). Why, according to the model (vs an average NASA test): oxygen level: makes the flame go out sooner (strong); pressure: keeps the flame burning longer (weak); fuel type (ethane rather than butane): makes the flame go out sooner (weak). Assumed: normal flame: gas flowing into an oxygen atmosphere (flame type not given); fuel flow = 1.00"
   },
   {
    "id": "K12",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Según el informe de la NASA, las gotas en FLEX se rompían principalmente por la presencia de un contaminante de baja volatilidad. Este contaminante, presente en trazas, causaba distorsiones y la formación de burbujas que debilitaban la gota hasta su ruptura [D1].\n\nEn los casos de metanol, la historia de la gota se vio mínimamente afectada porque el combustible es de alta volatilidad, dominando el proceso de regresión [D1]. Sin embargo, en pruebas específicas como FLEX-042 (heptano), se observó u"
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 23: \"(8) Distorted droplets (e.g., the HiBMs video from the FLEX–088 test) for methanol droplet burning (approximately four tests) are probably the result of the contaminant.\n6.0 Conclusions\n(1) Burning-rate constants were average, and the droplet history was minimally"
   },
   {
    "id": "K13",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
+   "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "El tejido SIBAL es una tela compuesta de algodón y fibra de vidrio, con una proporción de 75 % de algodón y 25 % de fibra de vidrio [D2]. Su nombre proviene del acrónimo \"Solid Inflammability Boundary at Low Speeds\" (Límite de Inflamabilidad Sólida a Baja Velocidad), el proyecto original para el cual fue diseñado [D1].\n\nLa principal ventaja de este material es que, aunque el algodón se consume al arder, la malla de fibra de vidrio mantiene la integridad estructural de la muestra [D2]. Esto permi"
+   "text": "Entendí: material = sibal. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 100: \"NASA/TM-20210011385 92\n7.0 Individual Principal Investigator Report: T’ien\n7.1 Concurrent Flame Growth, Spread, and Extinction Over Composite Fabric Samples in Low-Speed Purely Forced Flow in Microgravity3\n7.1.1 Abstract\nAs a part of the NASA Burning and Suppression of Solids (BA…\" [D2] Burning and Suppression "
   },
   {
    "id": "K14",
    "certain": true,
-   "decision": "partial",
-   "intent": "explain_doc",
-   "version": "assistant-v0.1:llm",
-   "hedges": [
-    "no hay (?:datos|evidencia|informaci[oó]n) (?:suficiente|directa|espec)"
-   ],
-   "text": "Los datos de la NASA muestran que el helio se usó como diluyente en atmósferas de metanol, pero no confirman si ayuda a apagar la llama. En los ensayos FLEX-257 y FLEX-259, gotas de metanol arderon en mezclas con 0.20 y 0.25 de helio, respectivamente, a 0.70 atm [D2], [D3]. En ambos casos, la llama se extinguió de forma difusiva, pero el informe no indica que el helio haya reducido el diámetro de extinción ni la tasa de combustión.\n\nLa evidencia no permite concluir que el helio sea un agente ext"
+   "decision": "answer",
+   "intent": "explain_variable",
+   "version": "assistant-v0.1:template",
+   "hedges": [],
+   "text": "Entendí: combustible = methanol. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 10: \"The framing rate for the majority of the tests was 30 fps, with a smaller number at 15 fps as an attempt to improve flame contrast for very dim flames. The intensifier gain did vary somewhat over the tests in this report.\nexceeded values acceptable to the science team or for"
   },
   {
    "id": "K15",
    "certain": true,
    "decision": "answer",
-   "intent": "predict",
-   "version": "assistant-v0.1:llm",
-   "hedges": [
-    "limitaci[oó]n"
-   ],
-   "text": "El sistema de inteligencia artificial indica que la atmósfera de la ISS es **muy riesgosa** para la combustión de gotas. La probabilidad de que la llama se apague antes de que el combustible se consuma por completo es del **95,9 %** [T1].\n\nEl modelo explica que, aunque el nivel de oxígeno (21 %) empuja hacia una combustión completa, el efecto dominante es la **ausencia de gravedad** (0 g). En microgravedad, la falta de convección natural impide que el oxígeno llegue eficientemente a la llama, pr"
+   "intent": "risk",
+   "version": "assistant-v0.1:template",
+   "hedges": [],
+   "text": "Entendí: O₂ = 21 %, presión = 101.325 kPa (1.00 atm), gravedad = 0 g. Indicador temprano de riesgo para O₂ 21 %, 101.325 kPa: nivel ROJO (tiende a seguir quemando). · methanol droplet: VERDE (tiende a apagarse) — probability that the flame burns the droplet completely (flame does not go out): 4% (95 % interval 1%-10%). · n-heptane droplet: AMARILLO (depende) — probability that the flame burns the droplet completely (flame does not go out): 48% (95 % interval 18%-73%). · ethane gas flame: VERDE ("
   },
   {
    "id": "K16",
@@ -174,29 +164,29 @@
   {
    "id": "K18",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
    "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 13: \"In a significant number of tests, the droplet drifted out of the HiBMs FOV (and sometimes back into the FOV) before recording stops. This stage involved identifying the frames where the droplet was within the FOV.\nThis represents a large amount of data, much of it"
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 13: \"2.4 Experiment Data Downlink and Format\nThe three camera views are the primary data for the FLEX experiments. The backlit HiBMs view of the droplet provides the droplet size and droplet dynamics as a function of time. This camera operated at full resolution (1024 "
   },
   {
    "id": "K19",
    "certain": true,
-   "decision": "partial",
+   "decision": "answer",
    "intent": "explain_doc",
    "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 16: \"NASA/TP—2015-216046 10\nTABLE III.—FLEX TEST MATRIX FOR THE TESTS CONDUCTED IN NITROGEN-DILUTED AMBIENT ENVIRONMENTS, INCLUDING TESTS IN ENVIRONMENTS WITH HIGHER OXYGEN MOLE FRACTIONS Test Date Fuel Initial droplet diameter,\nFiber Pressure,\nMole fraction\nof oxygen "
+   "text": "Entendí: no reconocí condiciones concretas. FLEX: NASA tiene 275 pruebas. Resultados: 1 atm: 162; 0.7 atm: 104; 2-3 atm: 9. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 16: \"NASA/TP—2015-216046 10\nTABLE III.—FLEX TEST MATRIX FOR THE TESTS CONDUCTED IN NITROGEN-DILUTED AMBIENT ENVIRONMENTS, INCLUDING TESTS IN ENVIRONMENTS WITH HIGHER OXYGEN MOLE FRACTIONS T"
   },
   {
    "id": "K20",
    "certain": true,
-   "decision": "abstain",
-   "intent": "off_topic",
+   "decision": "answer",
+   "intent": "explain_doc",
    "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Solo puedo responder sobre los experimentos de combustión en microgravedad de NASA (gotas FLEX, llamas de gas CFI-G, materiales BASS/BASS-II). Probá, por ejemplo: \"¿se apaga una gota de heptano con 18 % de oxígeno?\""
+   "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 21: \"NASA/TM-20210011385 13\nFigure 2.1.—Flame images as function of opposed-\nflow velocity Vg during radiative extinction. (a) Time (t) = 27 s; Vg = 3.0 cm/s. (b) t = 28 s; Vg = 1.5 cm/s. (c) t = 29 s; Vg = 1.1 cm/s. (d) t = 30 s; Vg = 1.1 cm/s.\nFigure 2.2.—Radiometer signal for entir…\" [D2] ACME Coo"
   },
   {
    "id": "U01",
@@ -228,11 +218,11 @@
   {
    "id": "U04",
    "certain": false,
-   "decision": "answer",
+   "decision": "abstain",
    "intent": "predict",
    "version": "assistant-v0.1:template",
    "hedges": [],
-   "text": "Entendí: gravedad = 0 g. Probabilidad de que la llama se apague antes de que la gota se queme entera (si la gota no se rompe): 96 % (intervalo 95 %: 90–99 %). Si las pruebas interrumpidas se cuentan de otra forma: 85–97 %. Por qué, según el modelo (frente a una prueba promedio de NASA): oxygen level: pushes towards the droplet burning completely (moderate); helium level: pushes towards the droplet burning completely (weak); low pressure (0.7 atm): pushes towards the flame going out (weak). Riesg"
+   "text": "Entendí: gravedad = 0 g. No identifiqué el combustible o material (por ejemplo metanol, heptano, propano, algodón, Nomex)."
   },
   {
    "id": "U05",
