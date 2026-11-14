@@ -220,7 +220,8 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             for k, d in enumerate(g.passages[:2], 1):
                 page = f"p. {d['page_from']}" if d.get('page_from') else ''
                 s.append(f"[D{k}] {d.get('doc_title') or d['file_name']} {page}: \"{d['content'][:280].strip()}…\"")
-            partial = True
+            # report passages answer document questions; for a prediction question they are related evidence only
+            partial = partial or u.intent != 'predict'
         elif 'rag_search' in g.unavailable:
             s.append(TP.t('docs_unavailable', lang))
         else:
@@ -273,10 +274,13 @@ def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
             verification = ['llm not used or unavailable: template answer']
         else:
             d_text, d_decision, problems = drafted
+            if d_decision is not None and d_decision != decision and {d_decision, decision} != {'answer', 'partial'}:
+                problems = problems + [f'decision mark {d_decision} contradicts the system decision {decision}']
             if problems:
                 verification = ['llm draft rejected: ' + p for p in problems]
             else:
-                text, decision, version = d_text, d_decision, f'{VERSION}:llm'
+                # The SYSTEM decides answer / partial / abstain from the tool outputs; the LLM only writes the text.
+                text, version = d_text, f'{VERSION}:llm'
     else:
         verification = ['no llm configured: template answer']
     ans = Answer(understood=u.conditions, intent=u.intent, unknown_terms=u.unknown_terms, text=text,

@@ -10,7 +10,7 @@
    "llm_used": 0.0,
    "n": 8,
    "invented_numbers": 0,
-   "median_ms": 16
+   "median_ms": 29
   },
   "predict_out": {
    "intent_ok": 1.0,
@@ -22,7 +22,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 12
+   "median_ms": 23
   },
   "count": {
    "intent_ok": 1.0,
@@ -34,7 +34,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 13
+   "median_ms": 15
   },
   "trap": {
    "intent_ok": 1.0,
@@ -46,7 +46,7 @@
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 5
+   "median_ms": 4
   },
   "explain_variable": {
    "intent_ok": 1.0,
@@ -58,7 +58,7 @@
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 11
+   "median_ms": 6
   },
   "scenario": {
    "intent_ok": 1.0,
@@ -70,7 +70,7 @@
    "llm_used": 0.0,
    "n": 2,
    "invented_numbers": 0,
-   "median_ms": 258
+   "median_ms": 208
   },
   "risk": {
    "intent_ok": 1.0,
@@ -82,7 +82,7 @@
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 54
+   "median_ms": 51
   },
   "docs": {
    "intent_ok": 1.0,
@@ -121,7 +121,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 1,
+   "ms": 0,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -157,7 +157,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 1,
+   "ms": 0,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -211,7 +211,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 4,
+   "ms": 3,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -229,7 +229,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 4,
+   "ms": 3,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -265,7 +265,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 0,
+   "ms": 1,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
@@ -283,7 +283,7 @@
    "text_ok": true,
    "doc_ok": false,
    "invented_numbers": [],
-   "ms": 1,
+   "ms": 0,
    "version": "assistant-v0.1:template",
    "verification": [
     "no llm configured: template answer"
