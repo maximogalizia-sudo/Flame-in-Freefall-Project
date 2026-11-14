@@ -18,8 +18,9 @@ from pydantic import BaseModel
 
 from . import db, modeling, rag, tabular
 from .auth import require_assistant_token
-from .contracts import (Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction, RagSearchRequest,
-                        RagSearchResponse, TestsSearchRequest, TestsSearchResponse)
+from .contracts import (Answer, AskRequest, Citation, Conditions, EffectsResponse, EvidenceItem, Prediction,
+                        RagSearchRequest, RagSearchResponse, RiskRequest, RiskResponse, SweepRequest, SweepResponse,
+                        TestsSearchRequest, TestsSearchResponse)
 from .services import get_llm
 from .settings import get_settings
 
@@ -166,6 +167,28 @@ def explain_post(req: ExplainRequest) -> dict:
 @app.post("/coverage", response_model=list[EvidenceItem])
 def coverage(c: Conditions) -> list[EvidenceItem]:
     return modeling.coverage(c)
+
+
+# ---------------------------------------------------------------- scenarios (contract v3, M7)
+EffectVariable = Literal["o2_frac", "co2_frac", "he_frac", "pressure_kpa", "droplet_d0_mm"]
+
+
+@app.post("/risk", response_model=RiskResponse)
+def risk(req: RiskRequest) -> RiskResponse:
+    """Early-warning indicator for one atmosphere: a traffic light per scenario (gray = NASA never tested it)."""
+    return modeling.risk(req)
+
+
+@app.post("/sweep", response_model=SweepResponse)
+def sweep(req: SweepRequest) -> SweepResponse:
+    """Hypothetical scenario: vary one input; points NASA never tested come back with probability = null."""
+    return modeling.sweep(req)
+
+
+@app.get("/effects/{variable}", response_model=EffectsResponse)
+def effects(variable: EffectVariable) -> EffectsResponse:
+    """How one variable acts: direction and size with interval, where it was tested and what was never tested."""
+    return modeling.effects(variable)
 
 
 @app.post("/ask", response_model=Answer)

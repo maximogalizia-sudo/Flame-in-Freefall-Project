@@ -12,8 +12,10 @@ from __future__ import annotations
 import re
 
 from flame import models as flame_models
+from flame import scenarios as flame_scenarios
 
-from .contracts import Answer, Conditions, EvidenceItem, Prediction
+from .contracts import (Answer, Conditions, EffectsResponse, EvidenceItem, Prediction, RiskRequest, RiskResponse,
+                        SweepRequest, SweepResponse)
 
 FALLBACK_NOTE = "assistant unavailable: template answer"
 
@@ -28,6 +30,19 @@ def coverage(c: Conditions, k: int = 10) -> list[EvidenceItem]:
 
 def explain(family: str) -> dict:
     return flame_models.explain(family)
+
+
+# contract v3 (mentors' feedback): LC's flame.scenarios, no logic added here
+def risk(req: RiskRequest) -> RiskResponse:
+    return flame_scenarios.risk(req)
+
+
+def sweep(req: SweepRequest) -> SweepResponse:
+    return flame_scenarios.sweep(req)
+
+
+def effects(variable: str) -> EffectsResponse:
+    return flame_scenarios.effects(variable)
 
 
 # ---------------------------------------------------------------- template answer (fallback for /ask)
