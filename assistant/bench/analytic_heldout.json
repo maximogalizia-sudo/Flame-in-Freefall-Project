@@ -1,0 +1,25 @@
+{
+ "_note": "HELD-OUT set written BEFORE implementing the analytic tools (2026-11-14). Used ONLY to measure, never to tune. kind = expected analytic family of the question; answerable = the data can support a factual answer.",
+ "items": [
+  {"id": "H01", "q": "¿A partir de qué porcentaje de CO2 se apagan siempre las gotas de metanol?", "kind": "profile", "answerable": true},
+  {"id": "H02", "q": "Is there any helium level at which heptane droplets always go out?", "kind": "profile", "answerable": true},
+  {"id": "H03", "q": "¿Cuál es el oxígeno mínimo con el que NASA vio llamas de gas encenderse?", "kind": "profile", "answerable": true},
+  {"id": "H04", "q": "What range of pressures did NASA test for gas flames?", "kind": "profile", "answerable": true},
+  {"id": "H05", "q": "¿Con qué niveles de oxígeno los materiales sólidos no lograron sostener la llama?", "kind": "profile", "answerable": true},
+  {"id": "H06", "q": "¿Hay algún tamaño de gota de heptano por debajo del cual nunca se apaga la llama?", "kind": "profile", "answerable": true},
+  {"id": "H07", "q": "Which 3 FLEX conditions most often ended with the droplet burning completely?", "kind": "rank", "answerable": true},
+  {"id": "H08", "q": "¿Qué atmósferas hicieron que las llamas de gas se apagaran más rápido?", "kind": "rank", "answerable": true},
+  {"id": "H09", "q": "Rank the solid materials from most to least flammable according to NASA tests", "kind": "rank", "answerable": true},
+  {"id": "H10", "q": "¿Cuáles fueron las pruebas de gotas que más tiempo ardieron?", "kind": "rank", "answerable": true},
+  {"id": "H11", "q": "Which gas flame conditions kept burning the longest?", "kind": "rank", "answerable": true},
+  {"id": "H12", "q": "¿Qué combinaciones de gotas se apagaron siempre?", "kind": "rank", "answerable": true},
+  {"id": "H13", "q": "¿Qué le falta a los datos de NASA para poder evaluar una cabina lunar?", "kind": "gaps", "answerable": true},
+  {"id": "H14", "q": "What are the main limitations of this dataset?", "kind": "gaps", "answerable": true},
+  {"id": "H15", "q": "¿Qué condiciones nunca se probaron con supresores?", "kind": "gaps", "answerable": true},
+  {"id": "H16", "q": "Suggest new tests to better understand solid materials at high oxygen", "kind": "gaps", "answerable": true},
+  {"id": "H17", "q": "¿Qué peligro tiene subir el oxígeno en una cabina?", "kind": "explain_variable", "answerable": true},
+  {"id": "H18", "q": "How risky is low pressure for fire?", "kind": "explain_variable", "answerable": true},
+  {"id": "H19", "q": "¿En qué rango de presión se apagan solas las llamas de butano en menos de 30 segundos?", "kind": "profile", "answerable": true},
+  {"id": "H20", "q": "¿Cuál es el mejor restaurante de Rosario?", "kind": "off_topic", "answerable": false}
+ ]
+}
