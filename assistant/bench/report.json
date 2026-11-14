@@ -6,10 +6,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 8,
    "invented_numbers": 0,
-   "median_ms": 14
+   "median_ms": 3227
   },
   "predict_out": {
    "intent_ok": 1.0,
@@ -17,10 +18,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 15
+   "median_ms": 3699
   },
   "count": {
    "intent_ok": 1.0,
@@ -28,10 +30,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 16
+   "median_ms": 939
   },
   "trap": {
    "intent_ok": 1.0,
@@ -39,10 +42,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 5
+   "median_ms": 764
   },
   "explain_variable": {
    "intent_ok": 1.0,
@@ -50,10 +54,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 12
+   "median_ms": 1368
   },
   "scenario": {
    "intent_ok": 1.0,
@@ -61,10 +66,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 2,
    "invented_numbers": 0,
-   "median_ms": 277
+   "median_ms": 1452
   },
   "risk": {
    "intent_ok": 1.0,
@@ -72,10 +78,23 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 76
+   "median_ms": 660
+  },
+  "docs": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 1.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "doc_ok": 1.0,
+   "llm_used": 0.0,
+   "n": 10,
+   "invented_numbers": 2,
+   "median_ms": 723
   },
   "ALL": {
    "intent_ok": 1.0,
@@ -83,11 +102,34 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
-   "n": 34,
-   "invented_numbers": 0,
-   "median_ms": 14
+   "n": 44,
+   "invented_numbers": 2,
+   "median_ms": 1281
   }
  },
- "failures": []
+ "failures": [
+  {
+   "id": "D10",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": true,
+   "decision": "partial",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": true,
+   "invented_numbers": [
+    "16",
+    "21"
+   ],
+   "ms": 692,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 44: \"Burner temperatures were analyzed to find their correlation to the ignition and diameter of cool flames. K. Preliminary Research Findings\n[provided by the U. of Maryland investigator team and lightly edited by Stocker] A total of 280 hot diffusion flames were observed. Among them…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 35: \"NASA/TM-20210011385 27\nTABLE 2.1.—COMPARISON OF EXTINCTION VELOCITY Vg,cr\nFOR THIN POLYMETHYLMETHACRYLATE AT 1 atm\nVg,cr, mm/s\nO2, percent\nExperiment Computation Theory, Equation (2.5)\n21 10±5 15 7.5\n16 30±5 35 10\nEquation (2.3) establishes that the spread rate in the radiative r…\""
+  }
+ ]
 }

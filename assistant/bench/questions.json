@@ -364,5 +364,115 @@
   "intent": "risk",
   "tools": [],
   "decision": "abstain"
+ },
+ {
+  "id": "D01",
+  "type": "docs",
+  "q": "¿Por qué se rompían las gotas en FLEX?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-69"
+ },
+ {
+  "id": "D02",
+  "type": "docs",
+  "q": "Why did FLEX droplets disrupt?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-69"
+ },
+ {
+  "id": "D03",
+  "type": "docs",
+  "q": "¿Qué es una llama fría?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-159"
+ },
+ {
+  "id": "D04",
+  "type": "docs",
+  "q": "What is a cool diffusion flame and when did CFI-G observe it?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-159"
+ },
+ {
+  "id": "D05",
+  "type": "docs",
+  "q": "¿Por qué se apagan solas las llamas de gas grandes?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-159"
+ },
+ {
+  "id": "D06",
+  "type": "docs",
+  "q": "What did BASS-II learn about flame spread over thick PMMA slabs?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-25"
+ },
+ {
+  "id": "D07",
+  "type": "docs",
+  "q": "¿Qué es el tejido SIBAL y por qué se usó?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-25"
+ },
+ {
+  "id": "D08",
+  "type": "docs",
+  "q": "How was the air flow controlled in the BASS experiments?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-26"
+ },
+ {
+  "id": "D09",
+  "type": "docs",
+  "q": "¿Qué objetivo tenía el experimento SAFFIRE?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-98"
+ },
+ {
+  "id": "D10",
+  "type": "docs",
+  "q": "What is radiative extinction of a droplet flame?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-69"
  }
 ]

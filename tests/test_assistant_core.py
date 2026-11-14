@@ -47,7 +47,7 @@ def test_language():
 
 def test_plan_tools():
     tools = lambda q: [c.tool for c in make_plan(understand(q)).calls]   # noqa: E731
-    assert tools('¿Se apaga una gota de metanol con 18 % de oxígeno?') == ['predict', 'coverage']
+    assert tools('¿Se apaga una gota de metanol con 18 % de oxígeno?') == ['predict', 'effects', 'coverage']
     assert tools('¿Cuántas pruebas de Nomex hubo?') == ['tests_search']
     assert tools('¿Qué es una llama fría?') == ['rag_search']
     assert tools('hola') == []

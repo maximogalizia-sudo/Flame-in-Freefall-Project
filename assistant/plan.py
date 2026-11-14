@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 
 from flame.contracts import Conditions, RagSearchRequest, RiskRequest, SweepRequest, TestsSearchRequest
 
+from .ml_insight import variables_to_explain
 from .understand import SOLID_FAMILY_NAME, Understanding, normalize
 
 FAMILY_ACCESSIONS = {'flex': ['PSI-69'], 'cfig': ['PSI-159'], 'solids': ['PSI-25', 'PSI-26', 'PSI-98']}
@@ -131,6 +132,9 @@ def make_plan(u: Understanding) -> Plan:
         p.calls.append(ToolCall('predict', c if fam else Conditions(**{**c.model_dump(exclude_none=True), 'family': 'flex', 'fuel': 'methanol', 'o2_frac': c.o2_frac or 0.21}),
                                 label='gravity_check' if not fam else ''))
     if fam:
+        if c.gravity_g in (None, 0):     # the ML is the brain: what the models learned about the variables the user set
+            for var in variables_to_explain(c, fam):
+                p.calls.append(ToolCall('effects', var))
         p.calls.append(ToolCall('coverage', c))
         if u.intent == 'coverage':
             sub = u.substances[0]
