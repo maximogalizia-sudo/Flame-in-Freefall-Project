@@ -21,6 +21,7 @@ from .ml_insight import drivers, relevant_rows
 from .retrieve import select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, understand
+from .understand_llm import llm_assist, needs_help
 
 
 @dataclass
@@ -207,6 +208,20 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             answered = True
         elif p.target == 'ignition' or (p.target == 'no_model' and not any('above 22.7' in r for r in p.out_of_domain)):
             partial = True   # solids at > 22.7 % O2: nothing NASA tested is related enough -> stays an abstention
+    # Abstain from the NUMBER, not from the understanding: if the combination was never tested, say what the models
+    # learned about the variables involved (labelled as a tendency, not a prediction for this case).
+    no_number = [p for lbl, p in g.predictions if p.probability is None and lbl != 'gravity_check'
+                 and (p.target == 'extinction_before_burnout' or p.target.startswith('self_extinction'))]
+    trend_rows = [r for e in g.effects for r in relevant_rows(e, u.conditions) if r.direction != 'no clear effect']
+    if no_number and trend_rows and not any(p.probability is not None for _, p in g.predictions):
+        word = {'es': {'helps extinction': 'ayuda a que se apague', 'keeps it burning': 'la mantiene prendida'},
+                'en': {'helps extinction': 'helps it go out', 'keeps it burning': 'keeps it burning'}}[lang]
+        s.append({'es': 'Sin número para tu caso, pero esta es la TENDENCIA que el modelo aprendió de las pruebas que sí existen '
+                        '(no es una predicción para estas condiciones): ',
+                  'en': 'No number for your case, but this is the TENDENCY the model learned from the tests that do exist '
+                        '(not a prediction for these conditions): '}[lang]
+                 + '; '.join(f'{r.scenario}, {r.effect}: {word[r.direction]} (×{r.ratio:g})' for r in trend_rows[:3]) + '.')
+        partial = True
     first_in = next((p for _, p in g.predictions if p.probability is not None), None)
     if first_in and first_in.assumptions:
         s.append(TP.t('assumed', lang, x='; '.join(first_in.assumptions)))
@@ -265,6 +280,8 @@ def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
     t0 = time.perf_counter()
     tools = tools or get_tools()
     u = merge_history(understand(req.text), req)
+    if llm is not None and needs_help(u):          # rules first; the LLM only helps to understand, validated
+        u = llm_assist(u, llm)
     if req.lang:
         u.lang = req.lang
     plan = make_plan(u)
@@ -279,6 +296,9 @@ def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
             d_text, d_decision, problems = drafted
             if d_decision is not None and d_decision != decision and {d_decision, decision} != {'answer', 'partial'}:
                 problems = problems + [f'decision mark {d_decision} contradicts the system decision {decision}']
+            has_number = any(p.probability is not None for _, p in g.predictions)
+            if d_decision == 'answer' and decision != 'answer' and g.predictions and not has_number:
+                problems = problems + ['says ANSWER but the model gave no number for this case (only a tendency)']
             if problems:
                 verification = ['llm draft rejected: ' + p for p in problems]
             else:

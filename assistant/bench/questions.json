@@ -112,10 +112,11 @@
   "tools": [
    "predict"
   ],
-  "decision": "abstain",
+  "decision": "partial",
   "expect": {
    "fuel": "heptane"
-  }
+  },
+  "note": "no number, but the learned tendency (abstain from the number, not from the explanation)"
  },
  {
   "id": "O02",
@@ -125,7 +126,8 @@
   "tools": [
    "predict"
   ],
-  "decision": "abstain"
+  "decision": "partial",
+  "note": "no number, but the learned tendency (abstain from the number, not from the explanation)"
  },
  {
   "id": "O03",
@@ -135,7 +137,8 @@
   "tools": [
    "predict"
   ],
-  "decision": "abstain"
+  "decision": "partial",
+  "note": "no number, but the learned tendency (abstain from the number, not from the explanation)"
  },
  {
   "id": "O04",
@@ -145,7 +148,8 @@
   "tools": [
    "predict"
   ],
-  "decision": "abstain"
+  "decision": "partial",
+  "note": "no number, but the learned tendency (abstain from the number, not from the explanation)"
  },
  {
   "id": "O05",
@@ -165,7 +169,8 @@
   "tools": [
    "predict"
   ],
-  "decision": "abstain"
+  "decision": "partial",
+  "note": "no number, but the learned tendency (abstain from the number, not from the explanation)"
  },
  {
   "id": "C01",
@@ -474,5 +479,66 @@
   ],
   "decision": "partial",
   "expect_accession": "PSI-69"
+ },
+ {
+  "id": "I01",
+  "type": "implicit",
+  "q": "¿Una vela aguanta más en una cabina con aire enriquecido?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "I02",
+  "type": "implicit",
+  "q": "Si meto más dióxido de carbono, ¿le cuesta más mantenerse a la gota de heptano?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "I03",
+  "type": "implicit",
+  "q": "¿Las gotas grandes de heptano se apagan más fácil que las chicas?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "I04",
+  "type": "implicit",
+  "q": "Does lowering the pressure help put out a butane flame?",
+  "intent": "scenario",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
+ },
+ {
+  "id": "I05",
+  "type": "implicit",
+  "q": "¿Las roturas de las gotas eran física real o un problema del experimento?",
+  "intent": "explain_doc",
+  "tools": [
+   "rag_search"
+  ],
+  "decision": "partial",
+  "expect_accession": "PSI-69"
+ },
+ {
+  "id": "I06",
+  "type": "implicit",
+  "q": "¿Conviene usar helio en vez de nitrógeno para que se apague una gota de metanol?",
+  "intent": "explain_variable",
+  "tools": [
+   "effects"
+  ],
+  "decision": "answer"
  }
 ]

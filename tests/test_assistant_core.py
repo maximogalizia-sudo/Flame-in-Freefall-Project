@@ -58,9 +58,14 @@ def test_in_domain_prediction_is_answer():
     assert a.decision == 'answer' and a.predictions[0].probability is not None and 'predict' in a.tools_used
 
 
-def test_untested_combination_abstains_with_evidence():
+def test_untested_combination_gives_no_number_but_the_tendency():
     a = answer(AskRequest(text='¿Se apaga una gota de heptano con 34 % de oxígeno y 20 % de CO2 a 0,7 atm?'), tools=LocalTools())
-    assert a.decision == 'abstain' and a.predictions[0].probability is None and a.evidence
+    assert a.decision == 'partial' and a.predictions[0].probability is None and a.evidence and 'TENDENCIA' in a.text
+
+
+def test_untestable_condition_still_abstains():
+    a = answer(AskRequest(text='¿Se apaga una gota de heptano en gravedad lunar con 21 % de oxígeno?'), tools=LocalTools())
+    assert a.decision == 'abstain'
 
 
 def test_count_and_off_topic_and_docs_unavailable():

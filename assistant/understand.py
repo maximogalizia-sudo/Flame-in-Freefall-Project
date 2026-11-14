@@ -49,9 +49,12 @@ COMBUSTION_WORDS = r"llama|fuego|incendi|combust|apag|arde|quem|prend|encend|ign
                    r"gota|droplet|oxigen|oxygen|nasa|experiment|prueba|ensayo|test|material|flex|cfi|bass|saffire"
 
 VARIABLES = {   # word -> SweepVariable (mentors' "how does X act" / "what if X changes")
+    "aire enriquecido": "o2_frac", "enriched air": "o2_frac", "enriquecid[ao] en oxigeno": "o2_frac", "oxygen.?rich": "o2_frac",
     "co2": "co2_frac", "dioxido de carbono": "co2_frac", "carbon dioxide": "co2_frac",
     "helio": "he_frac", "helium": "he_frac", "oxigeno": "o2_frac", "oxygen": "o2_frac", "o2": "o2_frac",
     "presion": "pressure_kpa", "pressure": "pressure_kpa", "tamano de (?:la )?gota": "droplet_d0_mm",
+    "gotas? (?:mas )?(?:grandes?|chic[ao]s?|pequen[ao]s?)": "droplet_d0_mm", "(?:big|large|small)(?:er)? droplets?": "droplet_d0_mm",
+    "tamano": "droplet_d0_mm", "size": "droplet_d0_mm",
     "diametro": "droplet_d0_mm", "droplet size": "droplet_d0_mm", "diameter": "droplet_d0_mm",
 }
 
@@ -194,6 +197,11 @@ def understand(text: str) -> Understanding:
         intent = "coverage"              # "what about lunar gravity / humidity?" asks what NASA measured
     if intent == "explain_doc" and substances and "gravity_g" in vals:
         intent = "predict"               # "what happens on Mars with a methanol droplet?" asks for an outcome
+    if intent in ("explain_doc", "predict") and variable and not has_numbers and re.search(
+            r"\b(mas|menos|more|less|enriquecid\w*|enriched|aument\w*|reduc\w*|sub\w+|baj\w+|increas\w*|decreas\w*|"
+            r"rich|alto|alta|bajo|baja|high|low|cuesta|aguanta|dura|influ\w*|afect\w*|lower\w*|rais\w*|help\w*|"
+            r"conviene|en vez de|instead of|better|mejor|grandes?|chic[ao]s?|big\w*|small\w*|large\w*)\b", t):
+        intent = "explain_variable"      # "with more CO2, is it harder for the droplet to keep burning?" -> learned effect
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
                          substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable)

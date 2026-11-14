@@ -53,7 +53,7 @@ def run(http: bool = False, llm: bool = False, pace: float = 15.0) -> dict:
         invented = sorted(numbers(a.text) - allowed_numbers(it['q'], a))
         r = {'id': it['id'], 'type': it['type'], 'intent_ok': a.intent == it['intent'],
              'tools_ok': all(t in a.tools_used for t in it['tools']) and (bool(it['tools']) or not a.tools_used),
-             'decision_ok': a.decision == it['decision'], 'decision': a.decision,
+             'decision_ok': a.decision == it['decision'], 'decision': a.decision, 'expected': it['decision'],
              'expect_ok': all((abs(got.get(k, -1) - v) < 1e-6) if isinstance(v, float) else got.get(k) == v for k, v in it.get('expect', {}).items()),
              'text_ok': all(x in a.text for x in it.get('expect_text', [])),
              'doc_ok': ('expect_accession' not in it) or any(c.psi_id == it['expect_accession'] for c in a.citations[:5]),
@@ -67,6 +67,8 @@ def run(http: bool = False, llm: bool = False, pace: float = 15.0) -> dict:
     summary = {}
     for k, rs in list(by.items()) + [('ALL', rows)]:
         summary[k] = {m: round(sum(r[m] for r in rs) / len(rs), 2) for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok', 'doc_ok')}
+        ans = [r for r in rs if r['expected'] != 'abstain']
+        summary[k].update(over_abstention=round(sum(r['decision'] == 'abstain' for r in ans) / len(ans), 2) if ans else 0.0)
         summary[k].update(llm_used=round(sum(r['version'].endswith(':llm') for r in rs) / len(rs), 2))
         summary[k].update(n=len(rs), invented_numbers=sum(len(r['invented_numbers']) for r in rs), median_ms=sorted(r['ms'] for r in rs)[len(rs) // 2])
     report = {'summary': summary, 'failures': [r for r in rows if not all(r[m] for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok', 'doc_ok')) or r['invented_numbers']]}

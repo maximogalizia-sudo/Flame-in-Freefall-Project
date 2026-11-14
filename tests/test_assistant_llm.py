@@ -50,7 +50,7 @@ def test_fake_citation_is_rejected():
 
 def test_answer_on_untested_combination_is_rejected():
     a = run(Q_OUT, '[[DECISION:ANSWER]]\nSí, se apaga [T1].')
-    assert a.decision == 'abstain' and any('says ANSWER' in v for v in a.verification)
+    assert a.decision == 'partial' and any('says ANSWER' in v for v in a.verification)
 
 
 def test_foreign_substance_is_rejected():
