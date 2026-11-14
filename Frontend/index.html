@@ -43,7 +43,7 @@
     </section>
 
     <div class="grid">
-      <section class="card span-2" aria-labelledby="t-map">
+      <section class="card span-3" aria-labelledby="t-map">
         <header class="card-head">
           <div>
             <h2 id="t-map">Extinction map</h2>
@@ -55,11 +55,11 @@
         <p class="note" id="note-map"></p>
       </section>
 
-      <section class="card" aria-labelledby="t-detail">
+      <section class="card span-3" id="detail-card" aria-labelledby="t-detail" hidden>
         <header class="card-head">
           <div>
             <h2 id="t-detail">Test detail</h2>
-            <p class="sub" id="detail-sub">Pick a dot on the map.</p>
+            <p class="sub" id="detail-sub"></p>
           </div>
         </header>
         <div id="detail" class="detail"></div>
@@ -90,15 +90,17 @@
         <div class="answer" id="answer" aria-live="polite"></div>
       </section>
 
-      <section class="card span-3" aria-labelledby="t-inv">
-        <header class="card-head">
-          <div>
+      <details class="card span-3 fold" id="inv-fold">
+        <summary>
+          <span class="fold-title">
             <h2 id="t-inv">Investigations</h2>
-            <p class="sub">All 24 PSI combustion investigations. "Tests" are rows loaded into the database; "Log" are per-day or design-matrix rows.</p>
-          </div>
-        </header>
+            <span class="sub">All 24 PSI combustion investigations: tests, outcomes and DOIs.</span>
+          </span>
+          <span class="fold-cta"><span class="when-closed">Show</span><span class="when-open">Hide</span></span>
+        </summary>
+        <p class="sub fold-note">"Tests" are rows loaded into the database; "Log" are per-day or design-matrix rows.</p>
         <div class="table-wrap"><table id="inv-table"></table></div>
-      </section>
+      </details>
     </div>
   </main>
 

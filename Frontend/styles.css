@@ -93,7 +93,8 @@ h1 { font-size: 28px; font-weight: 650; margin-top: 4px; }
 .chart .axis-title { fill: var(--ink-2); font-size: 12px; }
 .chart .gridline { stroke: var(--grid); stroke-width: 1; }
 .chart .baseline { stroke: var(--axis); stroke-width: 1; }
-.chart .ref-label { fill: var(--ink-2); font-size: 11px; }
+.chart .ref-label { fill: var(--ink); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.detail dl { grid-template-columns: max-content 1fr; max-width: 640px; }
 .dot { cursor: pointer; }
 .dot.selected { stroke: var(--ink); stroke-width: 2; }
 .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
@@ -124,6 +125,19 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .chat-form button { font: inherit; padding: 9px 16px; border-radius: 8px; border: 0; background: var(--accent); color: #fff; opacity: .5; }
 
 .foot { color: var(--muted); font-size: 12px; padding-top: 24px; padding-bottom: 32px; }
+
+/* Collapsible card (Investigations): closed by default, opens on click. */
+.fold > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold-title { display: grid; gap: 2px; }
+.fold-cta { flex: none; font-size: 13px; color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px; }
+.fold-cta::after { content: " ▾"; }
+.fold[open] .fold-cta::after { content: " ▴"; }
+.fold > summary:hover .fold-cta, .fold > summary:focus-visible .fold-cta { background: var(--page); }
+.fold .when-open, .fold[open] .when-closed { display: none; }
+.fold[open] .when-open { display: inline; }
+.fold-note { margin: 12px 0 8px; }
+.fold:not([open]) > :not(summary) { display: none; }
 
 .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .mode { color: var(--muted); font-size: 12px; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
