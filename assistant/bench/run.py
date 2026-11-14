@@ -56,6 +56,7 @@ def run(http: bool = False, llm: bool = False, pace: float = 15.0) -> dict:
              'decision_ok': a.decision == it['decision'], 'decision': a.decision,
              'expect_ok': all((abs(got.get(k, -1) - v) < 1e-6) if isinstance(v, float) else got.get(k) == v for k, v in it.get('expect', {}).items()),
              'text_ok': all(x in a.text for x in it.get('expect_text', [])),
+             'doc_ok': ('expect_accession' not in it) or any(c.psi_id == it['expect_accession'] for c in a.citations[:5]),
              'invented_numbers': invented, 'ms': ms, 'version': a.assistant_version, 'verification': a.verification, 'text': a.text}
         rows.append(r)
         if llm:
@@ -65,10 +66,10 @@ def run(http: bool = False, llm: bool = False, pace: float = 15.0) -> dict:
         by[r['type']].append(r)
     summary = {}
     for k, rs in list(by.items()) + [('ALL', rows)]:
-        summary[k] = {m: round(sum(r[m] for r in rs) / len(rs), 2) for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok')}
+        summary[k] = {m: round(sum(r[m] for r in rs) / len(rs), 2) for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok', 'doc_ok')}
         summary[k].update(llm_used=round(sum(r['version'].endswith(':llm') for r in rs) / len(rs), 2))
         summary[k].update(n=len(rs), invented_numbers=sum(len(r['invented_numbers']) for r in rs), median_ms=sorted(r['ms'] for r in rs)[len(rs) // 2])
-    report = {'summary': summary, 'failures': [r for r in rows if not all(r[m] for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok')) or r['invented_numbers']]}
+    report = {'summary': summary, 'failures': [r for r in rows if not all(r[m] for m in ('intent_ok', 'tools_ok', 'decision_ok', 'expect_ok', 'text_ok', 'doc_ok')) or r['invented_numbers']]}
     (HERE / 'report.json').write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding='utf-8')
     return report
 

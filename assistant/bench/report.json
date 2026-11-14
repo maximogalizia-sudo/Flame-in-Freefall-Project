@@ -6,10 +6,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 8,
    "invented_numbers": 0,
-   "median_ms": 14
+   "median_ms": 16
   },
   "predict_out": {
    "intent_ok": 1.0,
@@ -17,10 +18,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 15
+   "median_ms": 12
   },
   "count": {
    "intent_ok": 1.0,
@@ -28,10 +30,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
-   "median_ms": 16
+   "median_ms": 13
   },
   "trap": {
    "intent_ok": 1.0,
@@ -39,6 +42,7 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 6,
    "invented_numbers": 0,
@@ -50,10 +54,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 12
+   "median_ms": 11
   },
   "scenario": {
    "intent_ok": 1.0,
@@ -61,10 +66,11 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 2,
    "invented_numbers": 0,
-   "median_ms": 277
+   "median_ms": 258
   },
   "risk": {
    "intent_ok": 1.0,
@@ -72,22 +78,217 @@
    "decision_ok": 1.0,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 1.0,
    "llm_used": 0.0,
    "n": 3,
    "invented_numbers": 0,
-   "median_ms": 76
+   "median_ms": 54
+  },
+  "docs": {
+   "intent_ok": 1.0,
+   "tools_ok": 1.0,
+   "decision_ok": 0.0,
+   "expect_ok": 1.0,
+   "text_ok": 1.0,
+   "doc_ok": 0.0,
+   "llm_used": 0.0,
+   "n": 10,
+   "invented_numbers": 0,
+   "median_ms": 1
   },
   "ALL": {
    "intent_ok": 1.0,
    "tools_ok": 1.0,
-   "decision_ok": 1.0,
+   "decision_ok": 0.77,
    "expect_ok": 1.0,
    "text_ok": 1.0,
+   "doc_ok": 0.77,
    "llm_used": 0.0,
-   "n": 34,
+   "n": 44,
    "invented_numbers": 0,
-   "median_ms": 14
+   "median_ms": 12
   }
  },
- "failures": []
+ "failures": [
+  {
+   "id": "D01",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. La búsqueda en los informes de NASA todavía no está disponible."
+  },
+  {
+   "id": "D02",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 0,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. Search in the NASA reports is not available yet."
+  },
+  {
+   "id": "D03",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. La búsqueda en los informes de NASA todavía no está disponible."
+  },
+  {
+   "id": "D04",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. Search in the NASA reports is not available yet."
+  },
+  {
+   "id": "D05",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. La búsqueda en los informes de NASA todavía no está disponible."
+  },
+  {
+   "id": "D06",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 4,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: material = pmma. Search in the NASA reports is not available yet."
+  },
+  {
+   "id": "D07",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 4,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: material = sibal. La búsqueda en los informes de NASA todavía no está disponible."
+  },
+  {
+   "id": "D08",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. Search in the NASA reports is not available yet."
+  },
+  {
+   "id": "D09",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 0,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Entendí: no reconocí condiciones concretas. La búsqueda en los informes de NASA todavía no está disponible."
+  },
+  {
+   "id": "D10",
+   "type": "docs",
+   "intent_ok": true,
+   "tools_ok": true,
+   "decision_ok": false,
+   "decision": "abstain",
+   "expect_ok": true,
+   "text_ok": true,
+   "doc_ok": false,
+   "invented_numbers": [],
+   "ms": 1,
+   "version": "assistant-v0.1:template",
+   "verification": [
+    "no llm configured: template answer"
+   ],
+   "text": "Understood: no specific conditions recognised. Search in the NASA reports is not available yet."
+  }
+ ]
 }
