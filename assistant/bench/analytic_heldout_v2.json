@@ -1,0 +1,17 @@
+{
+ "_note": "HELD-OUT v2, written 2026-11-14 after held-out v1 was looked at (v1 intent result: 18/20, recorded in NOTAS). Not looked at or tuned on until the final measurement.",
+ "items": [
+  {"id": "V01", "q": "¿Desde qué presión las llamas de propano dejan de apagarse solas?", "kind": "profile", "answerable": true},
+  {"id": "V02", "q": "What is the lowest oxygen level at which a solid material still burned in the NASA tests?", "kind": "profile", "answerable": true},
+  {"id": "V03", "q": "¿Qué porcentaje de helio hace falta para que se apaguen siempre las gotas de heptano?", "kind": "profile", "answerable": true},
+  {"id": "V04", "q": "List the 4 gas-flame atmospheres where flames lasted longest", "kind": "rank", "answerable": true},
+  {"id": "V05", "q": "¿Cuál fue el material que menos sostuvo la llama?", "kind": "rank", "answerable": true},
+  {"id": "V06", "q": "¿Qué condiciones de gotas tienen más chances de quemarse enteras?", "kind": "rank", "answerable": true},
+  {"id": "V07", "q": "Which droplet tests went out the fastest?", "kind": "rank", "answerable": true},
+  {"id": "V08", "q": "¿Qué datos harían falta para predecir incendios en Marte?", "kind": "gaps", "answerable": true},
+  {"id": "V09", "q": "What experiments would close the biggest holes in this data?", "kind": "gaps", "answerable": true},
+  {"id": "V10", "q": "¿Qué puntos débiles tienen los datos de materiales sólidos?", "kind": "gaps", "answerable": true},
+  {"id": "V11", "q": "¿Es peligroso aumentar el helio?", "kind": "explain_variable", "answerable": true},
+  {"id": "V12", "q": "¿Quién ganó el mundial 2022?", "kind": "off_topic", "answerable": false}
+ ]
+}
