@@ -1,5 +1,7 @@
 """POST /tests/search over the curated tables (PLAN_ASISTENTE M2). Needs the database loaded with
 `python -m pipeline.load_curated`; skipped when the database is not reachable."""
+from pathlib import Path
+
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
@@ -10,7 +12,7 @@ from api.settings import get_settings
 
 pytestmark = pytest.mark.skipif(not db.ping(), reason="database not reachable")
 client = TestClient(app)
-PROC = "../data/processed"
+PROC = Path(__file__).resolve().parents[2] / "data" / "processed"
 
 
 def search(**body):
@@ -26,7 +28,7 @@ def test_nomex_grouped_by_outcome():                          # acceptance crite
 
 
 def test_counts_match_the_curated_files():
-    flex = pd.read_parquet(f"{PROC}/flex_tests.parquet")
+    flex = pd.read_parquet(PROC / "flex_tests.parquet")
     r = search(family="flex", fuel="methanol", diluent="CO2", only_model_rows=True, group_by=["test_end"]).json()
     sub = flex[(flex.fuel == "Methanol") & (flex.diluent == "CO2") & flex.in_main_model]
     assert r["n_total"] == len(sub)
@@ -34,7 +36,7 @@ def test_counts_match_the_curated_files():
 
 
 def test_cfig_filters_and_pressure_in_kpa():
-    cfig = pd.read_parquet(f"{PROC}/cfig_tests.parquet")
+    cfig = pd.read_parquet(PROC / "cfig_tests.parquet")
     r = search(family="cfig", fuel="n_butane", flame_type="normal", o2_min=0.3, pressure_kpa_max=110, limit=200).json()
     sub = cfig[(cfig.fuel == "butane") & (cfig.flame_type == "normal") & (cfig.o2_mid >= 0.3) & (cfig.pressure_bar * 100 <= 110)]
     assert r["n_total"] == len(sub) and all(row["pressure_kpa"] <= 110 for row in r["rows"])
