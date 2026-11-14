@@ -1,6 +1,7 @@
 # Backend API image (FastAPI). BUILD CONTEXT = REPO ROOT (it needs LC's flame/, models/ and data/processed/):
 #     docker build -f Backend/Dockerfile .
-# Railway: railway.json at the repo root points here; deploy with `railway up` from the repo root.
+# Railway: service variable RAILWAY_DOCKERFILE_PATH=Backend/Dockerfile; deploy from Backend/ with
+#     railway up .. --path-as-root --service api      (uploads the repo root, filtered by /.railwayignore)
 # Required env: DATABASE_URL. Optional: LLM_SERVICE_URL, LLM_SERVICE_TOKEN, ASSISTANT_API_TOKEN,
 # CORS_ORIGINS (comma-separated, e.g. the Cloudflare Pages URL).
 FROM python:3.12-slim

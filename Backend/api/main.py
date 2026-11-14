@@ -11,12 +11,14 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import db, modeling
-from .contracts import Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction
+from . import db, modeling, tabular
+from .auth import require_assistant_token
+from .contracts import (Answer, AskRequest, Citation, Conditions, EvidenceItem, Prediction, TestsSearchRequest,
+                        TestsSearchResponse)
 from .services import get_llm, get_rag
 from .settings import get_settings
 
@@ -29,7 +31,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=get_settings().cors_origins,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 Family = Literal["flex", "solids", "cfig"]
@@ -78,6 +80,16 @@ def tests(psi_id: str | None = None, family_group: FamilyGroup | None = None, ma
     params += [limit, offset]
     return db.query(f"SELECT * FROM mart.v_tests WHERE {' AND '.join(where)} ORDER BY test_id LIMIT %s OFFSET %s",
                     tuple(params))
+
+
+# ---------------------------------------------------------------- assistant tool: tabular search (M2)
+@app.post("/tests/search", response_model=TestsSearchResponse, dependencies=[Depends(require_assistant_token)])
+def tests_search(req: TestsSearchRequest) -> TestsSearchResponse:
+    """Whitelisted, parameterized search over LC's curated tables (mart.flex_tests / cfig_tests / bass_tests)."""
+    try:
+        return tabular.search(req)
+    except tabular.SearchError as e:
+        raise HTTPException(422, str(e)) from e
 
 
 def _test_or_404(test_id: str) -> dict:

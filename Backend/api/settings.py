@@ -33,6 +33,7 @@ class Settings:
     llm_service_url: str | None
     llm_service_token: str | None
     service_timeout_s: float
+    assistant_api_token: str | None = None
     cors_origins: list[str] = field(default_factory=list)
 
 
@@ -47,5 +48,6 @@ def get_settings() -> Settings:
         llm_service_url=os.environ.get("LLM_SERVICE_URL") or None,
         llm_service_token=os.environ.get("LLM_SERVICE_TOKEN") or None,
         service_timeout_s=float(os.environ.get("SERVICE_TIMEOUT_S", "8")),
+        assistant_api_token=os.environ.get("ASSISTANT_API_TOKEN") or None,
         cors_origins=[o.strip() for o in origins.split(",") if o.strip()],
     )
