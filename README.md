@@ -110,6 +110,8 @@ laboratory experiments; it is not a certified fire alarm.
 | Piece | Where | How |
 |---|---|---|
 | API + Postgres (pgvector) | Railway, service `api` | `cd Backend && railway up .. --path-as-root --service api` (build context is the repo root; `RAILWAY_DOCKERFILE_PATH=Backend/Dockerfile`). The image carries `flame/`, `models/`, `data/processed/` and the document index, runs LC's model tests while building, and reloads the curated tables and the index at every start |
+| Assistant | Railway, service `assistant` | Separate service operated by LC. Build context is the repo root with `RAILWAY_DOCKERFILE_PATH=assistant/Dockerfile`. The API reaches it through `LLM_SERVICE_URL` / `LLM_SERVICE_TOKEN` (see [`docs/SERVICES.md`](docs/SERVICES.md)); if it is down, `/ask` falls back to templates |
+| Web, same origin as the API | Railway, service `api` | The API image also serves the web page (`Frontend/`, copied to `./web`) at `/app/`, so `https://<api-host>/app/` always matches the deployed API |
 | Frontend | Cloudflare Pages, project `nasa-dashboard` | `git archive <commit> Frontend` then `wrangler pages deploy Frontend --project-name nasa-dashboard --branch production`. The API URL is the `flame-api` meta tag of `index.html` |
 
 Backend variables (Railway): `DATABASE_URL`, `CORS_ORIGINS`, `ASSISTANT_API_TOKEN`,
