@@ -10,10 +10,12 @@ const pct = (v, d = 0) => `${(v * 100).toLocaleString("en-US", { maximumFraction
 const safeUrl = (u) => (typeof u === "string" && /^https?:\/\//i.test(u) ? u : null);
 
 const EXAMPLES = [
-  "Does a methanol droplet go out with 30 % CO2 and 18 % oxygen?",
-  "How many Nomex tests were there, and in how many did the flame not sustain?",
-  "Why did FLEX droplets break up?",
-  "What is a cool flame?",
+  "How long does a butane flame at 40 % oxygen keep burning before it goes out by itself?",
+  "In what oxygen range does a methanol droplet flame go out?",
+  "What is the danger of high pressure?",
+  "List the 5 configurations most likely to keep burning",
+  "Which experiments are missing from the NASA data?",
+  "¿Por qué se rompían las gotas en FLEX?",
 ];
 
 // decision -> label (text and shape, not only colour)
@@ -120,6 +122,12 @@ export function setupChat() {
   examples.addEventListener("click", (e) => {
     const q = e.target.closest(".chip")?.textContent;
     if (q) { input.value = q; form.requestSubmit(); }
+  });
+  // the experiment planner sends "discuss this change" questions here
+  addEventListener("flame:ask", (e) => {
+    input.value = String(e.detail ?? "").slice(0, 500);
+    form.scrollIntoView({ block: "center", behavior: "smooth" });
+    form.requestSubmit();
   });
   clear.addEventListener("click", () => { history.length = 0; log.innerHTML = ""; clear.hidden = true; examples.hidden = false; input.focus(); });
 

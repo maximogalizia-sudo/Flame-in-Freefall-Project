@@ -10,15 +10,18 @@ Run locally (from the repo root, so that `flame` is importable):
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import db, modeling, rag, tabular
 from .auth import require_assistant_token
-from .contracts import (Answer, AskRequest, Citation, Conditions, EffectsResponse, EvidenceItem, Prediction,
+from .contracts import (Answer, AskRequest, Citation, CompareRequest, CompareResponse, Conditions, DurationResponse,
+                        EffectsResponse, EvidenceItem, Prediction,
                         RagSearchRequest, RagSearchResponse, RiskRequest, RiskResponse, SweepRequest, SweepResponse,
                         TestsSearchRequest, TestsSearchResponse)
 from .services import get_llm
@@ -36,6 +39,12 @@ app = FastAPI(
     version="0.3.0",
     description="NASA PSI microgravity combustion data, curated for fire-safety insights.",
 )
+# The web page (Frontend/, copied to ./web in the image) is also served here at /app: same origin as the API, so it
+# works without CORS and is always in step with the endpoints it calls. Cloudflare Pages keeps serving the same files.
+_WEB = Path(__file__).resolve().parent.parent / "web"
+if _WEB.is_dir():
+    app.mount("/app", StaticFiles(directory=_WEB, html=True), name="web")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_settings().cors_origins,
@@ -189,6 +198,18 @@ def sweep(req: SweepRequest) -> SweepResponse:
 def effects(variable: EffectVariable) -> EffectsResponse:
     """How one variable acts: direction and size with interval, where it was tested and what was never tested."""
     return modeling.effects(variable)
+
+
+@app.post("/duration", response_model=DurationResponse)
+def duration(c: Conditions) -> DurationResponse:
+    """How long the flame lasts (contract v4): gas flames get the survival curve and median; droplets the observed times."""
+    return modeling.duration(c)
+
+
+@app.post("/compare", response_model=CompareResponse)
+def compare(req: CompareRequest) -> CompareResponse:
+    """Planned experiment vs the same experiment with a change (contract v5): both sides from the models."""
+    return modeling.compare(req)
 
 
 @app.post("/ask", response_model=Answer)

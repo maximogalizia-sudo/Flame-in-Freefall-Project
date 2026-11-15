@@ -14,7 +14,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from flame.contracts import Conditions, RagSearchRequest, RiskRequest, SweepRequest, TestsSearchRequest
+from flame.contracts import CompareRequest, Conditions, RagSearchRequest, RiskRequest, SweepRequest, TestsSearchRequest
 
 from .ml_insight import variables_to_explain
 from .understand import SOLID_FAMILY_NAME, Understanding, normalize
@@ -101,11 +101,18 @@ def make_plan(u: Understanding) -> Plan:
             p.notes.append('no_subject')
             return p
         values = None
-        if m := re.search(r'de (\d+(?:[.,]\d+)?) a (\d+(?:[.,]\d+)?) ?%|from (\d+(?:[.,]\d+)?) ?%? to (\d+(?:[.,]\d+)?) ?%', normalize(u.text)):
-            a, b = [float(x.replace(',', '.')) / 100 for x in m.groups() if x][:2]
-            if u.variable in ('o2_frac', 'co2_frac', 'he_frac') and b > a:
-                values = [round(a + k * (b - a) / 8, 4) for k in range(9)]
-        cond = c.model_copy(update={u.variable: None}) if u.variable in ('co2_frac', 'he_frac', 'o2_frac') and values else c
+        unit = r' ?%' if u.variable in ('o2_frac', 'co2_frac', 'he_frac') else r' ?(?:kpa|mm)?'
+        if m := re.search(rf'de (\d+(?:[.,]\d+)?)(?:{unit})? a (\d+(?:[.,]\d+)?){unit}|from (\d+(?:[.,]\d+)?)(?:{unit})? to (\d+(?:[.,]\d+)?){unit}',
+                          normalize(u.text)):
+            div = 100 if u.variable.endswith('_frac') else 1
+            a, b = [float(x.replace(',', '.')) / div for x in m.groups() if x][:2]
+            if a != b and u.variable in ('o2_frac', 'co2_frac', 'he_frac', 'pressure_kpa', 'droplet_d0_mm'):
+                lo, hi = min(a, b), max(a, b)
+                values = [round(lo + k * (hi - lo) / 8, 4) for k in range(9)]
+                # v5: "from A to B" = a planned value and a change -> compare both with the models (direction matters)
+                p.calls.append(ToolCall('compare', CompareRequest(plan=c.model_copy(update={u.variable: a}),
+                                                                  change=c.model_copy(update={u.variable: b}))))
+        cond = c.model_copy(update={u.variable: None}) if values else c
         p.calls.append(ToolCall('sweep', SweepRequest(conditions=cond, variable=u.variable, values=values)))
         p.calls.append(ToolCall('effects', u.variable))
         return p

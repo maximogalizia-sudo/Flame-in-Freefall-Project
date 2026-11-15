@@ -39,3 +39,14 @@ def test_effects_by_variable():
     assert body["variable"] == "co2_frac" and body["rows"] and body["not_tested"]
     assert client.get("/effects/horizon_s").status_code == 422          # not an explainable variable
     assert client.get("/effects/nonsense").status_code == 422
+
+
+def test_duration_gas_flame_has_curve_and_median():
+    body = client.post("/duration", json={"fuel": "butane", "o2_frac": 0.40}).json()
+    assert body["in_domain"] and body["curve"] and body["median_s"] and body["observed"]
+
+
+def test_compare_plan_vs_change():
+    body = client.post("/compare", json={"plan": {"fuel": "butane", "o2_frac": 0.21},
+                                         "change": {"fuel": "butane", "o2_frac": 0.40}}).json()
+    assert body["verdict"] == "worse" and body["changes"][0]["variable"] == "o2_frac"

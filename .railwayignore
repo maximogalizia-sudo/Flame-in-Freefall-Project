@@ -1,9 +1,9 @@
 # The API image is built from the repo root (Backend/Dockerfile). Upload only what it needs:
 # Backend/api, Backend/pipeline, Backend/sql, Backend/requirements.txt, flame/, models/, data/processed/,
-# tests/test_flame_models.py, RAG/sql/, RAG/index/.
+# tests/test_flame_models.py, RAG/sql/, RAG/index/, and Frontend/ (the API also serves the web at /app, 2026-11-14 [LC]).
 .git/
 .env
-Frontend/
+Frontend/data/
 RAG/.venv/
 RAG/*.py
 docs/

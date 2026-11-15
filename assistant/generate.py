@@ -72,6 +72,17 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         items.append(f'[T{k}] early-warning risk indicator for atmosphere {dumps(r.atmosphere.model_dump())}: overall level {r.level}; '
                      f'{r.headline} Per scenario: ' + '; '.join(f'{i.scenario}: {i.level} ({i.reasons[0]})' for i in r.items)
                      + f'. DISCLAIMER (must be stated): {r.disclaimer}')
+    if getattr(g, 'compare', None) is not None:  # v5: planned experiment vs a change (both from the models)
+        k += 1; labels.add(f'T{k}')
+        c = g.compare
+        def side(x):
+            if x.persistence is None:
+                return f'NOT TESTED by NASA (no estimate): {dumps(x.reasons[:1])}'
+            med = f', median time until it goes out by itself {x.median_s} s' if x.median_s is not None else ''
+            return f'level {x.level}, {c.meaning}: {x.persistence} (95% {x.ci_low}-{x.ci_high}){med}'
+        items.append(f'[T{k}] planned experiment vs the change, {c.scenario}: verdict {c.verdict}. PLAN: {side(c.plan)}. '
+                     f'WITH THE CHANGE: {side(c.change)}. Each changed variable on its own: '
+                     + '; '.join(r.text for r in c.changes) + f'. Notes: {dumps(c.notes)}')
     if g.sweep is not None:                      # v3: hypothetical scenario
         k += 1; labels.add(f'T{k}')
         sw = g.sweep

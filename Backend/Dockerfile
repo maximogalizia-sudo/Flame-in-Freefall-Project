@@ -28,6 +28,9 @@ COPY RAG/index ./rag/index
 COPY Backend/api ./api
 COPY Backend/pipeline ./pipeline
 COPY Backend/sql ./sql
+# The web (same files as the Cloudflare Pages site), also served by this API at /app: same origin, no CORS, and it can
+# be redeployed together with the endpoints it calls.
+COPY Frontend ./web
 
 # The image is only built if LC's model tests pass inside it
 COPY tests/test_flame_models.py ./tests/test_flame_models.py

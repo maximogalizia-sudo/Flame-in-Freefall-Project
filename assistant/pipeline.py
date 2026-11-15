@@ -41,6 +41,7 @@ class Gathered:
     analytics: list = field(default_factory=list)                             # (kind, dict) from flame.analytics
     sweep: object | None = None                                               # SweepResponse (v3)
     effects: list = field(default_factory=list)                               # EffectsResponse list (v3)
+    compare: object | None = None                                             # CompareResponse (v5): plan vs change
 
 
 def merge_history(u: Understanding, req: AskRequest) -> Understanding:
@@ -90,7 +91,7 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
             r = getattr(tools, call.tool)(call.args)
             if r.ok:
                 g.analytics.append((call.tool, r.data))
-        elif call.tool in ('risk', 'sweep', 'effects'):
+        elif call.tool in ('risk', 'sweep', 'effects', 'compare'):
             r = getattr(tools, call.tool)(call.args)
             if r.ok:
                 if call.tool == 'effects':
@@ -174,6 +175,27 @@ def sweep_sentences(sw, lang: str) -> list[str]:
         out.append({'es': f'Fuera de {fmt(sw.tested_range[0])}–{fmt(sw.tested_range[1])} NASA no probó esta combinación: ahí no hay número.',
                     'en': f'Outside {fmt(sw.tested_range[0])}–{fmt(sw.tested_range[1])} NASA did not test this combination: no number there.'}[lang])
     return out
+
+
+def compare_sentences(c, lang: str) -> list[str]:
+    if lang == 'en':
+        return [c.headline] + [r.text for r in c.changes] + c.notes[:1]
+    pc = lambda v: f'{v * 100:.0f} %'   # noqa: E731
+    if c.verdict == 'unknown':
+        out = [f'NASA nunca probó {"lo planificado" if c.plan.persistence is None else "el experimento con ese cambio"} '
+               f'para {c.scenario}: los modelos no dan número ahí (no se sabe, no es seguro).']
+    else:
+        small = abs(c.change.persistence - c.plan.persistence) < 0.05     # verdict came from the median time
+        what = {'worse': 'se espera que dure más' if small else 'más probable que siga prendida',
+                'better': 'se espera que se apague antes' if small else 'más probable que se apague',
+                'about the same': 'más o menos igual que lo planificado'}[c.verdict]
+        out = [f'Con ese cambio, {c.scenario}: {what} ({pc(c.plan.persistence)} → {pc(c.change.persistence)}; {c.meaning}).']
+        if c.plan.level != c.change.level:
+            out.append(f'El indicador pasa de {c.plan.level} a {c.change.level}.')
+        if c.plan.median_s or c.change.median_s:
+            f = lambda m: f'~{m:g} s' if m is not None else 'más de 300 s'   # noqa: E731
+            out.append(f'Tiempo mediano hasta que se apaga sola: {f(c.plan.median_s)} → {f(c.change.median_s)}.')
+    return out + [r.text for r in c.changes]
 
 
 def effects_sentences(e, lang: str) -> list[str]:
@@ -313,6 +335,9 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
     if g.risk is not None:
         s += risk_sentences(g.risk, lang)
         answered = answered or g.risk.level != 'gray'
+    if g.compare is not None:
+        s += compare_sentences(g.compare, lang)
+        answered = answered or g.compare.verdict != 'unknown'
     if g.sweep is not None:
         s += sweep_sentences(g.sweep, lang)
         answered = answered or any(p.in_domain for p in g.sweep.points)

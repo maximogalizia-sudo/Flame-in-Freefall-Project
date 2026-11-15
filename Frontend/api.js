@@ -50,6 +50,8 @@ const postJSON = (path, body, signal) => getJSON(`${API_BASE}${path}`, {
 });
 export const getRisk = (atmosphere, signal) => postJSON("/risk", atmosphere, signal);
 export const getSweep = (req, signal) => postJSON("/sweep", req, signal);
+export const getDuration = (conditions, signal) => postJSON("/duration", conditions, signal);   // contract v4
+export const getCompare = (req, signal) => postJSON("/compare", req, signal);                    // contract v5: {plan, change}
 
 // POST /ask. `history` = previous turns [{role: "user"|"assistant", text}] (the API accepts up to 10).
 // The assistant service can take up to 90 s, so the browser waits a little longer than the API does.

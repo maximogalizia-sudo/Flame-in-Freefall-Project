@@ -14,8 +14,8 @@ import re
 from flame import models as flame_models
 from flame import scenarios as flame_scenarios
 
-from .contracts import (Answer, Conditions, EffectsResponse, EvidenceItem, Prediction, RiskRequest, RiskResponse,
-                        SweepRequest, SweepResponse)
+from .contracts import (Answer, CompareRequest, CompareResponse, Conditions, DurationResponse, EffectsResponse,
+                        EvidenceItem, Prediction, RiskRequest, RiskResponse, SweepRequest, SweepResponse)
 
 FALLBACK_NOTE = "assistant unavailable: template answer"
 
@@ -43,6 +43,14 @@ def sweep(req: SweepRequest) -> SweepResponse:
 
 def effects(variable: str) -> EffectsResponse:
     return flame_scenarios.effects(variable)
+
+
+def duration(c: Conditions) -> DurationResponse:
+    return flame_scenarios.duration(c)
+
+
+def compare(req: CompareRequest) -> CompareResponse:
+    return flame_scenarios.compare(req)
 
 
 # ---------------------------------------------------------------- template answer (fallback for /ask)

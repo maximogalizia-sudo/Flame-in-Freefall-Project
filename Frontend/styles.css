@@ -247,3 +247,32 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .chart .ew-now { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
 .chart .ew-nodata { fill: url(#ew-hatch); }
 .section-title { font-size: 18px; font-weight: 600; margin: 0 0 12px; }
+
+/* experiment planner (contract v5): plan vs change, duration */
+.ew-fire { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); margin-bottom: 12px; }
+.ew-fire select { flex: 1; }
+.ew-plan-tick { font-size: 11px; color: var(--muted); min-height: 14px; }
+.ew-slider.ew-moved output { color: var(--accent); }
+.ew-plan-ctl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.ew-plan-ctl .chip:disabled { opacity: .45; cursor: default; }
+.ew-plan-desc { margin-top: 8px; font-size: 12px; }
+.ew-overall.ew-plain .ew-light { background: var(--accent); }
+.ew-overall.ew-gray .ew-light { background: var(--st-gray); }
+.ew-meaning { margin: 8px 0 6px; font-size: 12px; }
+.ew-sides { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.ew-side-card { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; display: grid; gap: 6px; min-width: 0; }
+.ew-side-title { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+.ew-med { font-size: 13px; }
+.ew-changes { margin: 10px 0 4px; padding-left: 18px; font-size: 13px; display: grid; gap: 4px; }
+.ew-changes .ew-ch-keeps-it-burning::marker { color: var(--st-red); }
+.ew-changes .ew-ch-helps-extinction::marker { color: var(--st-green); }
+.ew-changes .ew-ch-unknown::marker { color: var(--st-gray); }
+.ew-discuss { margin-top: 8px; color: var(--accent); }
+.chart .ew-line-plan { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.chart .ew-plan-mark { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 5 4; }
+.chart .ew-obs-tick { stroke: var(--out-burn); stroke-width: 2; }
+.ew-obs { font-size: 13px; }
+.ew-allfires summary { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; }
+.ew-allfires summary h3 { display: inline; }
+.ew-allfires summary::before { content: "▸"; color: var(--muted); }
+.ew-allfires[open] summary::before { content: "▾"; }

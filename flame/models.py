@@ -62,8 +62,10 @@ def _logit_predict(m: dict, x: dict):
 def _cox_predict(m: dict, x: dict, horizon: float):
     z = _z(m, x)
     k = int(np.clip(round(horizon), 0, len(m['grid_s']) - 1))
-    p = 1 - float(np.exp(-m['H0'][k] * np.exp(z @ np.array(m['coef']))))
-    bc, bh = np.array(m['boot_coef']), np.array(m['boot_H0'])[:, k]
+    if '_bc' not in m:   # JSON lists -> arrays once per model (converting on every call made the time curves slow)
+        m['_coef'], m['_bc'], m['_bH0'] = np.array(m['coef']), np.array(m['boot_coef']), np.array(m['boot_H0'])
+    p = 1 - float(np.exp(-m['H0'][k] * np.exp(z @ m['_coef'])))
+    bc, bh = m['_bc'], m['_bH0'][:, k]
     pb = 1 - np.exp(-bh * np.exp(bc @ z))
     contrib = {f: round(float(c * zi), 3) for f, c, zi in zip(m['features'], m['coef'], z)}   # log-hazard vs average flame
     return p, float(np.percentile(pb, 2.5)), float(np.percentile(pb, 97.5)), contrib

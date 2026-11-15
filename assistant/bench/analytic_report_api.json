@@ -1,0 +1,532 @@
+{
+ "lc6": {
+  "summary": {
+   "n": 6,
+   "intent_ok": 1.0,
+   "decision_ok": 1.0,
+   "llm_drafted": 0.83
+  },
+  "rows": [
+   {
+    "id": "LC1",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "En el rango de oxígeno probado por la NASA, **no existe ningún intervalo donde el fuego no se prenda bajo ninguna condición**.\n\nPara las llamas de gas normales, la ignición fue exitosa en el 100 % de los casos entre **38,17 % y 39,18 %** de O₂ [T1]. Sin embargo, en rangos más bajos, como entre 17,95 % y 21,1 %, la tasa de ignición fue del 75 %, lo que indica que sí se prende, aunque no siempre [T1].\n\nEn el caso de gotas de combustible, el encendido fue intencional en todas las pruebas; la variable observada fue si la llama se apagaba antes de que la gota se quemara, no si se encendía [T1]. Por lo tanto, no hay un \"umbral de no ignición\" absoluto en los datos, sino zonas de mayor o menor probabilidad de que la llama se mantenga o se apague."
+   },
+   {
+    "id": "LC2",
+    "kind": "predict",
+    "intent": "predict",
+    "intent_ok": true,
+    "decision": "partial",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "predict",
+     "effects",
+     "effects",
+     "coverage"
+    ],
+    "text": "No se puede dar una predicción exacta porque la combinación específica de 2 bar y 40 % de oxígeno no fue probada en los datos de la NASA [T1]. Sin embargo, los modelos de aprendizaje automático indican tendencias claras para condiciones cercanas:\n\n1.  **Efecto del oxígeno:** En llamas de gas, aumentar el oxígeno ayuda a que la llama se mantenga encendida. Por cada punto porcentual adicional de O2, la probabilidad de extinción espontánea se reduce (ratio 0.77) [T2].\n2.  **Efecto de la presión:** A mayor presión, la llama tiende a apagarse más rápido. Por cada bar adicional, la velocidad de extinción aumenta (ratio 2.28) [T3].\n\nLas pruebas reales más cercanas (serie PSI-159) muestran resultados mixtos: algunas llamas se extinguieron solas (self_ext) y otras terminaron por corte de flujo (flow_term) [E1][E2][E3][E4][E5]. Esto sugiere que, aunque la presión alta favorece la extinción, el 40 % de oxígeno es un nivel alto que puede contrarrestar parcialmente ese efecto, haciendo el resultado incierto sin una prueba específica.\n\n**Límite:** La predicción es una tendencia basada en variables separadas, no una certeza para este punto exacto no probado [T1]."
+   },
+   {
+    "id": "LC3",
+    "kind": "explain_variable",
+    "intent": "explain_variable",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "effects",
+     "rag_search"
+    ],
+    "text": "El peligro de la alta presión depende del tipo de combustible. Según los modelos de aprendizaje automático, para llamas de gas normales, un aumento de +1 bar hace que la extinción sea 2.28 veces más probable (intervalo 95%: 1.21-4.49), lo que indica que la alta presión acelera el apagado de estas llamas [T1]. En cambio, para gotas de metanol y heptano, la presión no tuvo un efecto claro (ratio 0.54, intervalo 95%: 0.1-2.34) [T1]. Para llamas de gas inversas, el efecto es moderado y no claro (ratio 1.32, intervalo 95%: 0.96-2.37) [T1].\n\nLos datos de la NASA sobre sólidos (como el PMMA o tejidos) no especifican el efecto de la presión, sino el de la velocidad del flujo y la concentración de oxígeno [D1], [D5]. Por lo tanto, la evidencia muestra que la alta presión es un factor de riesgo significativo para llamas de gas normales, pero no para gotas líquidas.\n\nLímite: La confianza es moderada para las llamas inversas y los datos de gotas a 2-3 atm son limitados [T1]."
+   },
+   {
+    "id": "LC4",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Según los vacíos identificados en los datos de la NASA, se proponen estos tres experimentos futuros:\n\n1. **Supresores en atmósferas de exploración:** Realizar pruebas con CO2 y helio (por separado y mezclados) en llamas de gas o gotas con 30-34 % de O2 y ~0,7 atm. Actualmente, no hay datos de supresores por encima del 24 % de O2 [T1].\n2. **Materiales de cabina a baja presión:** Probar tejidos (algodón, Nomex) y plásticos (PMMA) a 25-35 % de O2 y presiones reducidas (0,5-0,7 atm). Los materiales sólidos solo se probaron hasta 22,7 % de O2 y a presión de cabina (~1 atm) [T1].\n3. **Gravedad parcial:** Repetir pruebas clave en gravedad lunar (0,16 g) o marciana (0,38 g). Todos los datos actuales son de microgravedad, dejando un vacío crítico para vehículos de exploración [T1].\n\nEstas acciones cubrirían las zonas no testeadas y mejorarían la precisión de los modelos de seguridad."
+   },
+   {
+    "id": "LC5",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "rank"
+    ],
+    "text": "Los modelos aprenden que la mayor tendencia a encenderse corresponde a las configuraciones donde **“kept burning” = 1.0** (es decir, siempre se mantuvo la llama o se quemó el combustible completo). Dentro de ese grupo, la tendencia se refuerza cuando el número de pruebas es alto y/o el tiempo de combustión observado es largo, lo que indica una ignición robusta y sostenida.\n\n**Top 5 configuraciones con mayor tendencia a incendiarse**\n\n1. **Esfera de PMMA, O₂ ≈ 22 %** – 18 pruebas, siempre encendida (kept burning = 1.0).  \n2. **Lámina de PMMA, O₂ ≈ 22 %** – 17 pruebas, siempre encendida (kept burning = 1.0).  \n3. **Varilla de PMMA, O₂ ≈ 15 %** – 16 pruebas, siempre encendida (kept burning = 1.0).  \n4. **Llama normal de etano, O₂ ≈ 40 %, presión 0.94 bar, flujo = 1.00 mg/s** – 4 pruebas, siempre encendida; tiempo medio ≈ 80 s (corte inferior).  \n5. **Llama inversa de butano, O₂ ≈ 85 %, presión 0.55 bar, flujo = 2.50 mg/s** – 3 pruebas, siempre encendida; tiempo medio ≈ 66 s (corte inferior).  \n\n*Los modelos asocian alta fracción de “kept burning” y gran número de repeticiones con una fuerte propensión a la ignición.*  \n\n**Límite de la evidencia:** solo se consideran combinaciones con al menos 2 pruebas; los tiempos de combustión de llamas de gas son límites inferiores porque la llama se cortó antes de apagarse."
+   },
+   {
+    "id": "LC6",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "rank"
+    ],
+    "text": "Entendí: no reconocí condiciones concretas. Configuraciones probadas por NASA — las que más tardaron en apagarse: · methanol droplet, O2 24%, CO2 20%, 0.7 atm, free droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 26.4 s · methanol droplet, O2 23%, CO2 20%, 0.7 atm, free droplet: 2 pruebas, siguió quemando en 50 %, tiempo mediano 24.9 s · methanol droplet, O2 18%, 1 atm, fiber droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 24.4 s · methanol droplet, O2 18%, 1 atm, free droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 23.4 s · methanol droplet, O2 21%, CO2 30%, 0.7 atm, fiber droplet: 2 pruebas, siguió quemando en 100 %, tiempo mediano 20.8 s · propane normal flame, O2 ~40%, 0.94 bar, fuel flow 1.00 mg/s: 2 pruebas, siguió quemando en 50 %, tiempo mediano ≥222 s · butane normal flame, O2 ~40%, 2.03 bar, fuel flow 0.75 mg/s: 2 pruebas, siguió quemando en 50 %, tiempo mediano ≥204.5 s · ethane normal flame, O2 ~40%, 1.01 bar, fuel flow 1.00 mg/s: 2 pruebas, siguió quemando en 0 %, tiempo mediano 195 s · butane normal flame, O2 ~40%, 0.51 bar, fuel flow 1.00 mg/s: 2 pruebas, siguió quemando en 0 %, tiempo mediano 159.5 s · ethane normal flame, O2 ~40%, 2.03 bar, fuel flow 1.00 mg/s: 3 pruebas, siguió quemando en 33 %, tiempo mediano ≥123 s Solid-material tests have no comparable burn time (the operator changed the air flow during the test). For gas flames cut by the operator the burn time is a LOWER bound (the flame was still burning). Only tested combinations with at least 2 tests are ranked; every row is observed NASA data, not a prediction."
+   }
+  ]
+ },
+ "analytic_heldout": {
+  "summary": {
+   "n": 20,
+   "intent_ok": 1.0,
+   "decision_ok": 1.0,
+   "llm_drafted": 0.7
+  },
+  "rows": [
+   {
+    "id": "H01",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "A partir del **30 % de CO₂** las gotas de metanol siempre se apagan antes de consumirse por completo.  \n\nLos modelos aprendieron que, en los experimentos FLEX con gotas de metanol, el porcentaje de CO₂ entre **30 % y 40 %** (18 pruebas) y entre **40 % y 70 %** (18 pruebas) produjo una extinción de la llama en **100 %** de los casos ([T1] zona ALWAYS). En rangos menores la probabilidad de extinción disminuye (por ejemplo, 93 % entre 5 % y 15 % y 77 % entre 15 % y 20 %) ([T1] bandas).  \n\n*Límite de la evidencia*: los datos cubren CO₂ de 5 % a 70 %; no hay pruebas por debajo del 5 % ni por encima del 70 %."
+   },
+   {
+    "id": "H02",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "Yes, the machine‑learning analysis shows that for heptane (FLEX) droplets there are helium‑percentage ranges where the flame always goes out before the droplet burns completely. Specifically, the model identified **always‑out zones** at **25 % – 30 % helium (7 tests)** and **30 % – 40 % helium (12 tests)**【T1】. In these intervals the observed share of “flame went out” outcomes is 1.0 (100 %)【T1】, while the complementary “droplet burned completely” outcome is never observed (share 0.0)【T1】.  \n\nThus, within the tested helium range of 5 % to 45 %, droplets always extinguish when helium is between **25 % and 40 %**. Outside this range the outcome is mixed (e.g., 73 % out at 5‑15 % helium, 75 % out at 40‑45 % helium). The evidence is limited to the tested interval; helium levels below 5 % or above 45 % were not examined."
+   },
+   {
+    "id": "H03",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "El oxígeno más bajo con el que NASA observó que una llama de gas se encendiera es **17,95 %** de O₂ en la mezcla ambiente — ese es el límite inferior del rango probado y allí se registró al menos una ignición ([T1]).\n\n**Por qué el modelo lo concluye**  \n- La distribución de resultados muestra que la probabilidad de ignición crece con el porcentaje de O₂; en el intervalo 38,17‑39,18 % la ignición ocurrió en el 100 % de los 35 ensayos, lo que indica una zona “siempre” de encendido ([T1]).  \n- En rangos más bajos (17,95‑21,1 % y 21,1‑35,37 %) la fracción de pruebas con ignición fue menor (75 % y 69 % respectivamente), pero aun así se observaron encendidos, de modo que el límite inferior observado sigue siendo 17,95 % ([T1]).\n\n**Límite de la evidencia**: los datos de NASA cubren solo el rango de 17,95 % a 39,84 % de O₂; no hay información fuera de ese intervalo."
+   },
+   {
+    "id": "H04",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "NASA’s microgravity gas‑flame experiments covered pressures from **50.67 kPa up to 303.99 kPa**【T1】. This full tested interval appears in all three outcome categories (flame extinction, continued burning, and ignition). The data are further broken into three pressure bands—≈50.7–94.4 kPa, 101.3–202.7 kPa, and 202.7–304 kPa—but the overall tested range remains 50.67–303.99 kPa."
+   },
+   {
+    "id": "H05",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "Los materiales sólidos (BASS/BASS‑II) no lograron sostener la llama en **todo el rango de oxígeno probado**, de **13.6 % a 22.72 % O₂** (observado de 14.5 % a 22.53 %)【T1】.  \n\n**Por qué según el modelo:**  \n- En cada sub‑banda del rango (13.6‑17.2 %, 17.2‑18.7 %, 18.7‑21.0 %, 21.0‑21.8 %, 21.8‑22.72 %) la fracción de pruebas sin llama sostenida fue alta (0.74‑0.94), mientras que la fracción con llama sostenida fue baja (0.06‑0.19)【T1】.  \n- No existen zonas “ALWAYS” (siempre con llama) ni “NEVER” (siempre sin llama) porque la tendencia muestra que, bajo las condiciones de los experimentos, los sólidos nunca mantuvieron la combustión.\n\n**Límite de la evidencia:** los datos cubren solo 13.6 %‑22.72 % O₂; fuera de ese intervalo no hay pruebas."
+   },
+   {
+    "id": "H06",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "Sí, según los datos de NASA, la llama nunca se apaga para gotas de heptano de **1.1 mm** de diámetro (el límite inferior probado). El primer caso de extinción observado ocurre a **1.49 mm**; por debajo de ese tamaño no se registró ninguna extinción en los 207 experimentos realizados.  \n\nLos modelos de aprendizaje automático aprendieron que **a menor diámetro disminuye la probabilidad de extinción**: la fracción de pruebas con llama apagada pasa de 0 % en el rango 1.1‑2.45 mm (43 pruebas) a 72 % en el mismo rango, y aumenta progresivamente en los rangos mayores.  \n\nLimitación: no se probaron gotas menores de 1.1 mm, por lo que no se puede afirmar que “nunca” se apague por debajo de ese valor; solo se observa que en el rango probado (1.1‑4.65 mm) la extinción empieza a partir de 1.49 mm."
+   },
+   {
+    "id": "H07",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "rank"
+    ],
+    "text": "The machine‑learning system finds that the three FLEX test configurations with the highest observed “kept burning” (droplet burned completely) rates are:\n\n1. **Methanol droplet, 21 % O₂, 30 % CO₂, 0.7 atm, fiber‑supported droplet** – 100 % of the 2 tests burned completely (kept burning = 1.0)【T1】.  \n2. **Heptane droplet, 18 % O₂, 15 % He, 1 atm, free‑fall droplet** – 67 % of the 3 tests burned completely (kept burning = 0.67)【T1】.  \n3. **Heptane droplet, 15 % O₂, 1 atm, free‑fall droplet** – 50 % of the 4 tests burned completely (kept burning = 0.5)【T1】.\n\nThese are the only configurations with at least two tests; “kept burning” means the droplet burned completely, not just a gas flame or solid ignition. The ranking reflects observed NASA data, not model predictions."
+   },
+   {
+    "id": "H08",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "rank"
+    ],
+    "text": "Las atmósferas que provocaron la extinción más rápida fueron aquellas con oxígeno al nivel atmosférico (~21 % O₂) y configuraciones de llama “normal”. En los datos probados, la llama de butano a 1,01 bar y 0,50 mg s⁻¹ se apagó en un tiempo medio de **1 s** [ T1 ], y la llama de propano a 2,03 bar con 1,00 mg s⁻¹ también se extinguió en **1 s** [ T1 ].  \n\n**Por qué según el modelo:**  \n- **Oxígeno al 21 %** (condición “normal”) aparece en los casos más rápidos, indicando que la menor concentración de O₂ comparada con la llama inversa (≈85 % O₂) reduce la disponibilidad de oxidante y favorece la extinción.  \n- **Presión más baja** (1,01 bar) para el butano muestra una tendencia a apagar la llama más rápido que a presiones mayores, sugiriendo que la densidad del gas influye en la velocidad de consumo del combustible.  \n\n**Tendencia aprendida:** en los rangos testeados, atmósferas con O₂ alrededor del 21 % y presiones cercanas a 1 bar tienden a producir apagados más rápidos; atmósferas con O₂ alto (≈85 %) y/o presiones mayores prolongan la combustión.  \n\n*Limitación:* solo se consideran configuraciones con al menos dos pruebas; otras combinaciones no fueron evaluadas."
+   },
+   {
+    "id": "H09",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "rank"
+    ],
+    "text": "Understood: no specific conditions recognised. Configurations tested by NASA that went out most often: · Ultem, O2 ~22%: 2 tests, kept burning in 0 % · Nomex, O2 ~22%: 7 tests, kept burning in 14 % · SIBAL fabric, O2 ~16%: 5 tests, kept burning in 40 % · PMMA sphere, O2 ~17%: 2 tests, kept burning in 50 % · PMMA rod, O2 ~15%: 3 tests, kept burning in 67 % Only tested combinations with at least 2 tests are ranked; every row is observed NASA data, not a prediction."
+   },
+   {
+    "id": "H10",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "rank"
+    ],
+    "text": "Entendí: no reconocí condiciones concretas. Configuraciones probadas por NASA — las que más tardaron en apagarse: · methanol droplet, O2 24%, CO2 20%, 0.7 atm, free droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 26.4 s · methanol droplet, O2 23%, CO2 20%, 0.7 atm, free droplet: 2 pruebas, siguió quemando en 50 %, tiempo mediano 24.9 s · methanol droplet, O2 18%, 1 atm, fiber droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 24.4 s · methanol droplet, O2 18%, 1 atm, free droplet: 2 pruebas, siguió quemando en 0 %, tiempo mediano 23.4 s · methanol droplet, O2 21%, CO2 30%, 0.7 atm, fiber droplet: 2 pruebas, siguió quemando en 100 %, tiempo mediano 20.8 s Only tested combinations with at least 2 tests are ranked; every row is observed NASA data, not a prediction."
+   },
+   {
+    "id": "H11",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "rank"
+    ],
+    "text": "The longest‑burning condition in the tested set was the **propane normal flame at ~40 % O₂, 0.94 bar, fuel flow 1.00 mg s⁻¹**, which remained lit in 0.5 of the tests and had a median burn time of **222 s** (the value is a lower bound because the flame was still burning when cut)【T1】.  \n\nAll other configurations had shorter median burn times (butane ≈ 204 s, ethane ≈ 195 s, etc.). The ranking reflects only the observed NASA tests with at least two repetitions; no predictions beyond these data are included."
+   },
+   {
+    "id": "H12",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "rank"
+    ],
+    "text": "Todas las combinaciones de gotas probadas se apagaron siempre (0 % permanecieron encendidas y 100 % se extinguieron). Según el ranking de NASA:\n\n- Gota de metanol, O₂ 21 %, 1 atm, gota libre → 9 pruebas, se apagó en todas.  \n- Gota de metanol, O₂ 23 %, CO₂ 25 %, 0.7 atm, gota libre → 6 pruebas, se apagó en todas.  \n- Gota de metanol, O₂ 12 %, 1 atm, gota libre → 6 pruebas, se apagó en todas.  \n- Gota de metanol, O₂ 20 %, CO₂ 5 %, 1 atm, gota libre → 6 pruebas, se apagó en todas.  \n- Gota de metanol, O₂ 21 %, CO₂ 70 %, 2‑3 atm, gota libre → 6 pruebas, se apagó en todas.  \n\nEsto indica que, dentro del rango de condiciones testeado (O₂ 12‑23 %, CO₂ 0‑70 %, presiones de 0.7‑3 atm, gotas libres), ninguna combinación mantuvo la llama. La evidencia cubre solo estas configuraciones; no se dispone de datos fuera de esos rangos."
+   },
+   {
+    "id": "H13",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Los datos de NASA no cubren varias condiciones clave para evaluar la seguridad contra incendios en una cabina lunar (g ≈ 0.16 g).  \n\n**Principales ausencias**  \n- **Gravedad parcial**: todos los experimentos se realizaron en microgravedad; falta repetir pruebas críticas en gravedad lunar (0.16 g) o marciana (0.38 g) [T1].  \n- **Presión y composición atmosférica de exploración**: no existen pruebas con supresores (CO₂, helio) por encima del 24 % O₂, que es el rango previsto (30‑34 % O₂, ≈0.7 atm) [T1].  \n- **Materiales de cabina**: ningún sólido fue probado por encima del 22.7 % O₂ ni a presiones reducidas (0.5‑0.7 atm) [T1].  \n- **Flamas de gas**: solo se estudiaron a ≈21 % y 40 % O₂; falta información entre 25‑35 % O₂ y con diluyentes CO₂/helio [T1].  \n- **Datos de extinción**: 24 % de los registros de materiales sólidos no indican cómo terminó la prueba y los valores de flujo de aire no están calibrados [T1].\n\n**Tendencias aprendidas por los modelos**  \n- Los modelos asocian mayor O₂ y presión reducida con mayor riesgo de propagación, pero la zona “exploración” (30‑34 % O₂, 0.7 atm) está fuera del rango probado, por lo que la extrapolación es incierta.  \n- La ausencia de gravedad parcial impide validar la influencia de la convección reducida en la extinción y el crecimiento de llamas; los modelos sólo pueden inferir a partir de microgravedad, donde la extinción es más difícil.\n\n**Pruebas más cercanas**  \n- Supresores CO₂/helio hasta 24 % O₂ (microgravedad, 1 atm) [T1].  \n- Materiales sólidos hasta 22.7 % O₂, 1 atm [T1].\n\nEn resumen, faltan datos de gravedad parcial, pruebas con atmósferas de alta O₂ y presión reducida, pruebas de supresión con CO₂/helio en esas condiciones, y mediciones completas de extinción de materiales sólidos. Estas lagunas limitan la evaluación fiable de una cabina lunar."
+   },
+   {
+    "id": "H14",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "The dataset is limited mainly by gaps in the experimental coverage. The ML models learned that most variables are sparsely sampled or missing entirely, which restricts reliable inference:\n\n* **Suppressor gases** – CO₂ and helium were never tested above 24 % O₂, so the “exploration atmosphere” (30‑34 % O₂) has no suppression data [T1].  \n* **Mixed suppressors** – CO₂ and helium were never combined, leaving no insight on synergistic effects [T1].  \n* **High‑O₂ droplet tests** – Above 24 % O₂ most droplet runs broke up due to contaminated needles; only six clean tests exist, so the extinction‑burnout transition is poorly defined [T1].  \n* **Pressure range** – Only seven clean droplet tests were done at 2‑3 atm, all at nearly the same O₂ level, limiting pressure‑dependence analysis [T1].  \n* **Extinction sampling** – Only 28 of 213 clean droplet tests burned completely; the boundary between extinction and full burn is thinly sampled [T1].  \n* **Gas‑flame O₂ levels** – Flames were measured only near 21 % and 40 % O₂, leaving the 25‑35 % O₂ region untested [T1].  \n* **Suppressors with gas flames** – No data exist for CO₂ or helium dilution of gas flames [T1].  \n* **Solid materials** – No tests above 22.7 % O₂, and all were at ~1 atm; pressure effects and high‑O₂ behavior are unknown [T1].  \n* **Test documentation** – 24 % of solid‑material logs lack outcome descriptions, and airflow values are not on a calibrated scale, reducing data quality [T1].  \n* **Gravity** – All tests were in microgravity; no partial‑gravity (Moon, Mars) data are available [T1].  \n* **Material and fuel variety** – Only two liquids, three gases, and a few solids were examined, far fewer than real cabin contents [T1].\n\nThese gaps define the primary limitations: missing suppressor‑O₂ combinations, sparse high‑O₂ and high‑pressure droplet data, limited gas‑flame O₂ range, absent solid‑material tests at higher O₂ and lower pressure, incomplete documentation, and lack of partial‑gravity and broader material coverage."
+   },
+   {
+    "id": "H15",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Según el modelo de aprendizaje automático, **las condiciones que nunca se probaron con supresores son**:\n\n- **Concentraciones de O₂ superiores al 24 %** usando supresores de CO₂ o helio. No existen datos para la atmósfera de exploración propuesta (30‑34 % O₂) con estos supresores【T1】.  \n- **Mezclas simultáneas de CO₂ y helio** como supresores; nunca se combinaron en ningún experimento【T1】.  \n- **Pruebas de llamas gaseosas con supresores** (CO₂ o helio). Todas las pruebas de llamas de gas se realizaron sin dilución supresora【T1】.  \n- **Materiales sólidos a O₂ > 22.7 %** con supresores; los sólidos solo se probaron sin supresores y nunca por encima de ese nivel de oxígeno【T1】.  \n\n**Tendencia aprendida por el modelo**: en los rangos probados, los supresores (CO₂, helio) reducen la propagación de la llama principalmente a O₂ ≤ 24 %, mientras que a mayores fracciones de oxígeno la llama tiende a persistir o a romperse por problemas experimentales, no por la física de supresión.  \n\n**Pruebas reales más cercanas**: los experimentos existentes cubren supresores solo hasta 24 % O₂ y nunca combinan CO₂ con helio ni aplican supresores a llamas de gas o a sólidos por encima de 22.7 % O₂【T1】.  \n\n*Limitación: los datos están restringidos a microgravedad y a presiones cercanas a la de cabina; fuera de esos rangos la evidencia no está disponible.*"
+   },
+   {
+    "id": "H16",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Spacecraft Fire Experiment (SAFFIRE): objectives, development and status p. 5: \"Effectiveness of fire ports using water mist fire suppression X\n4. SPACECRAFT FIRE SAFETY KNOWLEDGE GAPS AND FUTURE EXPERIMENTS\nis planned for June 2016 with a design review planned for December 2016. 5. CONCLUSIONS\nThe Spacecraft Fire Safety Demonstration Project has designed, m…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 98: \"The rod regression rates calculated from this model compare favorably with the experimental measurements.\nThe terms of the surface energy balance are compared and reveal that in the blowoff branch, heat losses are negligible. In the quenching region, surface radiative loss domina…\" What NASA never tested or is weak in the data, and which experiment would cover it: · Solid materials were never tested above 22.7 % O2 → Cabin materials (cotton/fiberglass fabric, Nomex, PMMA) at 25-35 % O2 and reduced pressure. · Solid materials were tested only at cabin pressure (~1 atm) → Solid materials at 0.5-0.7 atm. · 24 % of the solid-material test logs do not say how the test ended, and air-flow values are not on one calibrated scale → Record extinction flow in calibrated cm/s for every test. · No data at partial gravity (Moon 0.16 g, Mars 0.38 g): all tests are microgravity → Repeat key tests in partial gravity (e.g. lunar-lander or centrifuge facilities). · Few fuels/materials: 2 liquids, 3 gases, a handful of solids → Broaden to real cabin items (cables, foams, electronics, food packaging)."
+   },
+   {
+    "id": "H17",
+    "kind": "explain_variable",
+    "intent": "explain_variable",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "effects",
+     "rag_search"
+    ],
+    "text": "Entendí: no reconocí condiciones concretas. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Flammability aspects of cotton-fiberglass fabric, ASGSR 2012 (presentation) p. 3: \"Typical Flammability Boundary for a Solid Fuel\n0.23\n0.22\n0.21\nFlammable\n0.20\n0.19\nO2 Mole Fraction\n1-g buoyant flow limit\n0.18\n0.17\n0.16\nNot Flammable\n0.15\nHypotheses: ♦Materials in microgravity, with adequate ventilation, may burn more readily compared to normal gravity with oth…\" [D2] BASS: overview of recent ISS results (presentation) p. 3: \"Typical Flammability Boundary for a Solid Fuel\n0.23\n0.22\n0.21\nO2 Mole Fraction\nFlammable\n0.20\n0.19\n1-g buoyant flow limit\n0.18\n0.17\nHypotheses: ♦Materials in microgravity, with adequate ventilation, may burn more readily compared to normal gravity ♦Testing at constant O2 mole fra…\" Cómo actúa o2_frac según los modelos: · methanol droplets, +1 point of O2: la mantiene prendida (×0.73, 95 %: 0.62–0.82). · n-heptane droplets, +1 point of O2: la mantiene prendida (×0.47, 95 %: 0.34–0.66). · normal gas flames, +1 point of O2: la mantiene prendida (×0.77, 95 %: 0.73–0.81). · inverse gas flames (O2 = burner jet, not the cabin air), +1 point of O2: sin efecto claro (×1, 95 %: 0.99–1.02). Dónde se probó: Heptane droplets: o2_frac 0.13-0.3 (O2 0.13-0.30), 78 clean tests; Methanol droplets: o2_frac 0.12-0.34 (O2 0.12-0.34), 128 clean tests. Nunca se probó: Solid materials were never tested above 22.7 % O2; droplet tests above 24 % O2 mostly ended in droplet break-up. Gas flames: the ratio is how much faster the flame goes out by itself (hazard ratio); inverse flames have moderate confidence"
+   },
+   {
+    "id": "H18",
+    "kind": "explain_variable",
+    "intent": "explain_variable",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "effects",
+     "rag_search"
+    ],
+    "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Flammability aspects of cotton-fiberglass fabric, ASGSR 2012 (presentation) p. 3: \"Typical Flammability Boundary for a Solid Fuel\n0.23\n0.22\n0.21\nFlammable\n0.20\n0.19\nO2 Mole Fraction\n1-g buoyant flow limit\n0.18\n0.17\n0.16\nNot Flammable\n0.15\nHypotheses: ♦Materials in microgravity, with adequate ventilation, may burn more readily compared to normal gravity with oth…\" [D2] Burning and Suppression of Solids-II (BASS-II) Summary Report (NASA/TM-20210011385) p. 26: \"NASA/TM-20210011385 18\n2.2 Critical Flow Velocity for Radiative Extinction in Opposed-Flow Flame Spread in Microgravity Environment: Comparison of Experimental, Computational, and Theoretical Results1\n2.2.1 Abstract\nThe effect of opposing flow on flame spread rate over thin solid…\" How pressure_kpa acts according to the models: · methanol droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · n-heptane droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · normal gas flames, +1 bar: helps it go out (×2.28, 95 %: 1.21–4.49). · inverse gas flames (O2 = burner jet, not the cabin air), +1 bar: no clear effect (×1.32, 95 %: 0.96–2.37). Where it was tested: Heptane droplets: pressure_kpa 70.394-102.845 (O2 0.13-0.30), 78 clean tests; Methanol droplets: pressure_kpa 70.1674-103.205 (O2 0.12-0.34), 128 clean tests. Gas flames: the ratio is how much faster the flame goes out by itself (hazard ratio); inverse flames have moderate confidence Droplets: 2-3 atm has only 7 near-identical tests and is shown as evidence only (DD-024)"
+   },
+   {
+    "id": "H19",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "Según el modelo, las llamas de butano se apagan solas en menos de 30 s en todo el rango de presión que se probó: desde **50,67 kPa hasta 303,99 kPa**.  \nLos datos muestran que en el intervalo más bajo (50,67‑94,44 kPa) la llama se extinguió en el 50 % de los casos, mientras que en los rangos intermedios (101,33‑202,66 kPa) y altos (202,66‑303,99 kPa) la probabilidad subió al 87 % y 75 % respectivamente, indicando que la extinción espontánea es típica en todo el rango probado.  \n\n*Limitación:* los resultados se basan en pruebas de llamas de gas normales; no se dispone de datos fuera de 303,99 kPa."
+   },
+   {
+    "id": "H20",
+    "kind": "off_topic",
+    "intent": "off_topic",
+    "intent_ok": true,
+    "decision": "abstain",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [],
+    "text": "Solo puedo responder sobre los experimentos de combustión en microgravedad de NASA (gotas FLEX, llamas de gas CFI-G, materiales BASS/BASS-II). Probá, por ejemplo: \"¿se apaga una gota de heptano con 18 % de oxígeno?\""
+   }
+  ]
+ },
+ "analytic_heldout_v2": {
+  "summary": {
+   "n": 12,
+   "intent_ok": 0.5,
+   "decision_ok": 0.67,
+   "llm_drafted": 0.67
+  },
+  "rows": [
+   {
+    "id": "V01",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "Según los datos de NASA, en todas las pruebas con propano (presiones entre 50.67 kPa y 303.99 kPa) la llama se apagó por sí sola al menos una vez; no existe una zona “NUNCA” dentro de ese rango donde la llama dejara de apagarse espontáneamente.  \n\n**Por qué el modelo lo concluye**  \n- En la zona de presión 50.67‑94.44 kPa, la llama se apagó en el 50 % de los 18 experimentos.  \n- En la zona 101.33‑202.66 kPa, la tasa subió al 87 % de los 54 experimentos.  \n- En la zona 202.66‑303.99 kPa, la tasa fue del 75 % de los 40 experimentos.  \n\nEsto indica que, aunque la probabilidad de auto‑apagado disminuye ligeramente a presiones más altas, nunca desaparece dentro del rango probado.  \n\n**Tendencia aprendida**: a presiones mayores la llama tiende a permanecer encendida con mayor frecuencia, pero aun así se apaga en al menos el 75 % de los casos.  \n\n*Límite de la evidencia*: los datos solo cubren presiones de 50.67 a 303.99 kPa; no se dispone de pruebas fuera de ese intervalo."
+   },
+   {
+    "id": "V02",
+    "kind": "profile",
+    "intent": "profile",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "profile"
+    ],
+    "text": "The machine‑learning system concludes that the lowest oxygen concentration at which a solid material (BASS/BASS‑II) still ignited and sustained a flame in the NASA tests was **13.6 % O₂**. The data show ignitions observed from 13.6 % up to 22.72 % O₂, with no “always” or “never” zones, indicating that burning occurred across the entire tested range, and the minimum recorded successful burn is 13.6 % O₂【T1】. \n\n*Note: the profile excludes inverse gas flames, and gas‑flame ignition depended mainly on fuel‑jet dilution, not O₂ level.*"
+   },
+   {
+    "id": "V03",
+    "kind": "profile",
+    "intent": "gaps",
+    "intent_ok": false,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Entendí: combustible = heptane. Lo que dicen los informes de NASA (fragmentos más relevantes): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 8: \"The MDCA is located in the CIR combustion chamber, but it communicates through the CIR to ground controllers at Glenn.\nThe purpose of this report is to detail and permanently archive the results of a subset of the FLEX experiments, namely those occurring between March 2009 and th…\" [D2] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 19: \"Testing concluded when quasi-steady burning was not observed, again the determination of the LOI. This also represented the minimum carbon dioxide mole fraction required to extinguish or prevent the spread of a flame.\nThe tests were conducted in a 1.0-atm, 0.21 oxygen mole fracti…\" Lo que NASA nunca probó o está flojo en los datos, y qué experimento lo cubriría: · Suppressors (CO2, helium) were never tested above 24% O2 (the 30-34 % 'exploration atmosphere' has no suppressor data) → Droplet (or gas-flame) tests with CO2 and helium at 30-34 % O2 and ~0.7 atm. · CO2 and helium were never used together → Mixed CO2 + helium suppressant tests. · High-O2 droplet tests (> 24 % O2) mostly ended in droplet break-up (contaminated needles): only 6 clean tests there → Repeat high-O2 droplet tests with clean needles. · Only 7 clean tests at 2-3 atm, almost identical → Droplet tests at 2-3 atm across O2 levels and both fuels. · Few droplets burned completely (28 of 213 clean tests): the edge between going out and burning out is thinly sampled → More tests near the extinction limit (small heptane droplets, 20-24 % O2). · No data at partial gravity (Moon 0.16 g, Mars 0.38 g): all tests are microgravity → Repeat key tests in partial gravity (e.g. lunar-lander or centrifuge facilities). · Few fuels/materials: 2 liquids, 3 gases, a handful of solids → Broaden to real cabin items (cables, foams, electronics, food packaging)."
+   },
+   {
+    "id": "V04",
+    "kind": "rank",
+    "intent": "rank",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "rank"
+    ],
+    "text": "Understood: no specific conditions recognised. Configurations tested by NASA that burned the longest: · propane normal flame, O2 ~40%, 0.94 bar, fuel flow 1.00 mg/s: 2 tests, kept burning in 50 %, median time ≥222 s · butane normal flame, O2 ~40%, 2.03 bar, fuel flow 0.75 mg/s: 2 tests, kept burning in 50 %, median time ≥204.5 s · ethane normal flame, O2 ~40%, 1.01 bar, fuel flow 1.00 mg/s: 2 tests, kept burning in 0 %, median time 195 s · butane normal flame, O2 ~40%, 0.51 bar, fuel flow 1.00 mg/s: 2 tests, kept burning in 0 %, median time 159.5 s For gas flames cut by the operator the burn time is a LOWER bound (the flame was still burning). Only tested combinations with at least 2 tests are ranked; every row is observed NASA data, not a prediction."
+   },
+   {
+    "id": "V05",
+    "kind": "rank",
+    "intent": "explain_doc",
+    "intent_ok": false,
+    "decision": "partial",
+    "decision_ok": false,
+    "llm": true,
+    "tools": [
+     "rag_search"
+    ],
+    "text": "Según los datos disponibles, el material que mostró la menor capacidad de sostener la llama fue la **tela de algodón‑fibra de vidrio**. En la presentación sobre “Flammability aspects of cotton‑fiberglass fabric” se muestra un límite de flama muy bajo (≈ 0.15 fracción molar de O₂) y una zona “No Flammable” que comienza justo por encima de ese valor, indicando que bajo las condiciones de microgravedad y ventilación adecuada la tela apenas mantiene la combustión【D5】.\n\n**Tendencia aprendida por los modelos**: los modelos de aprendizaje automático asocian los tejidos (especialmente combinaciones de algodón y fibra de vidrio) con una menor sostenibilidad de llama en comparación con materiales sólidos más densos, porque la estructura porosa y la alta capacidad de disipación térmica favorecen la extinción rápida.\n\n**Pruebas más cercanas**: la única prueba documentada en la evidencia es la de la tela de algodón‑fibra de vidrio (D5); no se reportan comparaciones directas con otros materiales dentro del mismo rango experimental. \n\n*Limitación*: la evidencia no incluye datos de otros materiales que podrían haber sido probados en BASS‑II, por lo que la conclusión se basa únicamente en la información disponible sobre la tela de algodón‑fibra de vidrio."
+   },
+   {
+    "id": "V06",
+    "kind": "rank",
+    "intent": "predict",
+    "intent_ok": false,
+    "decision": "abstain",
+    "decision_ok": false,
+    "llm": true,
+    "tools": [],
+    "text": "No hay datos de pruebas de NASA, comparaciones reales ni pasajes de informe que describan cómo varían las probabilidades de que una gota se queme completa según sus condiciones (tamaño, composición, temperatura, etc.). Por lo tanto, no se puede responder directamente la pregunta con la evidencia disponible. \n\nLos modelos de aprendizaje automático, sin embargo, han aprendido que en los rangos probados la quema completa tiende a ser más frecuente para gotas pequeñas y bien mezcladas con oxígeno, pero esa tendencia proviene de extrapolaciones fuera del conjunto de datos real y no constituye una respuesta basada en evidencia."
+   },
+   {
+    "id": "V07",
+    "kind": "rank",
+    "intent": "predict",
+    "intent_ok": false,
+    "decision": "abstain",
+    "decision_ok": false,
+    "llm": true,
+    "tools": [],
+    "text": "No NASA microgravity droplet combustion test data were provided in the evidence block, so the question cannot be answered from the available information. Consequently, the machine‑learning system has no basis to rank droplet tests by ejection speed."
+   },
+   {
+    "id": "V08",
+    "kind": "gaps",
+    "intent": "gaps",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "gaps",
+     "rag_search"
+    ],
+    "text": "Los modelos de aprendizaje automático indican que, para poder predecir incendios en Marte (g ≈ 0.38 g ⊕), faltan datos críticos en varias dimensiones experimentales.  \n\n**Principales lagunas identificadas**  \n- **Supresores (CO₂, helio) a 30‑34 % O₂ y ≈ 0.7 atm**: nunca se probaron combinaciones de supresor con la “atmósfera de exploración” propuesta, por lo que el modelo no puede estimar su efecto en la extinción [T1].  \n- **Mezcla CO₂ + helio**: no existen pruebas conjuntas, impidiendo evaluar sinergias de supresión [T1].  \n- **Altos niveles de O₂ (> 24 %) en gotas**: la mayoría de los ensayos terminan en ruptura de la aguja, con solo 6 pruebas limpias; el límite de extinción está pobremente muestreado [T1].  \n- **Presión 2‑3 atm**: solo 7 pruebas limpias; se necesita cubrir todo el rango de O₂ a esas presiones [T1].  \n- **Flamas de gas entre 25‑35 % O₂**: actualmente solo se dispone de datos a ≈ 21 % y 40 % O₂ [T1].  \n- **Supresores con flamas de gas**: nunca se combinaron CO₂ o helio con flamas de gas [T1].  \n- **Materiales sólidos > 22.7 % O₂**: falta información de combustión de textiles, Nomex, PMMA, etc., en atmósferas más oxigenadas [T1].  \n- **Presión reducida (0.5‑0.7 atm) para sólidos**: solo se probaron a ≈ 1 atm [T1].  \n- **Gravedad parcial (Marte 0.38 g)**: todos los experimentos son de microgravedad; se requieren pruebas en centrifugadoras o vuelos lunares para extrapolar a Marte [T1].  \n- **Variedad de combustibles y materiales**: se necesita ampliar a cables, espumas, electrónica y empaques de alimentos [T1].\n\n**Tendencia aprendida**: los modelos asocian la extinción principalmente a la presencia de supresores y a bajas presiones, pero la falta de datos en los rangos mencionados impide cuantificar su influencia bajo gravedad marciana.  \n\nEn resumen, se requieren pruebas que combinen supresores (CO₂, helio, mezclas), altas fracciones de O₂ (30‑34 %), presiones de 0.5‑3 atm, flamas de gas y gotas, materiales sólidos reales y, crucialmente, condiciones de gravedad parcial ≈ 0.38 g. Sin estos datos, la predicción de incendios en Marte permanece incompleta."
+   },
+   {
+    "id": "V09",
+    "kind": "gaps",
+    "intent": "explain_doc",
+    "intent_ok": false,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [
+     "rag_search"
+    ],
+    "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 15: \"The tests do, however, provide scientifically relevant data, so the results are reported in this document.\n(4) Adjust the contrast and set the segmentation value. This is the value that sets the threshold between the background and the object (flame). It was constant throughout t…\" [D2] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 8: \"This is followed by a section that provides details of the data analysis. The last two sections provide details of the experimental results.\nThe fuels studied in these experiments were methanol and n-heptane. The droplets had initial diameters between 2 and 5 mm, and they were bu…\""
+   },
+   {
+    "id": "V10",
+    "kind": "gaps",
+    "intent": "explain_doc",
+    "intent_ok": false,
+    "decision": "partial",
+    "decision_ok": false,
+    "llm": true,
+    "tools": [
+     "rag_search"
+    ],
+    "text": "Los datos de materiales sólidos presentan varias limitaciones que el modelo aprendió como “puntos débiles”:\n\n- **Representatividad del entorno**: Los ensayos BASS‑II se realizaron en microgravedad, mientras que el método estándar de selección de materiales (NASA‑STD‑6001 Test 1) se basa en fuerzas de flotación bajo gravedad terrestre. Esto implica que los resultados pueden no trasladarse directamente a condiciones de gravedad normal [D1].\n\n- **Cobertura de variables**: Solo se probaron espesores de PMMA de 1 – 5 mm, dos anchos (1.2 y 2.2 cm) y quemado unilateral o bilateral, con variaciones limitadas de fracción molar de O₂ y velocidad de flujo. No hay datos para materiales más gruesos, anchos mayores, o fracciones de O₂ fuera del rango estudiado [D3].\n\n- **Diagnóstico limitado**: La información primaria proviene de imágenes de la llama; aunque existen sensores de O₂, presión y anemómetros, la cuantificación de parámetros como la producción de hollín o la temperatura es escasa [D2].\n\n- **Condiciones de ventilación**: Los experimentos asumen ventilación adecuada y flujos uniformes, pero la uniformidad del flujo se controla solo con “smoke wire” y puede no ser perfecta, lo que introduce incertidumbre en la tasa de propagación [D4].\n\n- **Rango de flujos y O₂**: Los diagramas de frontera de inflamabilidad cubren fracciones de O₂ entre 0.15 y 0.23 y velocidades de flujo de 1 – 300 cm s⁻¹; fuera de ese rango no hay datos [D5].\n\n**Tendencia aprendida**: En los rangos probados, los materiales sólidos tienden a quemarse más fácilmente con mayor ventilación y a extinguirse cuando la fracción de O₂ cae por debajo de ~0.16 o la velocidad de flujo es muy baja. Estas tendencias se extrapolan a otros sólidos, pero sin pruebas directas. \n\n*Limitaciones: datos restringidos a microgravedad, geometrías y rangos de O₂/flujo específicos, y diagnóstico mayormente visual.*"
+   },
+   {
+    "id": "V11",
+    "kind": "explain_variable",
+    "intent": "explain_variable",
+    "intent_ok": true,
+    "decision": "answer",
+    "decision_ok": true,
+    "llm": true,
+    "tools": [
+     "effects",
+     "rag_search"
+    ],
+    "text": "Según los modelos de aprendizaje automático, aumentar la fracción de helio (he_frac) tiende a favorecer la extinción de la llama: para gotas de metanol, un incremento de 5 puntos en he_frac multiplica por 1,3 (IC 95 % = 1,16‑1,51) la probabilidad de apagado; para gotas de n‑heptano, el mismo aumento la multiplica por 1,51 (IC 95 % = 1,12‑2,29)【T1】.  \n\nEsto indica que, dentro del rango probado (he_frac 0,05‑0,45 con O₂ 0,13‑0,24), más helio reduce el riesgo de propagación de fuego.  \n\nSin embargo, los experimentos nunca incluyeron helio por encima de 24 % de O₂ (por ejemplo, atmósferas de 30‑34 % O₂) ni combinaciones de helio con CO₂, y tampoco se evaluó en pruebas de llama de gas o de materiales sólidos (CFI‑G, BASS)【T1】.  \n\nTendencia aprendida: en condiciones similares a las probadas, el helio actúa como inerte que facilita la extinción; la zona “peligrosa” no se observó dentro del rango experimental.  \n\nLímite: la conclusión se aplica solo hasta O₂ ≈ 24 % y he_frac ≤ 0,45; fuera de ese rango no hay datos."
+   },
+   {
+    "id": "V12",
+    "kind": "off_topic",
+    "intent": "off_topic",
+    "intent_ok": true,
+    "decision": "abstain",
+    "decision_ok": true,
+    "llm": false,
+    "tools": [],
+    "text": "Solo puedo responder sobre los experimentos de combustión en microgravedad de NASA (gotas FLEX, llamas de gas CFI-G, materiales BASS/BASS-II). Probá, por ejemplo: \"¿se apaga una gota de heptano con 18 % de oxígeno?\""
+   }
+  ]
+ }
+}

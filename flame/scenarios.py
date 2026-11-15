@@ -171,7 +171,7 @@ def duration(c: Conditions, horizon_s: int = 300, step_s: int = 5) -> 'DurationR
     """How long the flame lasts. Gas flames: full survival curve from the Cox model (+ median); droplets: no duration
     model (out of scope, DOCUMENTO_TECNICO 11.1) -> observed burn times of the closest clean NASA tests."""
     from .contracts import DurationPoint, DurationResponse
-    from .models import _cox_predict, _family, model as get_model
+    from .models import _family, model as get_model
     fam = _family(c)
     preds = predict(c)
     p = preds[0] if preds else None
@@ -198,11 +198,23 @@ def duration(c: Conditions, horizon_s: int = 300, step_s: int = 5) -> 'DurationR
         else:
             x['atm_fuel_pct'] = (c.atm_fuel_frac if c.atm_fuel_frac is not None else float(d['atm_fuel_frac'].median())) * 100
         curve, median = [], None
+        # vectorised over time (same formulas as models._cox_predict, computed once for the whole curve)
+        from .models import _z
+        z = _z(m, x)
+        risk_pt = float(np.exp(z @ np.array(m['coef'])))
+        risk_bt = np.exp(np.array(m['boot_coef']) @ z)
+        H0, bH0 = np.array(m['H0']), np.array(m['boot_H0'])
         for ts in range(0, horizon_s + 1, step_s):
-            q, lo, hi, _ = _cox_predict(m, x, float(max(ts, 0.5)))
+            k = int(np.clip(round(max(ts, 0.5)), 0, len(m['grid_s']) - 1))
+            q = 1 - float(np.exp(-H0[k] * risk_pt))
+            pb = 1 - np.exp(-bH0[:, k] * risk_bt)
+            lo, hi = float(np.percentile(pb, 2.5)), float(np.percentile(pb, 97.5))
             curve.append(DurationPoint(t_s=ts, still_burning=round(1 - q, 3), ci_low=round(1 - hi, 3), ci_high=round(1 - lo, 3)))
-            if median is None and q >= 0.5:
+        for ts in range(1, horizon_s + 1):      # median at 1 s resolution (same number the assistant's predict note gives)
+            k = int(np.clip(ts, 0, len(m['grid_s']) - 1))
+            if 1 - np.exp(-H0[k] * risk_pt) >= 0.5:
                 median = float(ts)
+                break
         notes = ['Curve from the gas-flame survival model (flames cut by the operator count as still burning at that time).']
         if median is None:
             notes.append(f'More than half of such flames are still burning at {horizon_s} s.')
@@ -227,3 +239,99 @@ def duration(c: Conditions, horizon_s: int = 300, step_s: int = 5) -> 'DurationR
                                 model_version=f'{VERSION}:duration')
     return DurationResponse(family=fam or 'unknown', in_domain=False, reasons=['No duration data for this family (solids: the air '
                             'flow was changed during the tests)'], model_version=f'{VERSION}:duration')
+
+
+# ----------------------------------------------------------------------------- compare (v5)
+VAR_LABEL = {'o2_frac': ('O2', 100, '%'), 'pressure_kpa': ('pressure', 1, 'kPa'), 'co2_frac': ('CO2', 100, '%'),
+             'he_frac': ('helium', 100, '%'), 'droplet_d0_mm': ('droplet size', 1, 'mm'), 'fuel_flow_mg_s': ('fuel flow', 1, 'mg/s')}
+SAME = 0.05   # changes of persistence below 5 points are "about the same"
+
+
+def _clean(c: Conditions) -> Conditions:
+    """0 % CO2 / helium = not added (the models read None as 'none added')."""
+    upd = {k: None for k in ('co2_frac', 'he_frac') if getattr(c, k) == 0}
+    return c.model_copy(update=upd) if upd else c
+
+
+def _side(c: Conditions, gas: bool):
+    from .contracts import CompareSide
+    p = predict(c)[0]
+    if p.probability is None:
+        return CompareSide(level='gray', persistence=None, ci_low=None, ci_high=None, in_domain=False,
+                           reasons=p.out_of_domain or ['not tested'])
+    pers, lo, hi = 1 - p.probability, 1 - p.ci_high, 1 - p.ci_low
+    med = duration(c, horizon_s=300, step_s=5).median_s if gas else None
+    return CompareSide(level=_level(pers, hi), persistence=round(pers, 3), ci_low=round(lo, 3), ci_high=round(hi, 3),
+                       in_domain=True, median_s=med)
+
+
+def _fmt(v, k):
+    return f'{round((v or 0) * k, 1):g}'
+
+
+def compare(req):
+    """Planned experiment vs the same experiment with a change: both sides from the models, plus the effect of each
+    changed variable on its own (one at a time, the rest as planned)."""
+    from .contracts import ChangeRow, CompareResponse
+    from .models import _family
+    plan, chg = _clean(req.plan), _clean(req.change)
+    fam = _family(plan)
+    gas = fam == 'cfig'
+    if gas:
+        plan = plan.model_copy(update={'horizon_s': plan.horizon_s or 30})
+        chg = chg.model_copy(update={'horizon_s': plan.horizon_s})
+    fuel = plan.fuel or ''
+    scenario = f'{fuel} gas flame' if gas else (f'{fuel} droplet' if fam == 'flex' else (plan.material or fam or 'unknown'))
+    meaning = (f'chance the flame is still burning after {plan.horizon_s:g} s' if gas
+               else 'chance the droplet burns completely, without the flame going out first')
+    a, b = _side(plan, gas), _side(chg, gas)
+
+    rows = []
+    for var, (name, k, unit) in VAR_LABEL.items():
+        v0, v1 = getattr(plan, var), getattr(chg, var)
+        if (v0 or 0) == (v1 or 0):
+            continue
+        label = f'{name} {_fmt(v0, k)} {unit} -> {_fmt(v1, k)} {unit}'
+        p1 = predict(_clean(plan.model_copy(update={var: v1})))[0]
+        if p1.probability is None or a.persistence is None:
+            rows.append(ChangeRow(variable=var, label=label, alone=None, delta=None, direction='unknown',
+                                  text=f'{label}: NASA never tested this {name} with the rest of the plan, so its effect here is unknown.'))
+            continue
+        alone = round(1 - p1.probability, 3)
+        dl = round(alone - a.persistence, 3)
+        dirn = 'no clear effect' if abs(dl) < SAME else ('keeps it burning' if dl > 0 else 'helps extinction')
+        rows.append(ChangeRow(variable=var, label=label, alone=alone, delta=dl, direction=dirn,
+                              text=f'{label}: on its own, {a.persistence:.0%} -> {alone:.0%} '
+                                   f'({"+" if dl >= 0 else ""}{dl * 100:.0f} points; {dirn}).'))
+
+    notes = []
+    if a.persistence is None or b.persistence is None:
+        verdict = 'unknown'
+        side, why = ('the planned experiment', a.reasons) if a.persistence is None else ('the changed experiment', b.reasons)
+        headline = (f'NASA never tested {side} for a {scenario}: the models give no estimate there (unknown, not safe).'
+                    + (f' {why[0]}.' if why else ''))
+    else:
+        d = b.persistence - a.persistence
+        verdict = 'about the same' if abs(d) < SAME else ('worse' if d > 0 else 'better')
+        if verdict == 'about the same' and gas and a.median_s and b.median_s and abs(b.median_s - a.median_s) >= max(10, 0.25 * a.median_s):
+            verdict = 'worse' if b.median_s > a.median_s else 'better'    # same share at the horizon, but it lasts longer/shorter
+        what = {'worse': 'more likely to keep burning' if abs(d) >= SAME else 'expected to last longer',
+                'better': 'more likely to go out' if abs(d) >= SAME else 'expected to go out sooner',
+                'about the same': 'about the same as planned'}[verdict]
+        headline = f'With this change the {scenario} is {what}: {a.persistence:.0%} -> {b.persistence:.0%} ({meaning}).'
+        if a.level != b.level:
+            headline += f' The indicator moves from {a.level} to {b.level}.'
+        if gas and a.median_s != b.median_s:
+            f = lambda m: f'~{m:g} s' if m is not None else 'over 300 s'   # noqa: E731
+            headline += f' Median time until it goes out by itself: {f(a.median_s)} -> {f(b.median_s)}.'
+        overlap = not (b.ci_high < a.ci_low or b.ci_low > a.ci_high)
+        if verdict != 'about the same' and overlap:
+            notes.append('The 95 % intervals of the plan and the change overlap: the direction is what the models expect, '
+                         'the size is uncertain.')
+    if len(rows) > 1:
+        notes.append('Each row changes only that variable; together they can add up differently (the models include interactions).')
+    if fam == 'flex':
+        notes.append('Droplets: the result is "burns completely" vs "goes out first"; there is no duration model for droplets.')
+    return CompareResponse(scenario=scenario, family=fam or 'unknown', meaning=meaning, plan=a, change=b, verdict=verdict,
+                           headline=headline, changes=rows, notes=notes, disclaimer=DISCLAIMER,
+                           model_version=f'{VERSION}:compare')

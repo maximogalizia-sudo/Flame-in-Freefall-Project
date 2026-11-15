@@ -253,3 +253,45 @@ class DurationResponse(BaseModel):
     observed: list[dict] = []            # closest real NASA tests: test_id, conditions, burn_time_s, how it ended
     notes: list[str] = []
     model_version: str
+
+
+# ============================================================================ v5 (2026-11-14): planned experiment vs a change
+# A researcher plans an experiment (one fire + atmosphere) and, BEFORE changing a parameter (e.g. lowering CO2), checks
+# what the models expect with the change. Both sides are model predictions (never a comparison against real results).
+
+class CompareRequest(BaseModel):
+    plan: Conditions                     # the planned experiment (one fire: fuel + atmosphere)
+    change: Conditions                   # the same experiment with the parameter(s) changed
+
+
+class CompareSide(BaseModel):
+    level: RiskLevel
+    persistence: float | None            # chance the flame keeps burning (droplets: burns completely; gas: still lit at horizon)
+    ci_low: float | None
+    ci_high: float | None
+    in_domain: bool
+    median_s: float | None = None        # gas flames: median time until it goes out by itself
+    reasons: list[str] = []
+
+
+class ChangeRow(BaseModel):
+    variable: str                        # o2_frac, pressure_kpa, co2_frac, he_frac, ...
+    label: str                           # e.g. "CO2 15 % -> 10 %"
+    alone: float | None                  # persistence if ONLY this variable changed (None = not tested there)
+    delta: float | None                  # alone - plan persistence
+    direction: Literal["keeps it burning", "helps extinction", "no clear effect", "unknown"]
+    text: str
+
+
+class CompareResponse(BaseModel):
+    scenario: str                        # e.g. "propane gas flame"
+    family: str
+    meaning: str                         # what "persistence" means for this fire
+    plan: CompareSide
+    change: CompareSide
+    verdict: Literal["worse", "better", "about the same", "unknown"]   # worse = more likely to keep burning
+    headline: str                        # one sentence, English, built from the numbers above
+    changes: list[ChangeRow]
+    notes: list[str] = []
+    disclaimer: str
+    model_version: str

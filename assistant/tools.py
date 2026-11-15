@@ -125,6 +125,9 @@ class LocalTools:
     def effects(self, variable: str) -> ToolResult:
         return _timed('effects', {'variable': variable}, lambda: fs.effects(variable))
 
+    def compare(self, req) -> ToolResult:          # v5: planned experiment vs a change
+        return _timed('compare', req.model_dump(exclude_none=True), lambda: fs.compare(req))
+
     # analytic tools over ALL the data (always computed in-process from flame + data/processed)
     def profile(self, args) -> ToolResult:
         var, fam = args
@@ -201,6 +204,9 @@ class HttpTools:
 
     def effects(self, variable: str) -> ToolResult:
         return LocalTools().effects(variable)
+
+    def compare(self, req) -> ToolResult:
+        return LocalTools().compare(req)
 
 
 def get_tools():
