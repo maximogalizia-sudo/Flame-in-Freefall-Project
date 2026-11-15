@@ -332,12 +332,14 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
         answered = answered or resp.n_total > 0
     if g.evidence:   # related evidence never upgrades an abstention (same rule as the base notebook's ABSTAIN)
         s.append(TP.t('nearest', lang, x=', '.join(f'{e.test_id} ({e.outcome})' for e in g.evidence[:3])))
+    docs_tail: list[str] = []
     if any(c.tool == 'rag_search' for c in plan.calls):
         if g.passages:
-            s.append(TP.t('docs', lang))
+            # the report passages go AFTER the model and data sentences (they support them): kept in `docs_tail`
+            docs_tail.append(TP.t('docs', lang))
             for k, d in enumerate(g.passages[:2], 1):
                 page = f"p. {d['page_from']}" if d.get('page_from') else ''
-                s.append(f"[D{k}] {d.get('doc_title') or d['file_name']} {page}: \"{d['content'][:280].strip()}…\"")
+                docs_tail.append(f"[D{k}] {d.get('doc_title') or d['file_name']} {page}: \"{d['content'][:280].strip()}…\"")
             # Report passages ANSWER a document question when they are about what was asked (most of the question's
             # content words appear in the best passages); tangential passages only make it partial. For a prediction
             # question they are related evidence only.
@@ -348,9 +350,9 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             else:
                 partial = partial or u.intent != 'predict'
         elif 'rag_search' in g.unavailable:
-            s.append(TP.t('docs_unavailable', lang))
+            docs_tail.append(TP.t('docs_unavailable', lang))
         else:
-            s.append(TP.t('docs_none', lang))
+            docs_tail.append(TP.t('docs_none', lang))
     for kind, data in g.analytics:
         lines = analytic_sentences(kind, data, lang)
         s += lines
@@ -377,6 +379,7 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
         else:   # with a prediction, only what the model learned about the variables asked, for this fuel
             e2 = e.model_copy(update={'rows': relevant_rows(e, u.conditions)})
             s += effects_sentences(e2, lang)[:1 + len(e2.rows)]
+    s += docs_tail
     if g.failures:
         s.append(TP.t('tool_failed', lang, x=', '.join(sorted(set(g.failures)))))
     decision = 'answer' if answered else ('partial' if partial else 'abstain')
