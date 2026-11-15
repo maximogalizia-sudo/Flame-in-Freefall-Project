@@ -60,3 +60,13 @@ def test_guarded_uses_the_second_choice_when_the_first_cannot_run():
     u = understand('el fuego en el espacio es más peligroso o menos que acá?')
     read = {'intent': 'risk', 'second': 'explain_doc', 'variable': None}
     assert choose(u.intent, ['rank'], read, 'guarded', u) == 'explain_doc'
+
+
+def test_verifier_rejects_model_attribution_without_model_evidence():
+    from assistant.verify import verify
+    ev = '[D1] NASA report: in microgravity the flame is spherical.'
+    bad = verify('La tendencia aprendida por los modelos es que la llama es esférica [D1].', 'answer', 'q', ev, {'D1'},
+                 'answer', model_evidence=False)
+    good = verify('Los informes de NASA dicen que la llama es esférica [D1].', 'answer', 'q', ev, {'D1'}, 'answer',
+                  model_evidence=False)
+    assert any('attributes to the ML models' in p for p in bad) and not good

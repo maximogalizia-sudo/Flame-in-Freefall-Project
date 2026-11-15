@@ -61,9 +61,20 @@ def parse_decision(raw: str) -> tuple[str | None, str]:
     return m.group(1).lower(), raw[m.end():].strip()
 
 
+MODEL_CLAIM = re.compile(
+    r"(?:aprendi\w*|aprende\w*) (?:por |de )?(?:el |los )?modelos?|tendencia aprendida|segun (?:el |los )?modelos?|"
+    r"(?:el|los) modelos? (?:predic\w*|indica\w*|muestra\w*|estima\w*|aprend\w*)|"
+    r"sistema de (?:ml|aprendizaje automatico) (?:aprendi\w*|muestra\w*|predic\w*|indica\w*)|"
+    r"models? learned|learned by the models?|according to the models?|the models? (?:predicts?|shows?|indicates?|estimates?)|"
+    r"(?:ml|machine.learning) (?:models?|system) (?:learned|shows?|predicts?|indicates?)")
+
+
 def verify(draft: str, decision: str | None, question: str, evidence_block: str, citable: set[str],
-           template_decision: str) -> list[str]:
+           template_decision: str, model_evidence: bool = True) -> list[str]:
     problems = []
+    if not model_evidence and MODEL_CLAIM.search(normalize(draft)):
+        # DT-029: report passages or observed NASA data presented as something the ML models learned
+        problems.append('attributes to the ML models something that comes from the reports or the observed data')
     if decision is None:
         problems.append('missing [[DECISION:...]] mark')
     elif template_decision == 'abstain' and decision == 'answer':

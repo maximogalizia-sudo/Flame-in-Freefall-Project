@@ -13,9 +13,10 @@ from .verify import dumps, parse_decision, verify
 
 SYSTEM = """You are the assistant of a NASA microgravity-combustion data tool. You write the final answer for the user.
 
-YOUR ROLE: explain what the team's MACHINE-LEARNING SYSTEM understood. The ML models are the brain: lead with their
-conclusion and WHY (the 'WHY_according_to_the_model' drivers and what the models learned about each variable). NASA test
-tables [T..], closest real tests [E..] and report passages [D..] are SUPPORT for that explanation, not the answer itself.
+YOUR ROLE: explain what the team's MACHINE-LEARNING SYSTEM understood. When the evidence has items marked (MODEL), the
+ML models are the brain: lead with their conclusion and WHY (the 'WHY_according_to_the_model' drivers and what the models
+learned about each variable); NASA data, closest real tests [E..] and report passages [D..] are SUPPORT. When there is no
+(MODEL) item, answer from the NASA data and reports and do not mention the models at all.
 
 STRICT RULES
 1. Use ONLY the facts in the EVIDENCE block. Do not add numbers, tests or materials that are not there, and no outside physics.
@@ -47,6 +48,9 @@ STRICT RULES
    whether an "always" or "never" zone exists in the tested range (if none exists, say so and give the lowest/highest
    value where it was observed). For a ranking, list the configurations in order with their number of tests. For future
    experiments, propose them from the gaps listed. Respect the number of items the user asked for.
+10. ATTRIBUTION (never mix the sources): say "the model learned / predicts / according to the model" ONLY for facts from
+   items marked (MODEL). Facts from [D..] are "NASA's reports say"; facts from items marked (NASA DATA) or [E..] are
+   "NASA's tests show". A tendency read in a report is NOT a tendency learned by the models.
 9. Write in {lang_name}. Be clear for a non-expert: short paragraphs, no jargon without a one-line explanation. At most ~170 words (up to ~250 for rankings, lists or profiles).
 """
 LANG = {'es': 'Spanish (Rioplatense, neutral)', 'en': 'English'}
@@ -65,15 +69,15 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
              'interval_95': [p.ci_low, p.ci_high], 'sensitivity_range': p.range_sensitivity, 'in_the_data': p.in_domain,
              'why_not_in_data': p.out_of_domain, 'assumptions': p.assumptions, 'notes': p.notes,
              'WHY_according_to_the_model': drivers(p)}       # what the ML understood for this case, strongest first
-        items.append(f'[T{k}] ML model prediction: {dumps(d)}')
+        items.append(f'[T{k}] (MODEL) ML model prediction: {dumps(d)}')
     for label, req, resp in g.counts:
         k += 1; labels.add(f'T{k}')
-        items.append(f'[T{k}] NASA test table query {dumps({"about": label, "filters": {x: v for x, v in req.items() if x not in ("limit", "group_by")}})}: '
+        items.append(f'[T{k}] (NASA DATA) NASA test table query {dumps({"about": label, "filters": {x: v for x, v in req.items() if x not in ("limit", "group_by")}})}: '
                      f'{resp.n_total} tests; outcome counts {dumps(resp.counts[:8])}')
     if g.risk is not None:                       # v3: early-warning indicator
         k += 1; labels.add(f'T{k}')
         r = g.risk
-        items.append(f'[T{k}] early-warning risk indicator for atmosphere {dumps(r.atmosphere.model_dump())}: overall level {r.level}; '
+        items.append(f'[T{k}] (MODEL) early-warning risk indicator for atmosphere {dumps(r.atmosphere.model_dump())}: overall level {r.level}; '
                      f'{r.headline} Per scenario: ' + '; '.join(f'{i.scenario}: {i.level} ({i.reasons[0]})' for i in r.items)
                      + f'. DISCLAIMER (must be stated): {r.disclaimer}')
     if getattr(g, 'compare', None) is not None:  # v5: planned experiment vs a change (both from the models)
@@ -84,26 +88,26 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
                 return f'NOT TESTED by NASA (no estimate): {dumps(x.reasons[:1])}'
             med = f', median time until it goes out by itself {x.median_s} s' if x.median_s is not None else ''
             return f'level {x.level}, {c.meaning}: {x.persistence} (95% {x.ci_low}-{x.ci_high}){med}'
-        items.append(f'[T{k}] planned experiment vs the change, {c.scenario}: verdict {c.verdict}. PLAN: {side(c.plan)}. '
+        items.append(f'[T{k}] (MODEL) planned experiment vs the change, {c.scenario}: verdict {c.verdict}. PLAN: {side(c.plan)}. '
                      f'WITH THE CHANGE: {side(c.change)}. Each changed variable on its own: '
                      + '; '.join(r.text for r in c.changes) + f'. Notes: {dumps(c.notes)}')
     if g.sweep is not None:                      # v3: hypothetical scenario
         k += 1; labels.add(f'T{k}')
         sw = g.sweep
         pts = ', '.join(f'{p.x:g}->{p.probability if p.probability is not None else "not tested"}' for p in sw.points)
-        items.append(f'[T{k}] scenario sweep of {sw.variable} (target {sw.target}; probability that the flame goes out): {pts}; '
+        items.append(f'[T{k}] (MODEL) scenario sweep of {sw.variable} (target {sw.target}; probability that the flame goes out): {pts}; '
                      f'tested range {sw.tested_range}; notes {dumps(sw.notes)}')
     for e in g.effects:                          # v3: what the models learned about a variable
         if u.intent not in ('explain_variable', 'scenario'):
             e = e.model_copy(update={'rows': relevant_rows(e, u.conditions)})
         k += 1; labels.add(f'T{k}')
-        items.append(f'[T{k}] what the ML models learned about {e.variable} (ratio > 1 = more likely / sooner to go out): '
+        items.append(f'[T{k}] (MODEL) what the ML models learned about {e.variable} (ratio > 1 = more likely / sooner to go out): '
                      + '; '.join(f'{r.scenario}, {r.effect}: x{r.ratio} (95% {r.ci_low}-{r.ci_high}) {r.direction}' for r in e.rows)
                      + f'. Tested: {dumps(e.tested)}. Never tested: {dumps(e.not_tested)}. Caveats: {dumps(e.caveats)}')
     for kind, data in g.analytics:               # analytic results over ALL the data (observed NASA tests, with counts)
         k += 1; labels.add(f'T{k}')
         if kind == 'measure':
-            items.append(f"[T{k}] measured in the NASA tests — {data['label']} ({data['unit']}), per group of tested "
+            items.append(f"[T{k}] (NASA DATA) measured in the NASA tests — {data['label']} ({data['unit']}), per group of tested "
                          f"conditions: {dumps(data['groups'][:10])}. Notes: {dumps(data['notes'])}")
         elif kind == 'profile':
             groups = [x for x in data['groups'] if x['group'].endswith('- all')] or data['groups']
@@ -111,16 +115,16 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
                              f"{x['min_where_observed']} to {x['max_where_observed']}, ALWAYS zones {x['zones_always']}, NEVER zones "
                              f"{x['zones_never']}, bands {[(b['from'], b['to'], b['n'], b['share']) for b in x['bands']]}"
                              for x in groups[:6])
-            items.append(f"[T{k}] profile of {data['label']} over all NASA tests (zones are [from, to, n_tests]; bands are "
+            items.append(f"[T{k}] (NASA DATA) profile of {data['label']} over all NASA tests (zones are [from, to, n_tests]; bands are "
                          f"(from, to, n_tests, share where the outcome happened)): {body}. Notes: {dumps(data['notes'])}")
         elif kind == 'rank':
             body = '; '.join(f"{r['configuration']} -> n_tests {r['n_tests']}, kept burning {r['share_kept_burning']}, went out "
                              f"{r['share_went_out']}, median burn time s {r['median_burn_time_s']}"
                              + (' (lower bound: still burning when cut)' if r['burn_time_is_lower_bound'] else '') for r in data['rows'])
-            items.append(f"[T{k}] ranking of tested configurations by '{data['target']}' (observed NASA data, per family): {body}. "
+            items.append(f"[T{k}] (NASA DATA) ranking of tested configurations by '{data['target']}' (observed NASA data, per family): {body}. "
                          f"Notes: {dumps(data['notes'])}")
         else:
-            items.append(f"[T{k}] gaps in the NASA data and the experiment that would cover each: "
+            items.append(f"[T{k}] (NASA DATA) gaps in the NASA data and the experiment that would cover each: "
                          + '; '.join(f"{i['gap']} -> suggested: {i['suggested_test']}" for i in data['items']))
     for j, e in enumerate(g.evidence[:5], 1):
         labels.add(f'E{j}')
@@ -151,7 +155,10 @@ def make_drafter(llm=None):
         if raw is None:
             return None                       # LLM unavailable -> template
         decision, text = parse_decision(raw)
-        problems = verify(text, decision, u.text, evidence + ' ' + template_text, labels, template_decision)
+        model_evidence = bool(g.effects or g.sweep is not None or g.risk is not None or getattr(g, 'compare', None) is not None
+                              or any(p.probability is not None for _, p in g.predictions))
+        problems = verify(text, decision, u.text, evidence + ' ' + template_text, labels, template_decision,
+                          model_evidence=model_evidence)
         return text, (decision or template_decision), problems
 
     return drafter
