@@ -343,7 +343,9 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             # question they are related evidence only.
             if (u.intent == 'explain_doc' or no_subj or 'risk_needs_o2' in plan.notes) and doc_rel >= 0.5:
                 answered = True
-            elif not (no_subj or 'risk_needs_o2' in plan.notes):
+            elif no_subj or 'risk_needs_o2' in plan.notes:
+                partial = partial or doc_rel >= 0.3   # related report evidence, not a full answer (DT-024)
+            else:
                 partial = partial or u.intent != 'predict'
         elif 'rag_search' in g.unavailable:
             s.append(TP.t('docs_unavailable', lang))
