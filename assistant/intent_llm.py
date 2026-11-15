@@ -16,11 +16,10 @@ import re
 
 INTENT_HELP = {
     'predict': 'the outcome for ONE specific case: a given fuel or material under given conditions (does it go out, '
-               'keep burning, how long does it last). Needs a named fuel or material',
-    'scenario': 'what happens to a specific fire when ONE condition changes (from a value to another, more / less of it). '
-                'Needs a named fire and a named condition',
+               'keep burning, how long does it last)',
+    'scenario': 'what happens to a specific fire when ONE condition changes (from a value to another, more / less of it)',
     'explain_variable': 'how a condition (oxygen, CO2, helium, pressure, droplet size) affects flames in general: its '
-                        'effect, role, danger or influence. Needs the condition to be named in the question',
+                        'effect, role, danger or influence',
     'profile': 'a range, threshold or limit of a condition over ALL the data: at / above / below which level flames '
                'always or never go out, lowest or highest level where they still burned, how much of it is needed',
     'rank': 'a ranking or list of the configurations, conditions, materials or tests that most / least burned, lasted '
@@ -30,12 +29,10 @@ INTENT_HELP = {
                'at extinction, burning rate, burn time, how often cool flames or soot appeared and under which conditions',
     'count': 'how many tests or experiments, how often something happened in the data',
     'coverage': 'whether NASA has data at all about something (e.g. lunar gravity, humidity, a material)',
-    'compare': 'a direct comparison between two named fuels or materials, or two named conditions (e.g. CO2 vs helium)',
-    'risk': 'whether a whole cabin or habitat atmosphere is safe or risky, early warning. Needs the oxygen level '
-            'written in the question',
+    'compare': 'a direct comparison between two named fuels, materials or conditions',
+    'risk': 'whether a whole cabin or habitat atmosphere (oxygen and pressure) is safe or risky, early warning',
     'explain_doc': 'an explanation of a phenomenon, concept, experiment or reason, answered from the NASA reports '
-                   '(why, what is, how does it work). Also every general question that does not meet the needs of '
-                   'the other kinds (safety practice, how the experiments were run, what a data field means, physics)',
+                   '(why, what is, how does it work)',
     'off_topic': 'not about fire, combustion or these NASA experiments',
 }
 VARIABLES = {'o2_frac', 'co2_frac', 'he_frac', 'pressure_kpa', 'droplet_d0_mm'}
@@ -54,13 +51,18 @@ SYSTEM = ('You classify one question about the NASA microgravity combustion data
           '"quantity": only for measure, one of ' + '; '.join(f'{k} ({v})' for k, v in QUANTITIES.items()) + ', else null\n'
           '"family": the kind of fire if the question is limited to one, one of '
           + '; '.join(f'{k} ({v})' for k, v in FAMILIES.items()) + ', else null\n'
-          'Classify by what the person wants to know, not by single words. Pick a kind only if the question gives what '
-          'that kind needs; otherwise pick explain_doc.')
+          '"second": your second choice of intent (same list), or null\n'
+          'Classify by what the person wants to know, not by single words.')
 
 
-def classify_llm(text: str, llm) -> dict | None:
-    """{'intent', 'variable', 'target', 'family'} validated against the closed lists, or None if unusable."""
-    raw = llm.chat(SYSTEM, text, max_tokens=120, temperature=0.0)
+def classify_llm(text: str, llm, model: str | None = None) -> dict | None:
+    """{'intent', 'second', 'variable', 'target', 'quantity', 'family'} validated against the closed lists, or None.
+    `model`: a fixed model for the classifier (INTENT_MODEL), so the reading does not depend on which model happens to
+    have budget left (DT-022: the fallback mix made runs swing between 74 and 84 of 88)."""
+    try:
+        raw = llm.chat(SYSTEM, text, max_tokens=120, temperature=0.0, model=model)
+    except TypeError:                                  # test doubles without the model argument
+        raw = llm.chat(SYSTEM, text, max_tokens=120, temperature=0.0)
     if not raw:
         return None
     m = re.search(r'\{.*\}', raw, re.S)
@@ -71,7 +73,8 @@ def classify_llm(text: str, llm) -> dict | None:
     intent = d.get('intent') if d.get('intent') in INTENT_HELP else None
     if intent is None:
         return None
-    return {'intent': intent,
+    second = d.get('second') if d.get('second') in INTENT_HELP and d.get('second') != intent else None
+    return {'intent': intent, 'second': second,
             'variable': d.get('variable') if d.get('variable') in VARIABLES else None,
             'target': d.get('target') if d.get('target') in TARGETS else None,
             'quantity': d.get('quantity') if d.get('quantity') in QUANTITIES else None,
@@ -85,7 +88,8 @@ def refine(u, llm, policy: str = 'guarded'):
     if llm is None or policy == 'rules':
         return u
     t = normalize(u.text)
-    r = classify_llm(u.text, llm)
+    from .config import get_settings
+    r = classify_llm(u.text, llm, get_settings().intent_model)
     new = choose(u.intent, matched_intents(t), r, policy, u)
     if r is None or new == u.intent:
         return u
@@ -133,7 +137,8 @@ def choose(rules_intent: str, matched: list[str], llm_read: dict | None, policy:
                 or more than one pattern matched (ambiguous wording).
     'guarded' : the LLM, with two protections (criteria, not tuned to questions):
                 (1) it may not turn an on-topic question into off_topic (refusing a valid question costs more than trying);
-                (2) it may not switch to an intent whose tool cannot run with what was understood (see can_run)."""
+                (2) it may not switch to an intent whose tool cannot run with what was understood (see can_run);
+                (3) if its first choice cannot run, its second choice is used when that one can run."""
     if llm_read is None or policy == 'rules':
         return rules_intent
     new = llm_read['intent']
@@ -144,5 +149,10 @@ def choose(rules_intent: str, matched: list[str], llm_read: dict | None, policy:
     if new == 'off_topic' and rules_intent != 'off_topic':
         return rules_intent
     if u is not None and not can_run(new, u, llm_read):
+        # (3) the LLM's second choice, when the first cannot run (e.g. "is fire in space more dangerous?": first 'risk',
+        # which needs an oxygen value; second 'explain_doc'); only then the rules
+        second = llm_read.get('second')
+        if second and second != 'off_topic' and can_run(second, u, llm_read):
+            return second
         return rules_intent
     return new

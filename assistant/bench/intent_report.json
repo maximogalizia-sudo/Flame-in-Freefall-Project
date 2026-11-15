@@ -3,16 +3,16 @@
   "bench50": {
    "n": 50,
    "rules": 50,
-   "llm": 47,
-   "unsure": 49,
-   "guarded": 48
+   "llm": 39,
+   "unsure": 44,
+   "guarded": 40
   },
   "heldout_v1": {
    "n": 20,
    "rules": 20,
-   "llm": 16,
-   "unsure": 17,
-   "guarded": 18
+   "llm": 15,
+   "unsure": 16,
+   "guarded": 17
   },
   "heldout_v2": {
    "n": 12,
@@ -24,16 +24,16 @@
   "lc6": {
    "n": 6,
    "rules": 6,
-   "llm": 6,
-   "unsure": 6,
-   "guarded": 6
+   "llm": 4,
+   "unsure": 5,
+   "guarded": 5
   },
   "ALL": {
    "n": 88,
    "rules": 83,
-   "llm": 80,
-   "unsure": 81,
-   "guarded": 84
+   "llm": 69,
+   "unsure": 74,
+   "guarded": 74
   }
  },
  "rows": [
@@ -91,11 +91,11 @@
    "matched": [
     "predict"
    ],
-   "llm": "predict",
+   "llm": "scenario",
    "p_rules": "predict",
-   "p_llm": "predict",
+   "p_llm": "scenario",
    "p_unsure": "predict",
-   "p_guarded": "predict"
+   "p_guarded": "scenario"
   },
   {
    "set": "bench50",
@@ -121,11 +121,11 @@
    "matched": [
     "predict"
    ],
-   "llm": "predict",
+   "llm": "measure",
    "p_rules": "predict",
-   "p_llm": "predict",
+   "p_llm": "measure",
    "p_unsure": "predict",
-   "p_guarded": "predict"
+   "p_guarded": "measure"
   },
   {
    "set": "bench50",
@@ -211,11 +211,11 @@
    "matched": [
     "predict"
    ],
-   "llm": "predict",
+   "llm": "scenario",
    "p_rules": "predict",
-   "p_llm": "predict",
+   "p_llm": "scenario",
    "p_unsure": "predict",
-   "p_guarded": "predict"
+   "p_guarded": "scenario"
   },
   {
    "set": "bench50",
@@ -415,11 +415,11 @@
    "gold": "predict",
    "rules": "predict",
    "matched": [],
-   "llm": "scenario",
+   "llm": "predict",
    "p_rules": "predict",
-   "p_llm": "scenario",
-   "p_unsure": "scenario",
-   "p_guarded": "scenario"
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
   },
   {
    "set": "bench50",
@@ -553,11 +553,11 @@
    "matched": [
     "explain_doc"
    ],
-   "llm": "explain_doc",
+   "llm": "explain_variable",
    "p_rules": "explain_doc",
-   "p_llm": "explain_doc",
+   "p_llm": "explain_variable",
    "p_unsure": "explain_doc",
-   "p_guarded": "explain_doc"
+   "p_guarded": "explain_variable"
   },
   {
    "set": "bench50",
@@ -568,11 +568,11 @@
    "matched": [
     "explain_doc"
    ],
-   "llm": "explain_doc",
+   "llm": "explain_variable",
    "p_rules": "explain_doc",
-   "p_llm": "explain_doc",
+   "p_llm": "explain_variable",
    "p_unsure": "explain_doc",
-   "p_guarded": "explain_doc"
+   "p_guarded": "explain_variable"
   },
   {
    "set": "bench50",
@@ -614,11 +614,11 @@
     "explain_doc",
     "predict"
    ],
-   "llm": "explain_doc",
+   "llm": "explain_variable",
    "p_rules": "explain_doc",
-   "p_llm": "explain_doc",
-   "p_unsure": "explain_doc",
-   "p_guarded": "explain_doc"
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
   },
   {
    "set": "bench50",
@@ -642,9 +642,9 @@
    "matched": [
     "explain_doc"
    ],
-   "llm": "off_topic",
+   "llm": "explain_doc",
    "p_rules": "explain_doc",
-   "p_llm": "off_topic",
+   "p_llm": "explain_doc",
    "p_unsure": "explain_doc",
    "p_guarded": "explain_doc"
   },
@@ -655,10 +655,10 @@
    "gold": "explain_doc",
    "rules": "explain_doc",
    "matched": [],
-   "llm": "explain_doc",
+   "llm": "off_topic",
    "p_rules": "explain_doc",
-   "p_llm": "explain_doc",
-   "p_unsure": "explain_doc",
+   "p_llm": "off_topic",
+   "p_unsure": "off_topic",
    "p_guarded": "explain_doc"
   },
   {
@@ -696,11 +696,11 @@
    "gold": "explain_variable",
    "rules": "explain_variable",
    "matched": [],
-   "llm": "explain_variable",
+   "llm": "predict",
    "p_rules": "explain_variable",
-   "p_llm": "explain_variable",
-   "p_unsure": "explain_variable",
-   "p_guarded": "explain_variable"
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
   },
   {
    "set": "bench50",
@@ -709,11 +709,11 @@
    "gold": "explain_variable",
    "rules": "explain_variable",
    "matched": [],
-   "llm": "explain_variable",
+   "llm": "scenario",
    "p_rules": "explain_variable",
-   "p_llm": "explain_variable",
-   "p_unsure": "explain_variable",
-   "p_guarded": "explain_variable"
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
   },
   {
    "set": "bench50",
@@ -724,11 +724,11 @@
    "matched": [
     "predict"
    ],
-   "llm": "scenario",
+   "llm": "explain_variable",
    "p_rules": "explain_variable",
-   "p_llm": "scenario",
+   "p_llm": "explain_variable",
    "p_unsure": "explain_variable",
-   "p_guarded": "scenario"
+   "p_guarded": "explain_variable"
   },
   {
    "set": "bench50",
@@ -752,11 +752,11 @@
    "gold": "explain_doc",
    "rules": "explain_doc",
    "matched": [],
-   "llm": "explain_doc",
+   "llm": "explain_variable",
    "p_rules": "explain_doc",
-   "p_llm": "explain_doc",
-   "p_unsure": "explain_doc",
-   "p_guarded": "explain_doc"
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
   },
   {
    "set": "bench50",
@@ -765,11 +765,11 @@
    "gold": "explain_variable",
    "rules": "explain_variable",
    "matched": [],
-   "llm": "explain_variable",
+   "llm": "scenario",
    "p_rules": "explain_variable",
-   "p_llm": "explain_variable",
-   "p_unsure": "explain_variable",
-   "p_guarded": "explain_variable"
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
   },
   {
    "set": "heldout_v1",
@@ -828,11 +828,11 @@
     "profile",
     "coverage"
    ],
-   "llm": "coverage",
+   "llm": "profile",
    "p_rules": "profile",
-   "p_llm": "coverage",
-   "p_unsure": "coverage",
-   "p_guarded": "coverage"
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
   },
   {
    "set": "heldout_v1",
@@ -891,11 +891,11 @@
     "rank",
     "predict"
    ],
-   "llm": "rank",
+   "llm": "scenario",
    "p_rules": "rank",
-   "p_llm": "rank",
-   "p_unsure": "rank",
-   "p_guarded": "rank"
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
   },
   {
    "set": "heldout_v1",
@@ -999,11 +999,11 @@
     "gaps",
     "coverage"
    ],
-   "llm": "gaps",
+   "llm": "coverage",
    "p_rules": "gaps",
-   "p_llm": "gaps",
-   "p_unsure": "gaps",
-   "p_guarded": "gaps"
+   "p_llm": "coverage",
+   "p_unsure": "coverage",
+   "p_guarded": "coverage"
   },
   {
    "set": "heldout_v1",
@@ -1276,11 +1276,11 @@
    "matched": [
     "predict"
    ],
-   "llm": "predict",
+   "llm": "scenario",
    "p_rules": "predict",
-   "p_llm": "predict",
+   "p_llm": "scenario",
    "p_unsure": "predict",
-   "p_guarded": "predict"
+   "p_guarded": "scenario"
   },
   {
    "set": "lc6",
@@ -1289,10 +1289,10 @@
    "gold": "explain_variable",
    "rules": "explain_variable",
    "matched": [],
-   "llm": "explain_variable",
+   "llm": "risk",
    "p_rules": "explain_variable",
-   "p_llm": "explain_variable",
-   "p_unsure": "explain_variable",
+   "p_llm": "risk",
+   "p_unsure": "risk",
    "p_guarded": "explain_variable"
   },
   {

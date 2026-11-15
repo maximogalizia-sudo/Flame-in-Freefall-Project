@@ -69,3 +69,33 @@ def main(pause_s: float = 2.5):
 
 if __name__ == '__main__':
     main()
+
+
+def compare_models(models=('qwen/qwen3.8-27b', 'openai/gpt-oss-120b', 'openai/gpt-oss-20b'), pause_s: float = 3.0):
+    """Same questions, one FIXED model each (calls alternate between models so none hits its per-minute limit):
+    which model classifies best with the guarded policy. Output: intent_models_report.json."""
+    load_env()
+    llm = get_llm()
+    rows = []
+    for it in labeled():
+        u = understand(it['q'])
+        m = matched_intents(normalize(it['q']))
+        row = {**it, 'rules': u.intent}
+        for mod in models:
+            r = classify_llm(it['q'], llm, mod)
+            row[mod] = choose(u.intent, m, r, 'guarded', u)
+            row[mod + ':raw'] = r['intent'] if r else None
+            time.sleep(pause_s)
+        rows.append(row)
+    sets = sorted({r['set'] for r in rows}) + ['ALL']
+    print(f"{'set':12} {'n':>3}  rules  " + '  '.join(f'{m.split("/")[-1]:>13}' for m in models))
+    summary = {}
+    for s in sets:
+        rs = [r for r in rows if s == 'ALL' or r['set'] == s]
+        acc = {m: sum(r[m] == r['gold'] for r in rs) for m in ('rules',) + tuple(models)}
+        summary[s] = {'n': len(rs), **acc}
+        print(f"{s:12} {len(rs):>3}  {acc['rules']:>5}  " + '  '.join(f'{acc[m]:>13}' for m in models))
+    for mod in models:
+        print(f'{mod}: no valid answer in {sum(r[mod + ":raw"] is None for r in rows)} questions')
+    (HERE / 'intent_models_report.json').write_text(json.dumps({'summary': summary, 'rows': rows}, ensure_ascii=False,
+                                                                indent=1), encoding='utf-8')

@@ -15,7 +15,7 @@ class FakeLLM:
 
 def test_classify_keeps_only_closed_list_values():
     r = classify_llm('x', FakeLLM({'intent': 'rank', 'variable': 'humidity', 'target': 'burn_time', 'family': 'mars'}))
-    assert r == {'intent': 'rank', 'variable': None, 'target': 'burn_time', 'quantity': None, 'family': None}
+    assert r == {'intent': 'rank', 'second': None, 'variable': None, 'target': 'burn_time', 'quantity': None, 'family': None}
     assert classify_llm('x', FakeLLM({'intent': 'write_a_poem'})) is None
     assert classify_llm('x', FakeLLM('not json at all')) is None
 
@@ -54,3 +54,9 @@ def test_guarded_policy_protections():
     assert choose(no_o2.intent, [], {'intent': 'risk', 'variable': None}, 'guarded', no_o2) == no_o2.intent
     ok = understand('¿Cuál fue el material que menos sostuvo la llama?')
     assert choose(ok.intent, [], {'intent': 'rank', 'variable': None}, 'guarded', ok) == 'rank'
+
+
+def test_guarded_uses_the_second_choice_when_the_first_cannot_run():
+    u = understand('el fuego en el espacio es más peligroso o menos que acá?')
+    read = {'intent': 'risk', 'second': 'explain_doc', 'variable': None}
+    assert choose(u.intent, ['rank'], read, 'guarded', u) == 'explain_doc'

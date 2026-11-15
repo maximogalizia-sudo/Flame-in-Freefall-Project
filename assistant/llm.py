@@ -34,14 +34,18 @@ class LLM:
         return self.models[self.idx] if self.idx < len(self.models) else None
 
     def chat(self, system: str, user: str, max_tokens: int = 450, temperature: float = 0.1,
-             max_wait_s: float = 8.0) -> str | None:
+             max_wait_s: float = 8.0, model: str | None = None) -> str | None:
         """Try the active model; if it is rate-limited (each model has its own per-minute token budget on the free
         tier) try the next models for THIS call, then wait once for the shortest reset; retired models (404) are
         skipped permanently."""
         tried_429: dict[int, float | None] = {}
         k, waited = self.idx, False
-        while k < len(self.models):
-            model = self.models[k]
+        order = self.models
+        if model and model in self.models:   # a fixed model for this kind of call (e.g. the classifier), then the rest
+            order = [model] + [m for m in self.models if m != model]
+            k = 0
+        while k < len(order):
+            model = order[k]
             body = {'model': model, 'temperature': temperature, 'max_tokens': max_tokens,
                     'messages': [{'role': 'system', 'content': system}, {'role': 'user', 'content': user}]}
             if 'gpt-oss' in model:   # reasoning models: keep reasoning short so it does not eat the answer (empty text)
@@ -53,7 +57,7 @@ class LLM:
                     tried_429[k] = _retry_after(r)
                     log.warning('llm %s rate-limited, trying the next model', model)
                     k += 1
-                    if k >= len(self.models) and not waited and tried_429:
+                    if k >= len(order) and not waited and tried_429:
                         best = min(tried_429, key=lambda i: tried_429[i] if tried_429[i] is not None else 1e9)
                         wait = tried_429[best]
                         if wait is not None and wait <= max_wait_s:
@@ -61,7 +65,7 @@ class LLM:
                     continue
                 if r.status_code == 404 or (r.status_code == 400 and 'model' in r.text.lower()):
                     log.warning('llm model %s not available (%s): skipping it from now on', model, r.status_code)
-                    if k == self.idx:
+                    if order is self.models and k == self.idx:
                         self.idx += 1
                     k += 1
                     continue
