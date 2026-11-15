@@ -130,8 +130,8 @@ class LocalTools:
 
     # analytic tools over ALL the data (always computed in-process from flame + data/processed)
     def profile(self, args) -> ToolResult:
-        var, fam = args
-        return _timed('profile', {'variable': var, 'family': fam}, lambda: fa.profile(var, fam))
+        var, fam, subj = (list(args) + [None])[:3]
+        return _timed('profile', {'variable': var, 'family': fam, 'subject': subj}, lambda: fa.profile(var, fam, subj))
 
     def rank(self, args) -> ToolResult:
         target, fam, k = args

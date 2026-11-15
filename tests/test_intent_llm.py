@@ -70,3 +70,22 @@ def test_verifier_rejects_model_attribution_without_model_evidence():
     good = verify('Los informes de NASA dicen que la llama es esférica [D1].', 'answer', 'q', ev, {'D1'}, 'answer',
                   model_evidence=False)
     assert any('attributes to the ML models' in p for p in bad) and not good
+
+
+def test_follow_ups_inherit_only_when_worded_as_follow_ups():
+    from assistant.pipeline import answer
+    from assistant.tools import LocalTools
+    from flame.contracts import AskRequest, ChatTurn
+    h = [ChatTurn(role='user', text='¿Se apaga una gota de metanol con 18 % de oxígeno?'), ChatTurn(role='assistant', text='.')]
+    other = answer(AskRequest(text='¿Cuántas pruebas de CFI-G no encendieron?', history=h), tools=LocalTools())
+    assert other.understood.fuel is None and '333' in other.text
+    follow = answer(AskRequest(text='¿Y con 30 % de CO2?', history=h), tools=LocalTools())
+    assert follow.understood.fuel == 'methanol' and follow.understood.co2_frac == 0.3
+
+
+def test_profile_answers_for_the_asked_material_first():
+    from flame.analytics import profile, profile_groups
+    d = profile('o2', 'solids', 'nomex')
+    assert 'Nomex' in profile_groups(d)[0]['group']
+    m = profile_groups(profile('o2', 'flex', 'methanol'))[0]
+    assert 'methanol' in m['group'] and m['zones_always']

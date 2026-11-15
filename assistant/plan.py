@@ -78,7 +78,7 @@ def make_plan(u: Understanding) -> Plan:
     # Analytic questions over ALL the data (flame.analytics): ranges/thresholds, rankings, gaps
     if u.intent == 'profile':
         var = ANALYTIC_VAR.get(u.variable or 'o2_frac', 'o2')
-        p.calls.append(ToolCall('profile', (var, u.analytic_family)))
+        p.calls.append(ToolCall('profile', (var, u.analytic_family, c.fuel or c.material)))
         return p
     if u.intent == 'rank':
         m = re.search(r'\b(\d{1,2})\b', normalize(u.text))

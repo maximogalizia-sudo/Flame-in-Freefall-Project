@@ -110,12 +110,15 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
             items.append(f"[T{k}] (NASA DATA) measured in the NASA tests — {data['label']} ({data['unit']}), per group of tested "
                          f"conditions: {dumps(data['groups'][:10])}. Notes: {dumps(data['notes'])}")
         elif kind == 'profile':
-            groups = [x for x in data['groups'] if x['group'].endswith('- all')] or data['groups']
+            from flame.analytics import profile_groups
+            groups = profile_groups(data)
             body = '; '.join(f"{x['group']} [outcome = {x['meaning']}]: n={x['n']}, tested {x['tested_range']}, observed from "
                              f"{x['min_where_observed']} to {x['max_where_observed']}, ALWAYS zones {x['zones_always']}, NEVER zones "
                              f"{x['zones_never']}, bands {[(b['from'], b['to'], b['n'], b['share']) for b in x['bands']]}"
                              for x in groups[:6])
-            items.append(f"[T{k}] (NASA DATA) profile of {data['label']} over all NASA tests (zones are [from, to, n_tests]; bands are "
+            items.append(f"[T{k}] (NASA DATA) profile of {data['label']} over the NASA tests (asked fuel/material: "
+                         f"{data.get('subject') or 'none'}; its groups come FIRST, '- all' groups are the whole family, use "
+                         f"them only as context and never as the value for the asked one) (zones are [from, to, n_tests]; bands are "
                          f"(from, to, n_tests, share where the outcome happened)): {body}. Notes: {dumps(data['notes'])}")
         elif kind == 'rank':
             body = '; '.join(f"{r['configuration']} -> n_tests {r['n_tests']}, kept burning {r['share_kept_burning']}, went out "

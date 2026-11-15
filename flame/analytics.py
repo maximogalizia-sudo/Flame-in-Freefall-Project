@@ -104,9 +104,23 @@ def _profile_one(d: pd.DataFrame, var: str, outcome: str, label: str) -> dict | 
             'zones_always': always, 'zones_never': never}
 
 
-def profile(variable: str, family: str | None = None) -> dict:
+def _matches(group_label: str, subject: str | None) -> bool:
+    if not subject or group_label.endswith(' - all'):
+        return False
+    return subject.lower().replace('_', ' ').replace('n heptane', 'heptane') in group_label.lower()
+
+
+def profile_groups(d: dict, k: int = 6) -> list[dict]:
+    """Groups to show: the asked fuel/material first (DT-032), then the whole-family groups as context."""
+    every = [x for x in d['groups'] if x['group'].endswith(' - all')] or d['groups']
+    own = [x for x in d['groups'] if _matches(x['group'], d.get('subject'))]
+    return (own + [x for x in every if x not in own])[:k]
+
+
+def profile(variable: str, family: str | None = None, subject: str | None = None) -> dict:
+    """`subject`: the fuel or material asked about (e.g. 'nomex', 'methanol'); its groups come first."""
     var = ALIASES.get(variable, variable)
-    out = {'variable': var, 'label': VAR_LABEL.get(var, var), 'groups': [], 'notes': []}
+    out = {'variable': var, 'label': VAR_LABEL.get(var, var), 'groups': [], 'notes': [], 'subject': subject}
     fams = [family] if family else list(FAMILIES)
     for fam in fams:
         if fam == 'cfig':
@@ -134,6 +148,14 @@ def profile(variable: str, family: str | None = None) -> dict:
         out['notes'].append('Suppressors (CO2, helium) were only used in the droplet experiment (FLEX).')
     if not out['groups']:
         out['notes'].append(f'No NASA table in this project varies {var} for the requested family.')
+    if subject:
+        own = [g for g in out['groups'] if _matches(g['group'], subject)]
+        if not own:
+            out['notes'].insert(0, f'Too few usable NASA tests of {subject} to profile {var} on its own (fewer than 3, '
+                                   f'or a single value): the groups below are for the whole family, NOT for {subject}.')
+        elif min(g['n'] for g in own) < 10:
+            out['notes'].insert(0, f'Few NASA tests of {subject} ({min(g["n"] for g in own)}–{max(g["n"] for g in own)}): '
+                                   f'read its ranges as the tests that exist, not as a general limit.')
     return out
 
 

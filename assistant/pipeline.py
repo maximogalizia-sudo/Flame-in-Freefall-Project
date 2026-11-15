@@ -20,7 +20,7 @@ from .plan import OUTCOME_COL, Plan, make_plan
 from .ml_insight import drivers, relevant_rows
 from .retrieve import passage_relevance, select_passages, translate_query
 from .tools import ToolResult, get_tools
-from .understand import Understanding, understand
+from .understand import Understanding, find_family, normalize, understand
 from .intent_llm import refine as refine_intent
 from .understand_llm import llm_assist, needs_help
 
@@ -45,9 +45,19 @@ class Gathered:
     compare: object | None = None                                             # CompareResponse (v5): plan vs change
 
 
+FOLLOW_UP = re.compile(r"^\W*(?:y|e|and|what about|how about|pero|but|entonces|so)\b|^\W*(?:con|with|a|at|en|in|sin|without)\s+"
+                       r"(?:\d|el |la |los |las |the |mas |menos |more |less )", re.I)
+
+
 def merge_history(u: Understanding, req: AskRequest) -> Understanding:
-    """Follow-ups like "¿y con 30 % de CO2?": inherit the previous user question's subject and conditions."""
+    """Follow-ups like "¿y con 30 % de CO2?": inherit the previous user question's subject and conditions.
+    DT-033 (night inspection C5): a question that names another experiment or family, or a stand-alone kind of question
+    (explanation, count, range, ranking, gaps, measured values), does NOT inherit unless it is worded as a follow-up."""
     if u.conditions.family or not req.history:
+        return u
+    t = normalize(u.text)
+    if not FOLLOW_UP.search(t) and (u.accessions or find_family(t) or
+                                     u.intent in ('explain_doc', 'count', 'gaps', 'rank', 'profile', 'measure')):
         return u
     prev_user = [h.text for h in req.history if h.role == 'user']
     if not prev_user:
@@ -213,8 +223,8 @@ def effects_sentences(e, lang: str) -> list[str]:
     return out
 
 
-def _zones(z: list) -> str:
-    return ', '.join(f'{a:g}–{b:g} ({n} pruebas)' for a, b, n in z)
+def _zones(z: list, es: bool = True) -> str:
+    return ', '.join(f'{a:g}–{b:g} ({n} {"pruebas" if es else "tests"})' for a, b, n in z)
 
 
 def analytic_sentences(kind: str, d: dict, lang: str) -> list[str]:
@@ -237,8 +247,14 @@ def analytic_sentences(kind: str, d: dict, lang: str) -> list[str]:
                             f"range {x['min']:g}–{x['max']:g}), {x['n']} tests."))
         out += d['notes']
     elif kind == 'profile':
-        out.append((f"Lo que muestran TODOS los datos de NASA sobre {d['label']}:" if es else f"What ALL the NASA data show about {d['label']}:"))
-        groups = [x for x in d['groups'] if x['group'].endswith('- all')] or d['groups']
+        from flame.analytics import profile_groups
+        subj = d.get('subject')
+        out.append((f"Lo que muestran los datos de NASA sobre {d['label']} para {subj} (y, como contexto, toda la familia):"
+                     if subj else f"Lo que muestran TODOS los datos de NASA sobre {d['label']}:") if es else
+                   (f"What the NASA data show about {d['label']} for {subj} (and, as context, the whole family):"
+                    if subj else f"What ALL the NASA data show about {d['label']}:"))
+        out += [n for n in d['notes'][:1] if subj and n.startswith(('Too few', 'Few NASA'))]
+        groups = profile_groups(d)
         for x in groups[:6]:
             line = (f"· {x['group'].removesuffix(' - all')} — '{x['meaning']}': {x['n']} pruebas, rango probado {x['tested_range'][0]:g}–{x['tested_range'][1]:g}"
                     if es else f"· {x['group'].removesuffix(' - all')} — '{x['meaning']}': {x['n']} tests, tested range {x['tested_range'][0]:g}–{x['tested_range'][1]:g}")
@@ -246,9 +262,9 @@ def analytic_sentences(kind: str, d: dict, lang: str) -> list[str]:
                 line += (f"; ocurrió desde {x['min_where_observed']:g} hasta {x['max_where_observed']:g}" if es
                          else f"; it happened from {x['min_where_observed']:g} up to {x['max_where_observed']:g}")
             if x['zones_always']:
-                line += (f"; SIEMPRE en {_zones(x['zones_always'])}" if es else f"; ALWAYS in {_zones(x['zones_always'])}")
+                line += (f"; SIEMPRE en {_zones(x['zones_always'])}" if es else f"; ALWAYS in {_zones(x['zones_always'], False)}")
             if x['zones_never']:
-                line += (f"; NUNCA en {_zones(x['zones_never'])}" if es else f"; NEVER in {_zones(x['zones_never'])}")
+                line += (f"; NUNCA en {_zones(x['zones_never'])}" if es else f"; NEVER in {_zones(x['zones_never'], False)}")
             if not x['zones_always'] and not x['zones_never']:
                 line += ('; no hay ningún tramo donde ocurra siempre o nunca' if es else '; there is no band where it always or never happened')
             out.append(line + '.')
@@ -404,7 +420,7 @@ def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
     u = merge_history(understand(req.text), req)
     if llm is not None and needs_help(u):          # rules first; the LLM only helps to understand, validated
         u = llm_assist(u, llm)
-    if llm is not None and not req.history:        # kind of question: rules, or the LLM when the policy says so (DT-022)
+    if llm is not None and 'conditions inherited from the previous question' not in u.notes:   # DT-022; I1 of the inspection
         u = refine_intent(u, llm, get_settings().intent_policy)
     if req.lang:
         u.lang = req.lang
