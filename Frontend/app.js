@@ -101,10 +101,14 @@ function renderMap(tests) {
   const box = $("#chart-map");
   box.innerHTML = "";
   const valid = tests.filter((r) => r.is_valid);
-  const pts = valid.filter((r) => r.o2_frac != null && r.pressure_kpa != null);
-  const missing = tests.length - pts.length;
+  // Inverse flames (CFI-G, Flame Design) are left out: their O2 is the burner jet, not the air around the flame,
+  // so they cannot share an axis with the other tests.
+  const inverse = valid.filter((r) => r.flame_type === "inverse").length;
+  const pts = valid.filter((r) => r.o2_frac != null && r.pressure_kpa != null && r.flame_type !== "inverse");
+  const missing = tests.length - pts.length - inverse;
   $("#note-map").textContent = (missing ? `${missing} test(s) in this filter have no O2 or pressure (e.g. BASS, SAFFIRE, SPICE) or are flagged invalid, and are not plotted. ` : "") +
-    "For inverse flames (CFI-G, Flame Design) O2 is the burner jet, not the ambient. Click a cell to list its tests.";
+    (inverse ? `${inverse} inverse-flame test(s) (CFI-G, Flame Design) are not plotted: their O2 is the burner jet, not the surrounding air. ` : "") +
+    "Click a cell to list its tests.";
   if (!pts.length) {
     box.innerHTML = `<p class="empty">No test in this filter reports both O2 and pressure. Solids (BASS, SAFFIRE) and smoke (SAME) ran at cabin pressure: see their outcomes below.</p>`;
     return;

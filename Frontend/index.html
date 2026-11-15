@@ -97,8 +97,8 @@
       <section class="card span-3" aria-labelledby="t-map">
         <header class="card-head">
           <div>
-            <h2 id="t-map">Extinction map</h2>
-            <p class="sub">Each cell groups the tests run at that oxygen and pressure. Colour shows how they ended; empty cells are conditions NASA never tested. Hover for counts, click to list the tests.</p>
+            <h2 id="t-map">Where NASA tested</h2>
+            <p class="sub">Each cell groups the NASA tests run at that oxygen and pressure; colour shows how they ended. Empty cells are conditions NASA never tested: that is where the planner above shows gray ("unknown") instead of a number. Hover for counts, click to list the tests.</p>
           </div>
           <ul class="legend" id="legend-map"></ul>
         </header>
@@ -116,16 +116,17 @@
         <div id="detail" class="detail"></div>
       </section>
 
-      <section class="card span-3" aria-labelledby="t-outcomes">
-        <header class="card-head">
-          <div>
+      <details class="card span-3 fold" id="bars-fold">
+        <summary>
+          <span class="fold-title">
             <h2 id="t-outcomes">Outcome by experiment</h2>
-            <p class="sub">Number of tests by how the flame ended (outcomes coded from the NASA logs; the coding rules were checked by hand).</p>
-          </div>
-          <ul class="legend" id="legend-bars"></ul>
-        </header>
+            <span class="sub">Number of tests by how the flame ended (outcomes coded from the NASA logs; the coding rules were checked by hand).</span>
+          </span>
+          <span class="fold-cta"><span class="when-closed">Show</span><span class="when-open">Hide</span></span>
+        </summary>
+        <ul class="legend fold-note" id="legend-bars"></ul>
         <div class="chart" id="chart-bars"></div>
-      </section>
+      </details>
 
       <section class="card span-3 chat" aria-labelledby="t-chat">
         <header class="card-head">
