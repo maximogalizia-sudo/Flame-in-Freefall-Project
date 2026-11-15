@@ -1,0 +1,518 @@
+{
+ "_note": "BLIND set v2 (2026-11-15). Written by a second subagent with NO context of the project, after the fixes made while looking at set v1. Labels written by Claude BEFORE running any question. This is the honest final measurement: not to be tuned on.",
+ "items": [
+  {
+   "id": "C01",
+   "lang": "es",
+   "q": "Hola! soy profe de fisica en un secundario de Rosario. Como les explico a los chicos por que en el espacio la llama de una vela queda redonda y azul?",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C02",
+   "lang": "es",
+   "q": "si prendo una gota de n-heptano en la ISS con 21% de oxigeno a 1 atm, se apaga antes de consumirse o se quema entera?",
+   "kinds": [
+    "predict"
+   ],
+   "decisions": [
+    "answer"
+   ]
+  },
+  {
+   "id": "C03",
+   "lang": "es",
+   "q": "Necesito saber a partir de qué concentración de oxígeno el Nomex empieza a propagar llama en microgravedad con flujo de aire lento. ¿Hay un umbral claro en los datos de BASS?",
+   "kinds": [
+    "profile"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C04",
+   "lang": "es",
+   "q": "que pasa con la llama si le pones helio en vez de nitrogeno?? la gota arde mas rapido o mas lento",
+   "kinds": [
+    "explain_variable",
+    "scenario",
+    "compare"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C05",
+   "lang": "es",
+   "q": "Cuántos ensayos de gotas se hicieron en total en FLEX y cuántos fueron con metanol?",
+   "kinds": [
+    "count"
+   ],
+   "decisions": [
+    "answer"
+   ]
+  },
+  {
+   "id": "C06",
+   "lang": "es",
+   "q": "Para metanol en FLEX, ¿cómo varía la constante de quemado con la fracción de CO2? ¿Es monótona o se satura en algún punto?",
+   "kinds": [
+    "measure",
+    "explain_variable"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C07",
+   "lang": "es",
+   "q": "q rango de presiones y de oxigeno cubren los ensayos de CFI-G",
+   "kinds": [
+    "profile",
+    "coverage",
+    "count"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C08",
+   "lang": "es",
+   "q": "llama fria... es fria de verdad o es solo un nombre? no entiendo",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C09",
+   "lang": "es",
+   "q": "Estoy diseñando un módulo habitable para Marte con atmósfera de 8 psi y 34% de O2. De los materiales que se probaron, cuáles serían los más peligrosos en esas condiciones?",
+   "kinds": [
+    "rank",
+    "risk",
+    "predict",
+    "coverage"
+   ],
+   "decisions": [
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C10",
+   "lang": "es",
+   "q": "tienen datos de como se comporta una llama con la gravedad de la Luna (1/6 g)? o solo microgravedad",
+   "kinds": [
+    "coverage",
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C11",
+   "lang": "es",
+   "q": "y la madera o el papel? se probaron en BASS? me interesa saber si un libro se quemaria distinto en la estacion",
+   "kinds": [
+    "coverage",
+    "explain_doc",
+    "predict"
+   ],
+   "decisions": [
+    "answer",
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C12",
+   "lang": "es",
+   "q": "Qué pasó exactamente en el incendio de la Mir en 1997? Está en la base?",
+   "kinds": [
+    "explain_doc",
+    "coverage"
+   ],
+   "decisions": [
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C13",
+   "lang": "es",
+   "q": "cual se apaga solo mas rapido en CFI-G, la llama de etano o la de propano?",
+   "kinds": [
+    "compare",
+    "rank"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C14",
+   "lang": "es",
+   "q": "no entiendo bien la diferencia entre llama normal y llama inversa, y por q en CFI-G probaron las dos",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C15",
+   "lang": "es",
+   "q": "Ante un fuego chico en la estación, conviene cortar la ventilación? qué dicen los datos al respecto",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C16",
+   "lang": "es",
+   "q": "Ordename los materiales de BASS del que propaga la llama más rápido al más lento",
+   "kinds": [
+    "rank"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C17",
+   "lang": "es",
+   "q": "FLEX midio temperatura de llama, hollin o radiacion? que cosas quedaron afuera de los datos",
+   "kinds": [
+    "gaps",
+    "coverage",
+    "explain_doc",
+    "measure"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C18",
+   "lang": "es",
+   "q": "Una llama inversa de etano a 0,7 atm con 16% de O2: llega a encender? y cuanto dura antes de apagarse sola?",
+   "kinds": [
+    "predict"
+   ],
+   "decisions": [
+    "answer",
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C19",
+   "lang": "es",
+   "q": "che sabes como salio central anoche?",
+   "kinds": [
+    "off_topic"
+   ],
+   "decisions": [
+    "abstain"
+   ]
+  },
+  {
+   "id": "C20",
+   "lang": "es",
+   "q": "necesito algo copado sobre fuego en el espacio para mostrar en una clase de 15 min, q me recomendas",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C21",
+   "lang": "es",
+   "q": "En cuántos casos de CFI-G la llama directamente no encendió?",
+   "kinds": [
+    "count"
+   ],
+   "decisions": [
+    "answer"
+   ]
+  },
+  {
+   "id": "C22",
+   "lang": "es",
+   "q": "el acrilico (PMMA) gotea cuando se derrite en microgravedad como pasa aca en la tierra?",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C23",
+   "lang": "es",
+   "q": "Leí que en microgravedad las llamas hacen más hollín y en otro lado que hacen menos. Cuál es?",
+   "kinds": [
+    "explain_doc",
+    "measure"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C24",
+   "lang": "es",
+   "q": "¿El ensayo de inflamabilidad NASA-STD-6001 (Test 1, en 1g) es conservador respecto a lo que muestran BASS y BASS-II en microgravedad?",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C25",
+   "lang": "en",
+   "q": "Is there evidence of radiative extinction for large n-heptane droplets in FLEX, and roughly from what initial diameter does it show up?",
+   "kinds": [
+    "measure",
+    "explain_doc",
+    "profile"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C26",
+   "lang": "en",
+   "q": "What's the lowest O2 concentration at which a propane jet flame was still successfully ignited in CFI-G?",
+   "kinds": [
+    "profile"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C27",
+   "lang": "en",
+   "q": "Has there ever been an actual fire on board the ISS?",
+   "kinds": [
+    "explain_doc",
+    "coverage"
+   ],
+   "decisions": [
+    "answer",
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C28",
+   "lang": "en",
+   "q": "How many unique fuel/O2/pressure combinations exist in CFI-G, and where are the obvious gaps in the test matrix?",
+   "kinds": [
+    "count",
+    "gaps",
+    "coverage"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C29",
+   "lang": "en",
+   "q": "why doesn't a flame go up in space? need a simple explanation for 9th graders",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C30",
+   "lang": "en",
+   "q": "Cotton-fiberglass vs Nomex at 21% O2 in slow airflow: which one spreads flame faster, and by how much?",
+   "kinds": [
+    "compare"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C31",
+   "lang": "en",
+   "q": "If cabin pressure is lowered but O2 is raised to keep the same partial pressure, does fire risk go up or down based on these experiments?",
+   "kinds": [
+    "risk",
+    "explain_variable",
+    "scenario"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C32",
+   "lang": "en",
+   "q": "would a match even light on mars lol",
+   "kinds": [
+    "coverage",
+    "predict",
+    "explain_doc"
+   ],
+   "decisions": [
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C33",
+   "lang": "en",
+   "q": "Methanol vs heptane: which droplet flame is more likely to go out before the fuel is fully burned?",
+   "kinds": [
+    "compare"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C34",
+   "lang": "en",
+   "q": "Did cool flames show up only with n-heptane, or were there methanol runs with cool-flame behavior too?",
+   "kinds": [
+    "measure",
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C35",
+   "lang": "en",
+   "q": "Can you help me write a cover letter for an internship at SpaceX?",
+   "kinds": [
+    "off_topic"
+   ],
+   "decisions": [
+    "abstain"
+   ]
+  },
+  {
+   "id": "C36",
+   "lang": "en",
+   "q": "For flame spread over solids in BASS, is there a low-flow quenching limit, an airflow speed below which the flame just dies?",
+   "kinds": [
+    "explain_doc",
+    "profile"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C37",
+   "lang": "en",
+   "q": "Any microgravity data on lithium-ion battery thermal runaway fires?",
+   "kinds": [
+    "coverage",
+    "explain_doc"
+   ],
+   "decisions": [
+    "partial",
+    "abstain"
+   ]
+  },
+  {
+   "id": "C38",
+   "lang": "en",
+   "q": "What happens to methanol droplet burn time if you add about 10% CO2 to the atmosphere?",
+   "kinds": [
+    "scenario",
+    "predict",
+    "explain_variable",
+    "measure"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C39",
+   "lang": "en",
+   "q": "summarize what's known about smoke and smoke detection in microgravity",
+   "kinds": [
+    "explain_doc"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  },
+  {
+   "id": "C40",
+   "lang": "en",
+   "q": "List the FLEX runs that used helium as diluent and tell me how it affected the diameter at extinction.",
+   "kinds": [
+    "measure",
+    "explain_variable",
+    "count"
+   ],
+   "decisions": [
+    "answer",
+    "partial"
+   ]
+  }
+ ]
+}

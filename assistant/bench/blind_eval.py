@@ -25,8 +25,9 @@ def main():
     ap.add_argument('--pause', type=float, default=35.0)
     ap.add_argument('--only', default='')
     ap.add_argument('--out', default='blind_report.json')
+    ap.add_argument('--set', default='blind_agent_v1.json')
     a = ap.parse_args()
-    items = json.load(open(HERE / 'blind_agent_v1.json', encoding='utf-8'))['items']
+    items = json.load(open(HERE / a.set, encoding='utf-8'))['items']
     if a.only:
         keep = set(a.only.split(','))
         items = [x for x in items if x['id'] in keep]
