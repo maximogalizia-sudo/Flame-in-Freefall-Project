@@ -373,7 +373,15 @@ try {
   refreshFilters();
   render();
   let raf;
-  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(render); }).observe($("#chart-bars"));
+  // Redraw at the real width: watch the map (always visible; the bars live in a fold that starts closed) and redraw
+  // when the bars' fold is opened.
+  let lastW = 0;
+  new ResizeObserver(() => {
+    const w = $("#chart-map").clientWidth;
+    if (w === lastW) return;
+    lastW = w; cancelAnimationFrame(raf); raf = requestAnimationFrame(render);
+  }).observe($("#chart-map"));
+  $("#bars-fold").addEventListener("toggle", (e) => { if (e.target.open) renderBars(filtered()); });
 } catch (err) {
   document.querySelector("main").insertAdjacentHTML("afterbegin", `<p class="empty">Could not load the data: ${esc(err.message)}</p>`);
   console.error(err);
