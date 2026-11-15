@@ -238,3 +238,85 @@ def gaps(family: str | None = None) -> dict:
     if family:
         items = [i for i in items if i['family'] in (family, None)]
     return {'items': items}
+
+
+# ----------------------------------------------------------------------------- measured quantities (DT-025, 2026-11-15)
+# What NASA MEASURED in each test, not the outcome: before this, the droplet diameter at extinction, the burning rate
+# and the cool-flame / soot marks were in the curated tables but no tool showed them (the assistant said "no data").
+QUANTITIES = {
+    'dext': ('droplet diameter at extinction', 'mm', 'flex'),
+    'burn_rate': ('burning rate (d-squared law constant)', 'mm2/s', 'flex'),
+    'burn_time': ('burn time', 's', None),
+    'cool_flame': ('cool flame observed after the hot flame', 'flag', 'flex'),
+    'soot': ('soot mentioned in the NASA test description', 'flag', 'flex'),
+}
+
+
+def _measure_flex(quantity: str) -> tuple[pd.DataFrame, list[str]]:
+    t = table('flex_tests')
+    d = t[t['clean']].copy()
+    notes = ['Clean FLEX tests only (no droplet break-up, no hardware problem).']
+    if quantity == 'dext':
+        d = d[(d['test_end'] == 'Extinction') & (d['dext_mm'] > 0)]       # DD-012: only meaningful when the flame went out
+        d['value'] = d['dext_mm']
+        notes.append('Diameter at extinction only for tests where the flame went out (DD-012); "radiative" vs "diffusive" '
+                     'extinction is not a column of the data: it is discussed in the NASA report.')
+    elif quantity == 'burn_rate':
+        d = d[d['burn_rate'].notna() & ~d['conflicting_values'].fillna(False)]
+        short = int((d['burn_time_s'] < 1).sum())
+        d = d[d['burn_time_s'] >= 1]                                         # DD-014: rates measured in < 1 s are unreliable
+        d['value'] = d['burn_rate']
+        notes.append(f'Burning rates measured in less than 1 s left out ({short} tests, DD-014).')
+    elif quantity == 'burn_time':
+        d = d[d['burn_time_s'].notna()]
+        d['value'] = d['burn_time_s']
+    else:
+        col = 'cool_flame' if quantity == 'cool_flame' else 'soot_mentioned'
+        d['value'] = d[col].fillna(False).astype(float)
+    d['group'] = d['fuel'] + ', ' + d['diluent'].replace({'N2 only': 'no CO2/He'}) + ', ' + d['p_level']
+    return d, notes
+
+
+def _measure_cfig() -> tuple[pd.DataFrame, list[str]]:
+    t = table('cfig_tests')
+    d = t[t['ext_model'] & t['burn_time_s'].notna()].copy()
+    d['value'] = d['burn_time_s']
+    d['group'] = d['fuel'] + ', ' + d['flame_type'] + ' flames'
+    d['o2_frac'] = d['o2_mid']
+    return d, ['Gas flames: burn time until it went out by itself or until the operator cut the gas (then it is a '
+               'lower bound: the flame was still burning).']
+
+
+def measure(quantity: str, family: str | None = None, prefer: list[str] | None = None) -> dict:
+    """Typical measured values per group of tested conditions, with counts; for flags, how often and where it happened.
+    `prefer`: words of the question (e.g. ['heptane', 'CO2', '1 atm']); groups that contain more of them come first."""
+    if quantity not in QUANTITIES:
+        raise ValueError(f'unknown quantity {quantity}')
+    label, unit, only = QUANTITIES[quantity]
+    fams = [only] if only else ([family] if family in ('flex', 'cfig') else ['flex', 'cfig'])
+    groups, notes = [], []
+    for fam in fams:
+        d, n = _measure_flex(quantity) if fam == 'flex' else _measure_cfig()
+        notes += n
+        for g, x in d.groupby('group'):
+            if unit == 'flag':
+                hit = x[x['value'] > 0]
+                if not len(hit):
+                    groups.append({'family': fam, 'group': g, 'n': int(len(x)), 'count': 0, 'share': 0.0})
+                    continue
+                groups.append({'family': fam, 'group': g, 'n': int(len(x)), 'count': int(len(hit)),
+                               'share': round(len(hit) / len(x), 2),
+                               'd0_mm_range': [round(float(hit['d0_mm'].min()), 2), round(float(hit['d0_mm'].max()), 2)]
+                               if hit['d0_mm'].notna().any() else None,
+                               'o2_pct_range': [round(float(hit['o2_frac'].min()) * 100, 1), round(float(hit['o2_frac'].max()) * 100, 1)],
+                               'tests': hit['flex_id'].head(5).tolist()})
+            elif len(x) >= 2:
+                v = x['value']
+                groups.append({'family': fam, 'group': g, 'n': int(len(x)), 'median': round(float(v.median()), 2),
+                               'p25': round(float(v.quantile(.25)), 2), 'p75': round(float(v.quantile(.75)), 2),
+                               'min': round(float(v.min()), 2), 'max': round(float(v.max()), 2),
+                               'o2_pct_range': [round(float(x['o2_frac'].min()) * 100, 1), round(float(x['o2_frac'].max()) * 100, 1)]})
+    pref = [w.lower() for w in (prefer or [])]
+    score = lambda r: sum(w in r['group'].lower() for w in pref)   # noqa: E731
+    key = (lambda r: (-score(r), -r['count'])) if unit == 'flag' else (lambda r: (-score(r), -r['n']))
+    return {'quantity': quantity, 'label': label, 'unit': unit, 'groups': sorted(groups, key=key), 'notes': notes}

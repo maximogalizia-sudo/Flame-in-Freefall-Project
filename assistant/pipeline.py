@@ -88,7 +88,7 @@ def run_tools(plan: Plan, tools, lang: str = 'en', llm=None) -> Gathered:
             r = tools.tests_search(call.args)
             if r.ok:
                 g.counts.append((call.label, call.args.model_dump(exclude_none=True), r.data))
-        elif call.tool in ('profile', 'rank', 'gaps'):
+        elif call.tool in ('profile', 'rank', 'gaps', 'measure'):
             r = getattr(tools, call.tool)(call.args)
             if r.ok:
                 g.analytics.append((call.tool, r.data))
@@ -221,7 +221,22 @@ def analytic_sentences(kind: str, d: dict, lang: str) -> list[str]:
     """Deterministic text for the analytic tools (also the fallback when the LLM is not available)."""
     es = lang == 'es'
     out = []
-    if kind == 'profile':
+    if kind == 'measure':
+        flag = d['unit'] == 'flag'
+        out.append((f"Lo que midió NASA — {d['label']}:" if es else f"What NASA measured — {d['label']}:"))
+        for x in [g for g in d['groups'] if not flag or g['count']][:6]:
+            if flag:
+                where = (f", gotas de {x['d0_mm_range'][0]:g}–{x['d0_mm_range'][1]:g} mm" if es else
+                         f", droplets {x['d0_mm_range'][0]:g}–{x['d0_mm_range'][1]:g} mm") if x.get('d0_mm_range') else ''
+                out.append((f"· {x['group']}: en {x['count']} de {x['n']} pruebas{where}, O₂ {x['o2_pct_range'][0]:g}–{x['o2_pct_range'][1]:g} %."
+                            if es else f"· {x['group']}: in {x['count']} of {x['n']} tests{where}, O2 {x['o2_pct_range'][0]:g}–{x['o2_pct_range'][1]:g} %."))
+            else:
+                out.append((f"· {x['group']}: mediana {x['median']:g} {d['unit']} (la mitad entre {x['p25']:g} y {x['p75']:g}; "
+                            f"rango {x['min']:g}–{x['max']:g}), {x['n']} pruebas." if es else
+                            f"· {x['group']}: median {x['median']:g} {d['unit']} (half between {x['p25']:g} and {x['p75']:g}; "
+                            f"range {x['min']:g}–{x['max']:g}), {x['n']} tests."))
+        out += d['notes']
+    elif kind == 'profile':
         out.append((f"Lo que muestran TODOS los datos de NASA sobre {d['label']}:" if es else f"What ALL the NASA data show about {d['label']}:"))
         groups = [x for x in d['groups'] if x['group'].endswith('- all')] or d['groups']
         for x in groups[:6]:

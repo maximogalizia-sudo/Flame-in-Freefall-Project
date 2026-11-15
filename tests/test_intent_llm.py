@@ -15,7 +15,7 @@ class FakeLLM:
 
 def test_classify_keeps_only_closed_list_values():
     r = classify_llm('x', FakeLLM({'intent': 'rank', 'variable': 'humidity', 'target': 'burn_time', 'family': 'mars'}))
-    assert r == {'intent': 'rank', 'variable': None, 'target': 'burn_time', 'family': None}
+    assert r == {'intent': 'rank', 'variable': None, 'target': 'burn_time', 'quantity': None, 'family': None}
     assert classify_llm('x', FakeLLM({'intent': 'write_a_poem'})) is None
     assert classify_llm('x', FakeLLM('not json at all')) is None
 

@@ -25,6 +25,8 @@ INTENT_HELP = {
     'rank': 'a ranking or list of the configurations, conditions, materials or tests that most / least burned, lasted '
             'longest, went out fastest or sustained the flame least',
     'gaps': 'what is missing or weak in the data: untested conditions, limitations, which new experiments or data are needed',
+    'measure': 'the typical MEASURED value of a quantity in the tests (not a prediction for one case): droplet diameter '
+               'at extinction, burning rate, burn time, how often cool flames or soot appeared and under which conditions',
     'count': 'how many tests or experiments, how often something happened in the data',
     'coverage': 'whether NASA has data at all about something (e.g. lunar gravity, humidity, a material)',
     'compare': 'a direct comparison between two named fuels, materials or conditions',
@@ -36,6 +38,8 @@ INTENT_HELP = {
 VARIABLES = {'o2_frac', 'co2_frac', 'he_frac', 'pressure_kpa', 'droplet_d0_mm'}
 TARGETS = {'persistence': 'most likely to keep burning', 'extinction': 'most likely to go out / least flammable',
            'burn_time': 'burned or lasted the longest', 'fastest_out': 'went out the fastest'}
+QUANTITIES = {'dext': 'droplet diameter at extinction', 'burn_rate': 'burning rate', 'burn_time': 'burn time',
+              'cool_flame': 'cool flames', 'soot': 'soot'}
 FAMILIES = {'flex': 'fuel droplets (methanol, heptane)', 'cfig': 'gas flames (ethane, propane, butane)',
             'solids': 'solid materials (fabrics, Nomex, acrylic)'}
 
@@ -44,6 +48,7 @@ SYSTEM = ('You classify one question about the NASA microgravity combustion data
           '"intent": one of\n' + '\n'.join(f'  - {k}: {v}' for k, v in INTENT_HELP.items()) + '\n'
           '"variable": the condition the question is about, one of ' + ', '.join(sorted(VARIABLES)) + ' or null\n'
           '"target": only for rank, one of ' + '; '.join(f'{k} ({v})' for k, v in TARGETS.items()) + ', else null\n'
+          '"quantity": only for measure, one of ' + '; '.join(f'{k} ({v})' for k, v in QUANTITIES.items()) + ', else null\n'
           '"family": the kind of fire if the question is limited to one, one of '
           + '; '.join(f'{k} ({v})' for k, v in FAMILIES.items()) + ', else null\n'
           'Classify by what the person wants to know, not by single words.')
@@ -65,6 +70,7 @@ def classify_llm(text: str, llm) -> dict | None:
     return {'intent': intent,
             'variable': d.get('variable') if d.get('variable') in VARIABLES else None,
             'target': d.get('target') if d.get('target') in TARGETS else None,
+            'quantity': d.get('quantity') if d.get('quantity') in QUANTITIES else None,
             'family': d.get('family') if d.get('family') in FAMILIES else None}
 
 
@@ -88,7 +94,12 @@ def refine(u, llm, policy: str = 'guarded'):
         u.variable = 'pressure_kpa' if re.search(r'presion|pressure', t) else 'o2_frac'
     if new == 'rank':
         u.rank_target = r['target'] or find_rank_target(t)
-    if u.intent in ('profile', 'rank', 'gaps'):
+    if new == 'measure':
+        from .understand import find_quantity
+        u.quantity = r.get('quantity') or find_quantity(t)
+        if not u.quantity:
+            u.intent = old
+    if u.intent in ('profile', 'rank', 'gaps', 'measure'):
         u.analytic_family = r['family'] or u.conditions.family or find_family(t)
     u.notes.append(f'kind of question read by the LLM: {u.intent} (rules said {old}; closed list, policy "{policy}")')
     return u
@@ -104,6 +115,9 @@ def can_run(intent: str, u, llm_read: dict) -> bool:
         return bool(u.variable or llm_read.get('variable'))
     if intent == 'predict':
         return bool(u.conditions.family)
+    if intent == 'measure':
+        from .understand import find_quantity, normalize
+        return bool(llm_read.get('quantity') or find_quantity(normalize(u.text)))
     return True
 
 

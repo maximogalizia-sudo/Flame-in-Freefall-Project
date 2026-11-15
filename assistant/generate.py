@@ -98,7 +98,10 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
                      + f'. Tested: {dumps(e.tested)}. Never tested: {dumps(e.not_tested)}. Caveats: {dumps(e.caveats)}')
     for kind, data in g.analytics:               # analytic results over ALL the data (observed NASA tests, with counts)
         k += 1; labels.add(f'T{k}')
-        if kind == 'profile':
+        if kind == 'measure':
+            items.append(f"[T{k}] measured in the NASA tests — {data['label']} ({data['unit']}), per group of tested "
+                         f"conditions: {dumps(data['groups'][:10])}. Notes: {dumps(data['notes'])}")
+        elif kind == 'profile':
             groups = [x for x in data['groups'] if x['group'].endswith('- all')] or data['groups']
             body = '; '.join(f"{x['group']} [outcome = {x['meaning']}]: n={x['n']}, tested {x['tested_range']}, observed from "
                              f"{x['min_where_observed']} to {x['max_where_observed']}, ALWAYS zones {x['zones_always']}, NEVER zones "

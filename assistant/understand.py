@@ -90,6 +90,11 @@ INTENT_RULES: list[tuple[str, str]] = [   # order matters: first match wins
               r"que porcentaje de (?:las )?pruebas|what share of (?:the )?tests|cuantas veces"),
     ("coverage", r"hay datos|hay pruebas|is there (?:any )?data|are there (?:any )?(?:data|tests)|se probo|se probaron|probo nasa|"
                  r"was (?:it )?tested|were .* tested|nunca se probo|never tested|sin datos|no data|que rango|what range|cobertura|coverage"),
+    ("measure", r"(?:diametro|tamano|size|diameter)\w* (?:de la gota )?(?:al apagarse|a la extincion|de extincion|al extinguirse|at extinction)|"
+                r"(?:extinction|extincion) (?:diameter|diametro)|tasa de quemado|velocidad de quemado|burn(?:ing)? rate|"
+                r"(?:cuant[oa]s?|typical|tipic\w*|median\w*|promedio|average|valor\w*|rango|range|con que|en que (?:condiciones|rango|diametro)|"
+                r"how often|how many|frecuencia|which conditions|que condiciones|what was the).{0,60}"
+                r"(?:llamas? frias?|cool flames?|hollin|soot)|(?:llamas? frias?|cool flames?).{0,60}(?:diametro|diameter|oxigeno|oxygen|rango|range)"),
     ("compare", r"compar|versus|\bvs\.?\b|diferencia entre|difference between|que es mas|which is more|mejor que|better than"),
     ("explain_doc", r"por que|porque se|why|que es (?:una|un|el|la)|what is (?:a|an|the)|como funciona|how does|explica|explain|"
                     r"que dice (?:la )?nasa|what does nasa say|que (?:causa|causo)|what caus|mecanismo|mechanism|que significa|what does .* mean|"
@@ -113,6 +118,7 @@ class Understanding:
     variable: str | None = None                 # variable asked about (scenario / explain_variable / profile)
     analytic_family: str | None = None          # flex / cfig / solids for analytic questions (None = all)
     rank_target: str | None = None              # persistence / extinction / burn_time / fastest_out
+    quantity: str | None = None                 # measure: dext / burn_rate / burn_time / cool_flame / soot (DT-025)
 
 
 FAMILY_WORDS = [('flex', r"\bgotas?\b|droplets?|liquid|liquidos?|metanol|methanol|heptan\w*|\bflex\b"),
@@ -136,6 +142,16 @@ def find_rank_target(t: str) -> str:
                  r"mas facil\w* de apagar|easiest to (?:put out|extinguish)", t):
         return 'extinction'
     return 'persistence'
+
+
+def find_quantity(t: str) -> str | None:
+    """A quantity NASA measured in each test (DT-025): diameter at extinction, burning rate, burn time, cool flames, soot."""
+    for q, pat in (('dext', r"extincion|extinction|al apagarse|al extinguirse"), ('burn_rate', r"tasa de quemado|velocidad de quemado|burn(?:ing)? rate|d.?squared|d2"),
+                   ('cool_flame', r"llamas? frias?|cool flames?"), ('soot', r"hollin|soot"),
+                   ('burn_time', r"tiempo de quemado|burn(?:ing)? time|cuanto (?:tiempo )?(?:tarda|dura)|how long")):
+        if re.search(pat, t):
+            return q
+    return None
 
 
 def find_variable(t: str) -> str | None:
@@ -258,9 +274,13 @@ def understand(text: str) -> Understanding:
             and re.search(r"incendi|prend|inflamab|flammab|apag|extingu|burn|arde", t):
         intent = "rank"
     accessions = [acc for pat, acc in EXPERIMENTS.items() if re.search(pat, t)]
-    analytic_family = (vals.get("family") or find_family(t)) if intent in ("profile", "rank", "gaps") else None
+    analytic_family = (vals.get("family") or find_family(t)) if intent in ("profile", "rank", "gaps", "measure") else None
+    quantity = find_quantity(t) if intent == "measure" else None
+    if intent == "measure" and not quantity:
+        intent = "explain_doc"
     if intent == "profile" and not variable:
         variable = "pressure_kpa" if re.search(r"presion|pressure", t) else "o2_frac"
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
                          substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable,
-                         analytic_family=analytic_family, rank_target=find_rank_target(t) if intent == "rank" else None)
+                         analytic_family=analytic_family, rank_target=find_rank_target(t) if intent == "rank" else None,
+                         quantity=quantity)

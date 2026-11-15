@@ -140,6 +140,10 @@ class LocalTools:
     def gaps(self, fam) -> ToolResult:
         return _timed('gaps', {'family': fam}, lambda: fa.gaps(fam))
 
+    def measure(self, args) -> ToolResult:         # DT-025: measured quantities per group of tested conditions
+        q, fam, prefer = (list(args) + [None])[:3]
+        return _timed('measure', {'quantity': q, 'family': fam, 'prefer': prefer}, lambda: fa.measure(q, fam, prefer))
+
 
 # ------------------------------------------------------------------ HTTP backend (MG's API)
 class HttpTools:
@@ -154,6 +158,9 @@ class HttpTools:
 
     def gaps(self, fam) -> ToolResult:
         return LocalTools().gaps(fam)
+
+    def measure(self, args) -> ToolResult:
+        return LocalTools().measure(args)
 
     def __init__(self, base_url: str, token: str | None, timeout_s: float = 20.0, transport: httpx.BaseTransport | None = None):
         self.base = base_url.rstrip('/')

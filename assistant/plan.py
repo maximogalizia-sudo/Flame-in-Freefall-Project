@@ -80,6 +80,14 @@ def make_plan(u: Understanding) -> Plan:
         k = min(max(int(m.group(1)), 1), 10) if m else 5
         p.calls.append(ToolCall('rank', (u.rank_target or 'persistence', u.analytic_family, k)))
         return p
+    if u.intent == 'measure':          # DT-025: what NASA measured in the tests (+ the report, for the "why")
+        prefer = [c.fuel or '', ', co2,' if c.co2_frac or re.search(r'co2|dioxido', normalize(u.text)) else '',
+                  ', he,' if c.he_frac or re.search(r'helio|helium', normalize(u.text)) else '',
+                  '0.7 atm' if (c.pressure_kpa or 101) < 85 else ('1 atm' if c.pressure_kpa else '')]
+        p.calls.append(ToolCall('measure', (u.quantity, u.analytic_family, [w for w in prefer if w])))
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
+        return p
+
     if u.intent == 'gaps':
         p.calls.append(ToolCall('gaps', u.analytic_family))
         p.calls.append(ToolCall('rag_search', RagSearchRequest(query='future work recommendations limitations further tests needed',
