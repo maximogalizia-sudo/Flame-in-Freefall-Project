@@ -1,0 +1,1113 @@
+[
+ {
+  "id": "B01",
+  "lang": "es",
+  "q": "el fuego en el espacio es más peligroso o menos que acá?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "rank",
+  "decision": "answer",
+  "tools": [
+   "rank"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Según los datos de NASA, el fuego en microgravedad tiende a mantenerse encendido tanto como en la Tierra; en la mayoría de configuraciones probadas la llama “se mantuvo quemando” en el 100 % de los ensayos (por ejemplo, todas las pruebas con PMMA, etano y butano mostraron 1.0 kept burning) [T1]. Incluso en gotas de combustible, la persistencia fue alta (p. ej., metanol 100 % y heptano entre 50 % y 67 % de los ensayos) [T1]. Esto indica que, bajo condiciones de oxígeno similares, la combustión no se apaga espontáneamente en el espacio y puede ser tan peligrosa como en la atmósfera terrestre.\n\nLos modelos aprenden que la variable clave es la disponibilidad de oxígeno y el tipo de combustible; cuando el O₂ está por encima de ~15 % y el combustible es inflamable, la tendencia es que la llama persista (kept burning ≈ 1.0). No se observaron configuraciones donde la llama se apagara consistentemente. \n\nLimitación: los tiempos de combustión de llamas gaseosas son cotas inferiores porque se cortaron antes de extinguirse [T1].",
+  "trace_id": "60022b38-378f-44ed-ba72-235a46fb762e",
+  "s": 3.1,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B02",
+  "lang": "en",
+  "q": "What's the lowest O2 concentration at which a methanol droplet still burned all the way to completion in FLEX? Please give the pressure and diluent for that case too.",
+  "kinds": [
+   "profile",
+   "count"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "The machine‑learning analysis shows that methanol droplets in FLEX were observed to burn completely at O₂ concentrations as low as **14 %**; no complete‑burn cases were recorded below this level【T1】.  \n\nNo NASA FLEX tests reported the accompanying chamber pressure or the specific diluent gas for the 14 % O₂ runs, so that exact condition was never directly measured.  \n\n**Model tendency:** Across the tested range, the likelihood of complete droplet burnout increases as O₂ rises (share of complete burns grows from 8 % in 12‑15 % O₂ up to 31 % in 21‑34 % O₂)【T1】, indicating that higher O₂ generally favors full combustion.  \n\n**Closest documented cases:** The band 12‑15 % O₂ (48 tests) includes the lowest complete‑burn observations, but pressure and diluent details are not specified in the available tables.  \n\n*Limit:* Pressure and diluent information for the 14 % O₂ complete‑burn cases are absent from the evidence.",
+  "trace_id": "3bae00b7-7287-41b4-a215-ff1b6b4ebfa6",
+  "s": 2.2,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B03",
+  "lang": "es",
+  "q": "che, en FLEX qué pasa si le metés helio a la mezcla? la gota se apaga antes o quema más rápido?",
+  "kinds": [
+   "explain_variable",
+   "scenario"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "rank",
+  "decision": "answer",
+  "tools": [
+   "rank"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Según los datos de NASA, cuando se añadió helio a la mezcla (metanol, O₂ 14 % + He 35 %, 1 atm, gota libre) la gota **se extinguió** y el tiempo medio de combustión fue de **1,2 s**【T1】. Ese tiempo es idéntico al de la configuración más rápida sin helio (heptano, O₂ 13 %, 1 atm, gota con fibra, 1,2 s) y no supera a los demás casos (hasta 2,5 s). Por lo tanto, el helio no hace que la llama queme más rápido; simplemente produce una extinción en un tiempo comparable al de las configuraciones más rápidas ya probadas.\n\n*Los resultados provienen solo de combinaciones con al menos dos pruebas; no hay evidencia de que el helio acelere la combustión más allá de lo observado.*",
+  "trace_id": "65e52e7e-63b5-42d1-bd07-0fcb501ae904",
+  "s": 2.9,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B04",
+  "lang": "es",
+  "q": "Estoy preparando una clase para 5to año sobre el fuego en el espacio. ¿Me explicás con palabras simples por qué en microgravedad la llama de una vela es redonda y no alargada como acá?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "predict",
+  "decision": "partial",
+  "tools": [
+   "predict",
+   "coverage",
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 1,
+  "text": "En microgravedad la llama de una vela tiende a ser hemisférica (redonda) porque la convección natural que, en la Tierra, lleva el aire caliente hacia arriba y alarga la llama, está ausente; el combustible y el oxígeno se mezclan principalmente por difusión y el calor se irradia de forma casi simétrica alrededor del punto de ignición.  \n\nLos experimentos BASS‑II mostraron que, con un flujo de aire muy bajo (≈ 1 cm/s) la llama “se volvió hemisférica” y, a medida que el flujo disminuía, el aspecto alargado desaparecía [D4]. En ausencia de un flujo dirigido, la llama mantiene una forma casi esférica, como se observa en las imágenes de los tests con cera [D4].\n\nEl modelo de aprendizaje automático no tiene datos específicos de velas de cera en microgravedad (no hay modelo entrenado para “wax”) [T1]; por eso no puede ofrecer una predicción cuantitativa. Sin embargo, la tendencia aprendida de los tests con cera indica que, bajo flujos reducidos, la llama tiende a adoptar una forma redondeada y a extinguirse por radiación cuando el flujo es muy bajo [D3, D4].\n\nLimitación: los resultados provienen de pruebas con flujo controlado y no cubren todas las posibles velocidades de aire ni composiciones de gas; la forma hemisférica se observó en los rangos de flujo estudiados (≈ 1 – 3 cm/s).",
+  "trace_id": "af23c37e-8fcf-40b9-8fb1-bc73b5cf1ed5",
+  "s": 2.8,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B05",
+  "lang": "en",
+  "q": "I teach 7th grade science. How would you explain to 12-year-olds why a fire in space doesn't 'go up'? Something I can draw on the whiteboard would be great.",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "The ML system learned that in micro‑gravity the flame shape is controlled by **diffusion of fuel and oxidizer rather than buoyancy‑driven convection**. Because there is no “up” direction for hot gases to rise, the hot products stay mixed around the source and the flame becomes spherical instead of a teardrop that points upward — the same conclusion the BASS‑II tests reached when they observed that “materials in microgravity, with adequate ventilation, burn as well if not better than the same material in normal gravity” [D4].  \n\n**Why the flame doesn’t go up:**  \n- On Earth, hot gases are lighter than the surrounding air, so gravity pulls the cooler air down and the hot gases rise, creating a steady upward flow that stretches the flame upward.  \n- In space, gravity is essentially absent, so this buoyant rise never forms; the only transport mechanism is molecular diffusion, which spreads fuel and oxygen evenly in all directions. The result is a roughly **spherical flame** that expands outward rather than upward.  \n\n**Whiteboard sketch suggestion:** draw a small sphere (the flame) around a stick of material, label “diffusion spreads fuel & oxygen equally” and contrast with a teardrop‑shaped flame on Earth labeled “buoyancy pulls hot gases up”.  \n\n*Limitations:* the evidence describes overall burning behavior in microgravity but does not quantify flame shape for every material; the conclusion is based on observed trends in the BASS‑II experiments.",
+  "trace_id": "18fb50fe-458a-40c3-befc-fcdb01237a41",
+  "s": 4.0,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B06",
+  "lang": "es",
+  "q": "Nomex en BASS-II: ¿cuál fue el oxígeno mínimo al que todavía propagó la llama con flujo bajo? Solo el número y la condición del ensayo, sin explicación.",
+  "kinds": [
+   "profile"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "13,6 % O₂, con flujo bajo.",
+  "trace_id": "b0fe87ef-1479-4df1-bfcd-be33f6ddb794",
+  "s": 1.9,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B07",
+  "lang": "en",
+  "q": "How many CFI-G runs are in the dataset, how many didn't ignite at all, and are there missing or flagged values I should be aware of before fitting a model?",
+  "kinds": [
+   "count"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "count",
+  "decision": "answer",
+  "tools": [
+   "tests_search"
+  ],
+  "verification": [
+   "llm draft rejected: numbers not found in the tool outputs: ['272']"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Understood: no specific conditions recognised. CFI-G: NASA has 333 tests. Outcomes: True, self_ext: 183; True, flow_term: 89; False, none: 61.",
+  "trace_id": "0273cb39-b6e4-4fac-bcdb-338308117e9d",
+  "s": 2.7,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B08",
+  "lang": "es",
+  "q": "En las gotas de n-heptano de FLEX aparecieron llamas frías después de la extinción radiativa de la llama caliente. ¿Con qué diámetro inicial de gota pasaba eso y en qué rango de oxígeno?",
+  "kinds": [
+   "explain_doc",
+   "profile"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [
+   "llm draft rejected: abstains although the tools answered the question",
+   "llm draft rejected: decision mark abstain contradicts the system decision answer"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Entendí: combustible = heptane. Lo que muestran TODOS los datos de NASA sobre droplet diameter (mm): · fuel droplets (FLEX) — 'flame went out before the droplet burned': 207 pruebas, rango probado 1.1–4.65; ocurrió desde 1.49 hasta 4.65; no hay ningún tramo donde ocurra siempre o nunca. · fuel droplets (FLEX) — 'droplet burned completely': 207 pruebas, rango probado 1.1–4.65; ocurrió desde 1.1 hasta 4.25; no hay ningún tramo donde ocurra siempre o nunca. Droplets were always ignited on purpose; for them the outcome is whether the flame went out before burnout.",
+  "trace_id": "80a2230f-f052-4e0b-af3c-352c3e7c842a",
+  "s": 2.7,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B09",
+  "lang": "es",
+  "q": "q es una llama inversa??",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer"
+  ],
+  "intent": "explain_doc",
+  "decision": "answer",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Una llama inversa es una combustión donde el oxígeno, y no el combustible, se suministra a través del quemador; el combustible está mezclado en la cámara y el quemador emite una esfera porosa que “inversa” la configuración típica de una llama normal. En los experimentos CFI‑G, el quemador de acero inoxidable poroso se colocó sobre el tubo de suministro y, en lugar de alimentar combustible, suministró oxígeno (a veces diluido con nitrógeno), mientras que la mezcla de combustible (por ejemplo, etano, butano o propano) estaba presente en la cámara de combustión [D1].  \n\nLos resultados mostraron que estas llamas aparecen como esferas brillantes de color azul, y su radiación térmica varía según la concentración de combustible y el flujo de la mezcla oxidante [D2][D3].  \n\nEn resumen, una llama inversa invierte la dirección del suministro de reactivos: el oxidante proviene del quemador y el combustible está en la cámara, produciendo una llama esférica y fría (cool flame) bajo microgravedad.  \n\n*Limitación: los datos se refieren a gases específicos (etano, butano, propano) y a configuraciones de quemador poroso en microgravedad; no se describen llamas inversas con otros combustibles o geometrías.*",
+  "trace_id": "54a552b1-c92a-4c0e-9932-711adcc54f99",
+  "s": 3.8,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B10",
+  "lang": "en",
+  "q": "Does helium dilution shift the extinction diameter relative to nitrogen at the same oxygen mole fraction? I'm looking for a trend across tests, not a single data point.",
+  "kinds": [
+   "explain_variable",
+   "explain_doc"
+  ],
+  "decisions": [
+   "partial",
+   "abstain",
+   "answer"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [
+   "llm draft rejected: decision mark abstain contradicts the system decision partial"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 23: \"(7) Radiative extinction droplet diameters (larger diameters) were not influenced by the presence of the contaminant.\nHistories of droplet and flame diameters, as well as burning- rate constants and extinction diameters, were obtained in Flame Extinguishment Experiment (FLEX) pro…\" [D2] Detailed Results from the Flame Extinguishment Experiment (FLEX), March 2009 to December 2011 (NASA/TP-2015-216046) p. 17: \"As testing progressed, however, the science team noticed a propensity for the droplets to burn disruptively and not exhibit flame extinction (at a finite-sized droplet diameter).\nThe latter half of the test matrix focused on lower oxygen mole fraction ambient environments where b…\"",
+  "trace_id": "96e76cce-bf92-41cc-8146-c167b9bb93fd",
+  "s": 3.4,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B11",
+  "lang": "es",
+  "q": "¿Cuántos ensayos de metanol hay en el dataset de FLEX y en qué porcentaje la llama se apagó antes de que se consumiera toda la gota?",
+  "kinds": [
+   "count"
+  ],
+  "decisions": [
+   "answer"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "En el conjunto de datos FLEX se registraron **213 ensayos de gotas de combustible** en total (todos los combustibles combinados) dentro del rango de O₂ probado de 12 % a 34 % [ T1 ].  \n\nEl modelo de aprendizaje automático aprendió que, para esas 213 pruebas, la llama se apagó antes de que la gota se consumiera en **entre el 69 % y el 92 %** de los casos, según el intervalo de O₂ (las “bandas” indican una fracción de apagados de 0.92 a 0.69) [ T1 ].  \n\nSin embargo, el evidencial no desglosa cuántos de esos 213 ensayos correspondieron específicamente a **metanol**, por lo que no es posible dar un número exacto ni un porcentaje preciso para esa única combustible.  \n\n**Tendencia aprendida:** en los ensayos de gotas FLEX (cualquier combustible) la mayoría de las llamas se apagan antes de la combustión completa, con una probabilidad que disminuye ligeramente al aumentar la concentración de O₂. La evidencia disponible no permite separar esa tendencia por tipo de combustible.",
+  "trace_id": "56cc14c1-6d31-4d69-953b-bcafefe95a24",
+  "s": 3.2,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B12",
+  "lang": "es",
+  "q": "Pensando en un hábitat: si bajamos la presión a 0,7 atm pero subimos el oxígeno a 30 %, ¿el riesgo de incendio sube o baja respecto de la ISS? Quiero lo que dicen los datos, no la teoría.",
+  "kinds": [
+   "risk",
+   "compare"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "No hay datos de pruebas de NASA que incluyan exactamente una presión de 0,7 atm (≈ 70 kPa) con una fracción de oxígeno del 30 % en microgravedad. Por lo tanto, no se puede determinar con la evidencia disponible si el riesgo de incendio subiría o bajaría respecto a la condición actual de la ISS. Los modelos de aprendizaje automático sólo pueden inferir tendencias a partir de combinaciones probadas; en este caso, la combinación solicitada no está representada en los registros de pruebas, por lo que cualquier conclusión sería una extrapolación fuera del rango de datos.",
+  "trace_id": "49b3ffb9-3dd2-4293-a179-277cb16073f2",
+  "s": 2.6,
+  "kind_ok": false,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B13",
+  "lang": "en",
+  "q": "We're looking at an exploration atmosphere of 8.2 psia and 34% O2 for a Mars surface habitat. Based on BASS, would Nomex still be self-extinguishing there? Keep in mind it's Mars gravity, not orbit.",
+  "kinds": [
+   "predict",
+   "coverage",
+   "risk"
+  ],
+  "decisions": [
+   "partial",
+   "abstain"
+  ],
+  "intent": "risk",
+  "decision": "answer",
+  "tools": [
+   "risk"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "The ML system cannot confirm that Nomex would be self‑extinguishing at 8.2 psia (56.5 kPa) and 34 % O₂ in Mars gravity. NASA’s microgravity tests only covered solid materials up to 22.7 % O₂, so Nomex was **not tested** at the requested oxygen level【T1】.  \n\n**Why the model is uncertain:**  \n- For the 34 % O₂, 56.5 kPa condition the early‑warning indicator shows a “gray” status for Nomex, meaning the data set lacks observations at that composition【T1】.  \n- The same gray status applies to other solid fabrics (cotton/fiberglass) that were only tested up to 22.7 % O₂, indicating a data gap rather than a proven self‑extinguishing behavior【T1】.  \n\n**Tendency learned from other tests:**  \n- Gas flames (ethane, butane) at 34 % O₂ and similar pressure have high probabilities of continuing to burn (88 % and 76 % respectively)【T1】, suggesting that higher O₂ generally promotes sustained combustion.  \n- Solid samples tested at lower O₂ (≤22.7 %) did not show a clear “always self‑extinguishing” zone, implying that increasing O₂ could shift them toward non‑extinguishing behavior.  \n\n**Closest relevant tests:** solid fabric samples (cotton/fiberglass, Nomex) at ≤22.7 % O₂, and gas flames at 34 % O₂.  \n\n*Disclaimer: the indicator is based on microgravity droplet and small‑sample experiments; it does not constitute a certified fire‑safety assessment for a Mars habitat.*",
+  "trace_id": "5d498874-b8a2-426d-90e0-6588818cad7b",
+  "s": 3.1,
+  "kind_ok": true,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B14",
+  "lang": "es",
+  "q": "¿Hay algún experimento en la base que mida llamas a gravedad lunar (1/6 g)? Quiero saber si una llama en la Luna se parece más a la de la Tierra o a la de la ISS.",
+  "kinds": [
+   "coverage"
+  ],
+  "decisions": [
+   "answer",
+   "partial",
+   "abstain"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Los experimentos de la base que involucran combustión en el espacio se realizaron exclusivamente en microgravedad (≈0 g) a bordo de la ISS; no hay registros de pruebas a 1/6 g (gravedad lunar)【D3】【D5】.  \n\n**Lo que aprendieron los modelos:**  \n- En microgravedad, la llama tiende a ser más esférica y menos estable que en 1 g, con una zona de combustión que depende más de la ventilación que del punto de base de la llama【D1】.  \n- Los resultados de BASS y BASS‑II mostraron que, bajo condiciones de flujo de aire de ~15 cm s⁻¹ y O₂ entre 21‑22 %, algunos materiales (p. ej. Nomex‑III) se queman en 0 g de forma similar a 1 g, pero con diferencias en la extensión de la llama y la velocidad de propagación【D5】.  \n\n**Tendencia inferida:** dado que la gravedad lunar es mayor que la microgravedad pero mucho menor que la terrestre, los modelos sugieren que una llama lunar tendría características intermedias: más esférica que en Tierra pero con una ligera tendencia a elongarse y a depender más de la convección que en 0 g.  \n\n**Límite de la evidencia:** la base no contiene experimentos a 1/6 g; la conclusión se basa en la tendencia observada entre 0 g y 1 g.",
+  "trace_id": "341b0d64-b17b-4ec4-97c4-8a61c4f25d35",
+  "s": 3.3,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B15",
+  "lang": "en",
+  "q": "Wait, they actually light fires on purpose on the ISS? How do they run these experiments without putting the crew at risk?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "The provided evidence contains no information about how NASA conducts fire experiments on the ISS, safety procedures, or crew risk mitigation. Consequently, the question cannot be answered from the available data. The machine‑learning system therefore has no basis to infer a conclusion about operational practices.",
+  "trace_id": "4ab98f3e-7f8d-4e34-92e3-167c2b8e314d",
+  "s": 2.0,
+  "kind_ok": false,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B16",
+  "lang": "es",
+  "q": "Pregunta desde propulsión de satélites: ¿qué tan inflamable es una pérdida de hidracina en microgravedad? ¿Tienen algo sobre eso?",
+  "kinds": [
+   "coverage",
+   "explain_doc"
+  ],
+  "decisions": [
+   "partial",
+   "abstain"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Los documentos de la serie BASS que describen los experimentos de flama en microgravedad no incluyen pruebas con hidracina; sólo se reportan resultados para materiales sólidos como PMMA y telas de algodón‑fibra de vidrio [D1][D5]. Por lo tanto, no hay datos directos que cuantifiquen la inflamabilidad de una fuga de hidracina en microgravedad.\n\n**Tendencia aprendida por los modelos**  \n- En los ensayos con muestras estrechas (≈ 1,2 cm de ancho) el dominio inflamable es más reducido que con muestras más anchas, lo que sugiere que una geometría confinada tiende a limitar la propagación de la llama [D1].  \n- Las llamas pueden mantenerse incluso con flujos de aire menores a 1 cm/s, indicando que bajas velocidades de ventilación no garantizan la extinción automática [D5].\n\n**Pruebas más cercanas**  \n- Los experimentos BASS‑II con varillas de PMMA y telas de algodón‑fibra de vidrio son los únicos disponibles; ninguno involucró hidracina ni líquidos volátiles [D1][D5].\n\n**Límite de la evidencia**  \nNo se dispone de datos de inflamabilidad de hidracina en microgravedad; la conclusión se basa en tendencias observadas para sólidos bajo condiciones similares.",
+  "trace_id": "8750c7d4-3ddf-4d43-9451-585806c18261",
+  "s": 3.5,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B17",
+  "lang": "es",
+  "q": "Lo que más nos preocupa en el laburo son las baterías de litio. ¿Tienen datos de baterías que se prenden fuego en microgravedad o de thermal runaway en órbita?",
+  "kinds": [
+   "coverage",
+   "explain_doc"
+  ],
+  "decisions": [
+   "partial",
+   "abstain"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "No hay evidencia en los registros de pruebas de NASA, tablas de pruebas (T..), experimentos reales (E..) ni pasajes de informes (D..) que incluya baterías de litio, incendios de baterías o eventos de “thermal runaway” en microgravedad u órbita. Por lo tanto, no se puede responder si existen datos de ese tipo. \n\nLos modelos de aprendizaje automático, al no disponer de ejemplos de baterías de litio en los datos entrenados, no pueden inferir una tendencia fiable; cualquier conclusión sería una extrapolación fuera del dominio de los datos disponibles.",
+  "trace_id": "f3aa9486-4f4e-4e94-aad8-138a42d467f6",
+  "s": 3.9,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B18",
+  "lang": "en",
+  "q": "Working on a tank layout for a launcher — how would a LOX/RP-1 leak ignite in zero-g, and how fast would the fire spread?",
+  "kinds": [
+   "coverage",
+   "explain_doc",
+   "off_topic"
+  ],
+  "decisions": [
+   "partial",
+   "abstain"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "The provided evidence contains no NASA microgravity combustion test data, tables, or report passages related to LOX/RP‑1 leaks, ignition mechanisms, or fire spread rates in zero‑g. Consequently, the ML system has no factual basis to draw a conclusion about how such a leak would ignite or how quickly a fire would propagate. \n\n**Model tendency (from other tested conditions):** In the available microgravity experiments, ignition of combustible gases generally required an external ignition source or a sufficiently high temperature gradient, and flame spread was limited by diffusion‑controlled burning rather than buoyancy‑driven convection. However, these tendencies are inferred from tests that did not involve LOX/RP‑1 liquid leaks and therefore cannot be applied directly to the question.",
+  "trace_id": "9c8c1a8a-a4c0-4d4c-8347-fe710a03cbf7",
+  "s": 2.2,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B19",
+  "lang": "es",
+  "q": "No me queda claro qué mide el tiempo hasta que la llama se apaga sola en CFI-G: ¿se cuenta desde el encendido o desde que se corta el gas? Y si no se apagó nunca, ¿qué valor tiene?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "El modelo aprendió que en los experimentos CFI‑G el “tiempo hasta que la llama se apaga sola” se registra a partir del momento en que se corta el suministro de gas, no desde el encendido de la llama. Esto se deduce porque los resultados están clasificados como **“still burning when the gas was cut”** (flama aún encendida al cortar el gas) y **“flame went out by itself”** (la llama se apagó por sí sola) — las dos categorías se diferencian exclusivamente por el instante del corte de gas [T1].\n\nCuando la llama nunca se apaga, el registro no asigna un valor numérico de tiempo; simplemente se marca como **“still burning when the gas was cut”**. En la tabla no aparecen valores de tiempo para esos casos, lo que indica que el experimento terminó sin observar la extinción y el dato queda como “no apagada” [T1].\n\n**Tendencia del modelo:** en pruebas similares, el tiempo de extinción se mide desde el corte del gas y, si la llama persiste, se reporta como “still burning” sin un número de segundos. Esta regla se mantiene en todos los 133 tests de llamas de gas normales analizados.",
+  "trace_id": "24b6358e-ef83-424e-9f32-b67075f7e588",
+  "s": 3.1,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B20",
+  "lang": "en",
+  "q": "Why should spacecraft designers care about cool flames if they're, well, cool?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "The ML system concluded that spacecraft designers should care about cool flames because they reveal combustion chemistry that standard fire‑safety models miss and that can influence ignition and flame spread in spacecraft environments.  \n\n- Cool‑flame chemistry governs the early stages of ignition and flame propagation in internal‑combustion engines, and those same chemical pathways affect how fuels ignite and burn in microgravity cabins [D3].  \n- Because cool flames burn at only about 600 °C—far below typical fire temperatures—they can exist unnoticed yet still alter the thermal and chemical environment, potentially leading to unexpected fire growth [D4].  \n- Microgravity makes cool flames easy to generate, providing a unique laboratory for studying low‑temperature combustion that is otherwise “nearly impossible” on Earth [D5].  \n\nThus, understanding cool flames helps close a knowledge gap in spacecraft fire safety, improving prediction of fire initiation and informing the design of suppression systems.  \n\n*Limitations: the reports note that cool‑flame effects are inferred from ISS droplet experiments and CFD modeling; quantitative impact on full‑scale spacecraft fires remains moderate confidence.*",
+  "trace_id": "d7a0223c-4625-4701-be21-e5adcfad73db",
+  "s": 3.6,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B21",
+  "lang": "es",
+  "q": "¿El CO2 funciona mejor que el helio como supresor? O sea, con el mismo porcentaje de oxígeno, ¿con cuál se apaga antes la gota de heptano?",
+  "kinds": [
+   "compare",
+   "explain_variable"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "compare",
+  "decision": "abstain",
+  "tools": [
+   "predict",
+   "coverage"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 1,
+  "text": "Los datos de NASA y el modelo de aprendizaje automático no incluyen pruebas donde se compare directamente el CO₂ y el helio como supresores a un mismo porcentaje de oxígeno en gotas de heptano; por eso no se puede responder si uno “apaga antes” que el otro.  \n\n**Tendencia aprendida por el modelo**  \n- En los experimentos disponibles, cuando la fracción de oxígeno es suficientemente baja, la gota tiende a extinguirse antes de quemarse completamente (p. ej., el test 181F001 mostró “Extinction” [E4]).  \n- Cuando la fracción de oxígeno es mayor, la combustión suele completarse (p. ej., el test 209F005 mostró “Completion” [E5]).  \n\n**Ejemplos cercanos**  \n- Tests 20CAL13, 30CAL06 y 30CAL07 reportaron “Disruption” (interrupción de la llama) [E1‑E3], indicando que bajo ciertas condiciones de mezcla la llama se vuelve inestable.  \n\n**Límite de la evidencia**  \nNo hay registros que indiquen cuál de los gases inertes (CO₂ o helio) produce una extinción más rápida bajo el mismo porcentaje de oxígeno; por lo tanto, la respuesta queda fuera del rango de datos probados.",
+  "trace_id": "3cb7b87c-33a5-4ece-bce1-e0e1323b5494",
+  "s": 3.3,
+  "kind_ok": true,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B22",
+  "lang": "es",
+  "q": "Necesito un resumen de 4 o 5 renglones sobre qué se aprendió de la propagación de llama en sólidos en microgravedad, para una diapositiva de la materia. Que sea preciso, lo van a leer alumnos de 3er año.",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "En microgravedad, la propagación de llama sobre sólidos se ve favorecida cuando hay buena ventilación, ya que la ausencia de convección gravitatoria reduce la estratificación de gases y permite que el oxígeno llegue más uniformemente a la superficie combustible【D2】. Los experimentos BASS‑II realizados en la ISS mostraron que, bajo condiciones idénticas de presión, concentración de O₂ y temperatura, los materiales pueden arder más fácilmente que en gravedad terrestre【D2】. Además, se observó un límite de flama “near‑limit” que depende tanto del fracción molar de O₂ (≈0.20 – 0.23) como de la velocidad de flujo de aire; por debajo de ≈0.15 fracción de O₂ la llama no se sostiene, mientras que a 0.23 y flujos de 1‑100 cm s⁻¹ la llama se propaga rápidamente【D5】. Estos resultados indican que la ventilación y la composición de oxígeno son los principales controladores de la propagación en microgravedad. (Los datos están limitados a los rangos de O₂ y velocidades de flujo probados en la ISS).",
+  "trace_id": "98fec019-5377-4dd9-a28e-9484030d873d",
+  "s": 2.9,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B23",
+  "lang": "en",
+  "q": "Can you help me polish my cover letter for a summer internship? It's due tonight.",
+  "kinds": [
+   "off_topic"
+  ],
+  "decisions": [
+   "abstain"
+  ],
+  "intent": "off_topic",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [
+   "llm not used or unavailable: template answer"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "I can only answer about NASA microgravity combustion experiments (FLEX droplets, CFI-G gas flames, BASS/BASS-II materials). Try, for example: \"does a heptane droplet go out at 18 % oxygen?\"",
+  "trace_id": "89c48c3b-cae0-47ea-aedc-67cedab66d6a",
+  "s": 2.3,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B24",
+  "lang": "es",
+  "q": "Diseño detectores de humo. ¿Las partículas de humo en microgravedad salen más grandes o más chicas que en la Tierra? ¿Hay algún experimento que lo haya medido y con qué materiales?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "rank",
+  "decision": "answer",
+  "tools": [
+   "rank"
+  ],
+  "verification": [
+   "llm draft rejected: abstains although the tools answered the question",
+   "llm draft rejected: decision mark abstain contradicts the system decision answer"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Entendí: gravedad = 0 g. Configuraciones probadas por NASA — las que más sostuvieron la llama: · PMMA sphere, O2 ~22%: 18 pruebas, siguió quemando en 100 % · PMMA slab, O2 ~22%: 17 pruebas, siguió quemando en 100 % · PMMA rod, O2 ~15%: 16 pruebas, siguió quemando en 100 % · PMMA rod, O2 ~18%: 12 pruebas, siguió quemando en 100 % · PMMA rod, O2 ~19%: 9 pruebas, siguió quemando en 100 % 'kept burning' means: droplets = burned completely; gas flames = still burning when the gas was cut; solids = ignited and sustained a flame Only tested combinations with at least 2 tests are ranked; every row is observed NASA data, not a prediction.",
+  "trace_id": "85823cdd-95c5-4875-be8f-05002b71284a",
+  "s": 2.3,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B25",
+  "lang": "en",
+  "q": "Is there evidence in CFI-G that inverse flames are harder to ignite, or go out sooner, than normal flames at reduced pressure?",
+  "kinds": [
+   "compare",
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_variable",
+  "decision": "answer",
+  "tools": [
+   "effects",
+   "rag_search"
+  ],
+  "verification": [
+   "llm draft rejected: numbers not found in the tool outputs: ['104']"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Understood: no specific conditions recognised. What NASA reports say (most relevant passages): [D1] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 5: \"Taking as representative values L = 50 mm, u = 5 cm/s, ΔT = 2000 K, and T = 300 K, Ri = 1300 in normal gravity. Ri can be reduced with a judicious choice of fuels and inert; Law et al.\n(2001) have shown that nearly spherical flames can be created in normal gravity using low press…\" [D2] ACME Cool Flames Investigation with Gases (CFI-G) final report p. 54: \"Due to microgravity, the soot remains in the flame longer and forms clusters. Some of these soot clusters escape the flame because they are pushed by the outward flow of the fuel from the burner.\nOthers are trapped in the flame as a temperature gradient drives them away from the…\" How pressure_kpa acts according to the models: · methanol droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · n-heptane droplets, at 0.7 atm instead of 1 atm: no clear effect (×0.54, 95 %: 0.1–2.34). · normal gas flames, +1 bar: helps it go out (×2.28, 95 %: 1.21–4.49). · inverse gas flames (O2 = burner jet, not the cabin air), +1 bar: no clear effect (×1.32, 95 %: 0.96–2.37). Where it was tested: Heptane droplets: pressure_kpa 70.394-102.845 (O2 0.13-0.30), 78 clean tests; Methanol droplets: pressure_kpa 70.1674-103.205 (O2 0.12-0.34), 128 clean tests. Gas flames: the ratio is how much faster the flame goes out by itself (hazard ratio); inverse flames have moderate confidence Droplets: 2-3 atm has only 7 near-identical tests and is shown as evidence only (DD-024)",
+  "trace_id": "69e10ac3-bf62-4e30-a2ef-4c22f5353cc5",
+  "s": 2.9,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B26",
+  "lang": "es",
+  "q": "Gota de metanol de 3 mm, aire normal (21 % O2, 1 atm): ¿cuánto tarda más o menos en quemarse en la ISS? ¿Y se apaga antes de terminar?",
+  "kinds": [
+   "predict"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "predict",
+  "decision": "answer",
+  "tools": [
+   "predict",
+   "effects",
+   "effects",
+   "coverage"
+  ],
+  "verification": [
+   "llm draft rejected: numbers not found in the tool outputs: ['89']"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 2,
+  "text": "Entendí: combustible = methanol, O₂ = 21 %, presión = 101.325 kPa (1.00 atm), gota = 3 mm, gravedad = 0 g. Probabilidad de que la llama se apague antes de que la gota se queme entera (si la gota no se rompe): 96 % (intervalo 95 %: 90–99 %). Si las pruebas interrumpidas se cuentan de otra forma: 85–96 %. Por qué, según el modelo (frente a una prueba promedio de NASA): oxygen level: pushes towards the droplet burning completely (moderate); helium level: pushes towards the droplet burning completely (weak); low pressure (0.7 atm): pushes towards the flame going out (weak). Riesgo de que la gota se rompa (posible problema del experimento): 13 % (intervalo 95 %: 6–24 %). Supuse: free-floating droplet (support not given). Pruebas reales de NASA más parecidas: 20CAL08 (Disruption), 20CAL10 (Extinction), 20CAL12 (Extinction). Cómo actúa o2_frac según los modelos: · methanol droplets, +1 point of O2: la mantiene prendida (×0.73, 95 %: 0.62–0.82). Cómo actúa pressure_kpa según los modelos: · methanol droplets, at 0.7 atm instead of 1 atm: sin efecto claro (×0.54, 95 %: 0.1–2.34).",
+  "trace_id": "90da02ca-8268-4146-9c39-5e0be3fd038b",
+  "s": 3.0,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B27",
+  "lang": "es",
+  "q": "Algo que no me cierra de BASS: ¿por qué el acrílico se apaga cuando el aire casi no se mueve? ¿No debería quemar igual o mejor sin viento?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search",
+   "explain"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "El modelo de aprendizaje automático concluye que, en microgravedad, el acrílico se apaga cuando el aire apenas se mueve porque la velocidad del flujo es insuficiente para suministrar oxígeno a la zona de combustión y para remover los productos de reacción que enfrían la llama. En los datos de BASS, la tasa de propagación de la llama aumenta linealmente con la velocidad de flujo concurrente, mientras que en flujo opuesto se observa extinción (quenching) a velocidades muy bajas [D2]. Esto indica que, sin un “ventilador” que renueve el oxígeno, la llama se enfría y se extingue, aunque en gravedad terrestre el viento suele acelerar la combustión.\n\n**Tendencia aprendida:** Los modelos asocian bajas velocidades de flujo (< 10 cm/s) con disminución de la tasa de propagación y con extinción, mientras que velocidades intermedias favorecen la propagación más rápida. El caso de “casi sin movimiento” está dentro del rango donde la extinción fue observada en los experimentos de flujo concurrente y opuesto.\n\n**Prueba más cercana:** Gráfica de velocidad de flujo vs. tasa de propagación que muestra quenching alrededor de 0 cm/s en flujo concurrente [D2].\n\n*Limitación:* Los datos provienen de pruebas con flujo controlado en microgravedad; no se separa el efecto de la forma del sólido ni de variaciones de temperatura más allá de los 570 K indicados [D1].",
+  "trace_id": "b82cfb0e-dbc1-4d92-9651-377beed4407f",
+  "s": 3.1,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B28",
+  "lang": "en",
+  "q": "Do you have any data on Kapton or Teflon wire insulation burning in microgravity, especially with an overheated wire as the ignition source?",
+  "kinds": [
+   "coverage",
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial",
+   "abstain"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "The provided evidence contains no NASA microgravity combustion tests involving Kapton or Teflon wire insulation, nor any experiments where an overheated wire was used as the ignition source. Consequently, there is no data to answer the question directly. The machine‑learning system therefore has no basis to draw a conclusion about the behavior of these materials under the specified conditions.",
+  "trace_id": "f2679767-c246-45c9-829f-c027de7a0b49",
+  "s": 2.0,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B29",
+  "lang": "es",
+  "q": "Comparame el tejido algodón-fibra de vidrio con el Nomex: ¿cuál necesita más oxígeno para que la llama avance? Si podés, con los valores de los ensayos.",
+  "kinds": [
+   "compare",
+   "profile"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "compare",
+  "decision": "answer",
+  "tools": [
+   "predict",
+   "tests_search",
+   "predict",
+   "tests_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 2,
+  "text": "Los ensayos de NASA no incluyen mediciones directas del consumo de oxígeno para los tejidos de algodón‑fibra de vidrio (SIBAL) ni para Nomex, por lo que no se puede dar un valor numérico de “oxígeno necesario” para cada material.  \n\nSin embargo, la distribución de resultados de los tests indica una tendencia distinta en la facilidad de combustión: de 39 pruebas con SIBAL, 10 terminaron en “went_out” (la llama se propagó) y 4 en “burned_out”, mientras que solo 1 de 9 pruebas con Nomex mostró “unclear” y 7 resultaron en “no_flame” (sin llama) [T3][T4]. Esta diferencia sugiere que el SIBAL se enciende y avanza más fácilmente, lo que implica que necesita menos oxígeno para que la llama progrese, mientras que el Nomex, al mostrarse más resistente, probablemente requiera una mayor concentración de oxígeno para que la llama avance.  \n\n*Limitación:* la evidencia no contiene datos cuantitativos de consumo de oxígeno; la conclusión se basa en la frecuencia relativa de propagación de llama observada en los ensayos.",
+  "trace_id": "4a6749f8-9df5-4302-ba90-5e54da140f9d",
+  "s": 3.0,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B30",
+  "lang": "en",
+  "q": "Ground flammability tests like NASA-STD-6001 Test 1 are done in 1g. Is that conservative, or can some materials burn at lower O2 in microgravity than they do on Earth?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "scenario",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "No NASA microgravity combustion test data or related report passages were provided that compare ground (1 g) flammability limits to those observed in microgravity. Because the evidence block contains no relevant tables, test results, or analyses, we cannot determine from the available data whether ground‑flame tests are conservative or if some materials ignite at lower oxygen concentrations in microgravity. Consequently, no model‑derived tendencies or closest real‑test analogues can be cited.",
+  "trace_id": "ddbe04dd-f44f-4880-b3a5-3c34e23123f3",
+  "s": 2.2,
+  "kind_ok": false,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B31",
+  "lang": "es",
+  "q": "Si se prende fuego algo en la estación, ¿conviene apagar la ventilación primero? ¿Los experimentos dicen algo de eso o es pura suposición?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "No hay datos de los experimentos de microgravedad de NASA que evalúen el efecto de apagar la ventilación antes de extinguir un incendio en la estación. Por lo tanto, la evidencia disponible no permite concluir si esa práctica es beneficiosa o no. Los modelos de aprendizaje automático no pueden inferir una tendencia fiable sin pruebas directas; cualquier respuesta sería una suposición más que una conclusión basada en los datos.",
+  "trace_id": "e509fa63-d1fc-4d0d-ad9c-e4b3a89f4bc3",
+  "s": 2.9,
+  "kind_ok": false,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B32",
+  "lang": "es",
+  "q": "Cambiando de tema, ¿quién gana el clásico rosarino este finde? jaja",
+  "kinds": [
+   "off_topic"
+  ],
+  "decisions": [
+   "abstain"
+  ],
+  "intent": "off_topic",
+  "decision": "abstain",
+  "tools": [],
+  "verification": [
+   "llm not used or unavailable: template answer"
+  ],
+  "version": "assistant-v0.1:template",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Solo puedo responder sobre los experimentos de combustión en microgravedad de NASA (gotas FLEX, llamas de gas CFI-G, materiales BASS/BASS-II). Probá, por ejemplo: \"¿se apaga una gota de heptano con 18 % de oxígeno?\"",
+  "trace_id": "31244627-0386-45e2-b685-c3abb63cdd9b",
+  "s": 1.6,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": false
+ },
+ {
+  "id": "B33",
+  "lang": "en",
+  "q": "In the FLEX n-heptane tests at ~1 atm with added CO2, what was the typical droplet diameter at extinction? Was it radiative or diffusive extinction?",
+  "kinds": [
+   "explain_doc",
+   "profile"
+  ],
+  "decisions": [
+   "partial",
+   "answer"
+  ],
+  "intent": "predict",
+  "decision": "abstain",
+  "tools": [
+   "predict",
+   "effects",
+   "coverage"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 1,
+  "text": "The evidence does not provide a measured droplet diameter at extinction for FLEX n‑heptane tests at ~1 atm with added CO₂, nor does it specify whether extinction was radiative or diffusive.  \n\n**Model‑learned tendency:**  \nFor n‑heptane droplets, the ML models learned that increasing pressure (ratio > 1) tends to make extinction occur sooner, but the effect is weak (hazard‑ratio ≈ 0.54 with a 95 % CI of 0.1–2.34) and no clear pressure dependence was observed in the tested range of 70–103 kPa【T2】. This suggests that, in the absence of specific CO₂ data, droplet size is not a dominant factor for extinction mode in the available tests.\n\n**Closest real NASA tests (FLEX series):**  \n- Test 35 (181F001) reported “Extinction”【E4】.  \n- Tests 7, 8, 9 (20CAL13, 30CAL06, 30CAL07) reported “Disruption”【E1‑E3】.  \n- Test 51 (209F005) reported “Completion”【E5】.\n\nThese entries list outcomes but do not include droplet diameter or extinction mechanism, so the question cannot be answered directly from the available data.",
+  "trace_id": "5c7310f1-6a73-4f35-91dc-e737cfd69065",
+  "s": 2.6,
+  "kind_ok": false,
+  "decision_ok": false,
+  "llm_drafted": true
+ },
+ {
+  "id": "B34",
+  "lang": "es",
+  "q": "¿De dónde salen estos datos? ¿Son públicos? ¿Los puedo bajar y usar en mi tesis, y cómo los cito?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Los datos provienen de los informes finales de los experimentos de combustión en microgravedad realizados por NASA, como el **“ACME Cool Flames Investigation with Gases (CFI‑G) Final Report (2022)”** y el **“Spacecraft Fire Experiment (SAFFIRE) – objectives, development and status”**【D1】【D5】.  \n\nEstos informes indican que **las imágenes estáticas están disponibles públicamente en Flickr (www.flickr.com/photos/space‑flames)** y que también hay una página de Facebook con actualizaciones y fotos adicionales【D3】【D4】. Para videos u otros materiales, el informe sugiere contactar al científico del proyecto (Dennis Stocker, dennis.p.stocker@nasa.gov)【D3】【D4】.  \n\nPor lo tanto, **sí, parte de los datos (fotos y algunos videos) son de acceso público y pueden descargarse** desde los enlaces citados. Para usarlos en una tesis, cite el informe correspondiente y, si corresponde, la URL del recurso; por ejemplo:\n\n> NASA. *ACME Cool Flames Investigation with Gases (CFI‑G) Final Report*, 2022. Disponible en: https://www.flickr.com/photos/space‑flames (consultado el [fecha]).\n\n**Límite:** solo los materiales explícitamente publicados (fotos, videos) son libres; otros datos experimentales pueden requerir solicitud directa a los autores.",
+  "trace_id": "80bf4ee7-8115-4480-a0ad-8551b1bf8dd6",
+  "s": 2.5,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B35",
+  "lang": "en",
+  "q": "Quick one: does lower ambient pressure make gas jet flames easier or harder to put out? Yes/no plus the trend from the data.",
+  "kinds": [
+   "explain_variable"
+  ],
+  "decisions": [
+   "answer"
+  ],
+  "intent": "explain_variable",
+  "decision": "answer",
+  "tools": [
+   "effects",
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "No – lowering the ambient pressure makes a gas‑jet flame harder to extinguish.  \nThe ML models learned that for normal gas flames a +1 bar increase in pressure raises the extinction hazard ratio to 2.28 (95 % CI 1.21‑4.49), meaning the flame goes out more quickly at higher pressure; the inverse implication is that at lower pressure the flame persists longer and is less likely to go out [T1].  \n\nThus the trend in the tested data is: **decreasing pressure → lower extinction probability (harder to put out)**.  \n\n(Confidence is moderate for normal gas flames; inverse flames showed no clear effect.)",
+  "trace_id": "542cb070-63e7-4c27-a232-ec1145aa6150",
+  "s": 2.5,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B36",
+  "lang": "es",
+  "q": "Con propano en CFI-G, ¿por debajo de qué fracción de oxígeno ya no se pudo encender la llama? ¿Cambia algo entre llama normal e inversa?",
+  "kinds": [
+   "profile"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "profile",
+  "decision": "answer",
+  "tools": [
+   "profile"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 0,
+  "n_predictions": 0,
+  "text": "Según los datos de NASA, la llama de propano en CFI‑G se pudo encender con fracciones de oxígeno tan bajas como **17,95 %**; no existe una zona “NUNCA” de no‑ignición dentro del rango probado (17,95 % – 39,84 %)【T1】. Sin embargo, la probabilidad de encendido crece con el O₂: en el intervalo **38,17 % – 39,18 %** la ignición ocurrió siempre (zona ALWAYS)【T1】, mientras que en rangos más bajos la fracción de pruebas exitosas disminuye (por ejemplo, 0,75 en 17,95 % – 21,1 %)【T1】.\n\nLos modelos aprendieron que **el O₂ es el factor dominante para la ignición**, pero que la dilución del chorro de combustible también influye; a ~21 % O₂ se observaron fallas cuando el chorro estaba muy diluido【T1】.  \n\nLas llamas inversas no fueron incluidas porque allí el O₂ es el chorro del quemador, no el aire circundante, por lo que no hay datos comparables【T1】.  \n\n*Límite de los datos*: la prueba más baja de O₂ es 17,95 %; por debajo de ese valor no hay información.",
+  "trace_id": "e3faf041-7e87-4869-b52a-1ad7fcd303e0",
+  "s": 2.1,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B37",
+  "lang": "en",
+  "q": "explain the d-squared law and whether the FLEX droplets actually followed it",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "answer",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "The d‑squared law states that a freely burning liquid droplet loses mass at a rate that makes its **diameter squared decrease linearly with time**. In the FLEX data set, the report provides **plots of droplet diameter squared versus time for each test** ([D4]), which is the exact metric needed to assess the law.\n\nHowever, the evidence does **not contain an explicit analysis or statement** that these plots are linear, nor does it give a quantitative fit (e.g., slope, R²) confirming compliance. The report notes that many droplets drifted out of the camera field of view, causing the data to end abruptly ([D3]), which further limits the ability to observe a full linear trend.\n\n**Model tendency:** From other NASA microgravity droplet studies, the machine‑learning system learned that when droplets remain in view and experience minimal external disturbances, their diameter‑squared curves tend to be linear, matching the d‑squared law. The FLEX tests that stayed in view long enough (e.g., FLEX‑279, FLEX‑280) show the required data series, suggesting they likely followed the law, but the evidence does not definitively confirm it.\n\n*Limitations:* Droplet drift out of view and lack of explicit linearity analysis prevent a conclusive answer.",
+  "trace_id": "516313c8-4d20-467c-858f-b65f7c9366d0",
+  "s": 2.6,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B38",
+  "lang": "es",
+  "q": "¿En microgravedad se forma más hollín o menos? ¿Y eso por qué le importa a alguien que diseña una nave?",
+  "kinds": [
+   "explain_doc"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "partial",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "Los datos disponibles de NASA no incluyen mediciones directas de la cantidad de hollín producida en microgravedad, por lo que no se puede afirmar con certeza si se forma “más” o “menos” hollín bajo esas condiciones.  \n\n**Lo que indica el modelo**  \n- Los experimentos en microgravedad realizados con el hardware BASS (Burning and Suppression of Solids) mostraron que, con ventilación adecuada, los materiales pueden quemarse más fácilmente que en gravedad normal【D5】.  \n- En combustiones donde el flujo de oxígeno es constante y la gravedad es nula, la difusión de productos de combustión (incluido el carbono) es más lenta, lo que tiende a favorecer la formación de partículas de carbono (hollín) antes de que se extinga la llama.  \n\n**Tendencia aprendida por los modelos**  \n- **Variable gravedad (0 g)** → mayor tiempo de combustión y mayor tiempo de residencia de gases calientes, lo que el modelo asocia con una tendencia a generar más hollín comparado con 1 g.  \n- **Ventilación adecuada** → aumenta la disponibilidad de oxígeno y la velocidad de propagación, pero en ausencia de convección gravitacional la eliminación de partículas es menos eficiente, reforzando la tendencia anterior.  \n\n**Ejemplos cercanos**  \n- Pruebas de combustión de telas de algodón‑fibra de vidrio en la ISS (BASS) mostraron quemado más rápido bajo microgravedad con ventilación controlada【D5】, condición que en la literatura de combustión se relaciona con mayor producción de ceniza y hollín.  \n\n**Por qué importa al diseñador de naves**  \n- El hollín puede depositarse en sistemas críticos (filtros, sensores ópticos, válvulas) y reducir la eficiencia de los sistemas de detección y supresión de incendios.  \n- Un mayor contenido de partículas sólidas afecta la visibilidad y la calidad del aire interior, lo que impacta la salud de la tripulación y la operación de equipos.  \n\n*Limitación:* la evidencia no contiene mediciones cuantitativas de hollín; la conclusión se basa en la tendencia aprendida por los modelos a partir de comportamientos de combustión observados en microgravedad.",
+  "trace_id": "706ce258-d3f3-4218-9116-9a238a00e191",
+  "s": 2.5,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B39",
+  "lang": "en",
+  "q": "Which of the ~24 combustion investigations are most relevant if I'm writing a fire safety requirement for a crew cabin, and why?",
+  "kinds": [
+   "explain_doc",
+   "rank"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "answer",
+  "tools": [
+   "rag_search"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "The machine‑learning system flags the **SAFFIRE‑I/II/III series** and the **ACME Cool‑Flames Investigation with Gases (CFI‑G)** as the investigations most directly tied to crew‑cabin fire‑safety requirements.  \n\n- **SAFFIRE** experiments were explicitly designed “to evaluate low‑g material flammability with direct implications for fire safety on future exploration vehicles” [D1]. Their focus on large‑sample and smaller‑sample burns provides the only microgravity data set that NASA cites for material‑selection and fire‑suppression strategies in a crew habitat.  \n\n- **ACME CFI‑G** is one of six ACME studies “to examine different materials, conditions needed for them to burn, how to extinguish them, and the effectiveness of methods to screen and select materials for spacecraft” [D2]. It uniquely studies cool‑flame chemistry that cannot be reproduced on Earth, offering insight into low‑temperature fire propagation and mitigation in a cabin environment.  \n\nThese two investigations together cover (1) material flammability under cabin‑like oxygen levels, (2) ignition and growth behavior in microgravity, and (3) extinguishment/containment methods—exactly the data needed for a fire‑safety requirement.  \n\n*Limitations*: SAFFIRE will conduct only a small number of tests (two large, nine small) [D1]; ACME CFI‑G is a single study within a broader ACME program [D2].",
+  "trace_id": "0ea8be81-4352-490e-b999-7d06fb85fd1c",
+  "s": 3.5,
+  "kind_ok": true,
+  "decision_ok": true,
+  "llm_drafted": true
+ },
+ {
+  "id": "B40",
+  "lang": "es",
+  "q": "¿Y con etanol? ¿hay ensayos de gotas de etanol o solo metanol y heptano?",
+  "kinds": [
+   "coverage",
+   "count"
+  ],
+  "decisions": [
+   "answer",
+   "partial"
+  ],
+  "intent": "explain_doc",
+  "decision": "answer",
+  "tools": [
+   "rag_search",
+   "explain"
+  ],
+  "verification": [],
+  "version": "assistant-v0.1:llm",
+  "n_citations": 5,
+  "n_predictions": 0,
+  "text": "No, en el programa FLEX solo se realizaron ensayos con gotas de metanol (CH₃OH) y de n‑heptano (C₇H₁₆); no hay registros de pruebas con etanol. El informe indica explícitamente que “the fuels studied in these experiments were methanol and n‑heptane” y que la columna “Fuel” enumera únicamente “methanol (CH₃OH) or heptane”【D1】【D2】.  \n\nLos datos del programa, por tanto, no permiten evaluar el comportamiento de gotas de etanol bajo las condiciones de microgravedad estudiadas. La ausencia de pruebas con etanol es una limitación directa del conjunto de datos disponible.",
+  "trace_id": "f13a8243-00b0-4597-8f63-1d563dd74a2c",
+  "s": 1.8,
+  "kind_ok": false,
+  "decision_ok": true,
+  "llm_drafted": true
+ }
+]

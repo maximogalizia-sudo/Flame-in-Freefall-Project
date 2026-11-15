@@ -90,6 +90,8 @@ def make_plan(u: Understanding) -> Plan:
     if u.intent == 'risk':
         if c.o2_frac is None:
             p.notes.append('risk_needs_o2')
+            # never "no data" without looking: the NASA reports may answer it (e.g. "should we turn off the ventilation?")
+            p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
             return p
         p.calls.append(ToolCall('risk', RiskRequest(o2_frac=c.o2_frac, pressure_kpa=c.pressure_kpa or 101.325,
                                                     co2_frac=c.co2_frac or 0.0, he_frac=c.he_frac or 0.0,
@@ -167,11 +169,15 @@ def make_plan(u: Understanding) -> Plan:
         return p
 
     # predict, coverage and compare-with-one-substance
+    # No fuel or material identified: never answer "no data" without searching the NASA reports first (DT-024). If the
+    # passages really cover the question it is answered from them; if not, the "not identified / not tested" text stays.
     if not fam and c.gravity_g is None and not u.unknown_terms:
-        p.notes.append('no_subject')     # e.g. a material NASA did not test (Kevlar): say what was tested, call nothing
+        p.notes.append('no_subject')     # e.g. a material NASA did not test (Kevlar), or no material at all (ventilation)
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
         return p
     if not fam and not (c.gravity_g or 0) > 0:
         p.notes.append('no_subject')     # e.g. "Kevlar on the space station": microgravity is fine, the material was not tested
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
         return p
     if fam or (c.gravity_g or 0) > 0:   # gravity check only when there IS gravity (Moon, Mars): always out of the data
         p.calls.append(ToolCall('predict', c if fam else Conditions(**{**c.model_dump(exclude_none=True), 'family': 'flex', 'fuel': 'methanol', 'o2_frac': c.o2_frac or 0.21}),

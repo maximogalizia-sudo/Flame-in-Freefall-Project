@@ -266,7 +266,10 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
         s.append(TP.t('unmeasured', lang, x=', '.join(u.unknown_terms)))
     if 'off_topic' in plan.notes:
         return TP.t('off_topic', lang), 'abstain'
-    if 'no_subject' in plan.notes or 'count_without_subject' in plan.notes:
+    no_subj = 'no_subject' in plan.notes or 'count_without_subject' in plan.notes
+    # how well the report passages cover the question (DT-024: they can answer questions without a fuel or material)
+    doc_rel = passage_relevance(g.rag_query or u.text, g.passages) if g.passages else 0.0
+    if no_subj and doc_rel < 0.5:
         s.append(TP.t('no_subject', lang))
     answered, partial = False, False
     for label, p in g.predictions:
@@ -318,9 +321,9 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             # Report passages ANSWER a document question when they are about what was asked (most of the question's
             # content words appear in the best passages); tangential passages only make it partial. For a prediction
             # question they are related evidence only.
-            if u.intent == 'explain_doc' and passage_relevance(g.rag_query or u.text, g.passages) >= 0.5:
+            if (u.intent == 'explain_doc' or no_subj or 'risk_needs_o2' in plan.notes) and doc_rel >= 0.5:
                 answered = True
-            else:
+            elif not (no_subj or 'risk_needs_o2' in plan.notes):
                 partial = partial or u.intent != 'predict'
         elif 'rag_search' in g.unavailable:
             s.append(TP.t('docs_unavailable', lang))
@@ -330,7 +333,7 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
         lines = analytic_sentences(kind, data, lang)
         s += lines
         answered = answered or len(lines) > 1
-    if 'risk_needs_o2' in plan.notes:
+    if 'risk_needs_o2' in plan.notes and doc_rel < 0.5:
         s.append({'es': 'Para el indicador de riesgo necesito al menos el % de oxígeno de la atmósfera (y si podés, la presión).',
                   'en': 'For the risk indicator I need at least the oxygen % of the atmosphere (and the pressure if possible).'}[lang])
     if g.risk is not None:
