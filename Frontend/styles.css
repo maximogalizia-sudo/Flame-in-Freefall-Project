@@ -276,3 +276,13 @@ td.title { white-space: normal; min-width: 240px; color: var(--ink-2); }
 .ew-allfires summary h3 { display: inline; }
 .ew-allfires summary::before { content: "▸"; color: var(--muted); }
 .ew-allfires[open] summary::before { content: "▾"; }
+
+/* "if a flame starts here" panel: current state first, last change, curve with the 50 % point */
+.ew-main { display: grid; gap: 4px; min-width: 0; }
+.ew-big { font-size: 15px; margin: 10px 0 6px; }
+.ew-last { margin-top: 10px; padding: 8px 10px; border: 1px dashed var(--border); border-radius: 10px; font-size: 13px; }
+.ew-last p { margin: 0; }
+.ew-curve { margin-top: 10px; }
+.ew-threshold { color: var(--ink); }
+.chart .ew-cross { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.ew-presets .muted { align-self: center; }

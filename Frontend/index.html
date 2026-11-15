@@ -24,22 +24,32 @@
     <section class="card ew" id="ew" aria-labelledby="t-ew">
       <header class="card-head">
         <div>
-          <h2 id="t-ew">Experiment planner &amp; early warning</h2>
-          <p class="sub">Pick a fire and set the planned atmosphere. The sliders stand for the experiment's sensor readings: move one (as if a reading drifted, or before you change it on purpose) and see what the NASA-based models expect with that change, compared with the plan.</p>
+          <h2 id="t-ew">If a flame starts here: does it keep burning?</h2>
+          <p class="sub">In every NASA test behind these models a flame was lit on purpose. The question is what happens next: does it keep burning or go out by itself, and how fast? Pick a fire and move the sensor readings (oxygen, pressure, CO₂, helium) to see the answer change.</p>
         </div>
       </header>
       <div class="ew-layout">
         <div class="ew-side">
           <label class="ew-fire">Fire <select id="ew-fire"></select></label>
-          <div class="ew-presets" id="ew-presets" aria-label="Reference atmospheres (sets a new plan)"></div>
+          <div class="ew-presets" id="ew-presets" aria-label="Reference atmospheres"></div>
           <div class="ew-controls" id="ew-controls"></div>
-          <div class="ew-plan-ctl">
-            <button type="button" class="chip" id="ew-setplan">Make this the plan</button>
-            <button type="button" class="chip" id="ew-reset">Back to plan</button>
-          </div>
-          <p class="muted ew-plan-desc" id="ew-plan-desc"></p>
         </div>
-        <div class="ew-result" id="ew-result" aria-live="polite"><p class="muted">Loading…</p></div>
+        <div class="ew-main">
+          <div class="ew-result" id="ew-result" aria-live="polite"><p class="muted">Loading…</p></div>
+          <div class="ew-whatif ew-curve">
+            <header class="card-head">
+              <div>
+                <h3>Where does it start to go out?</h3>
+                <p class="sub ew-threshold" id="ew-threshold"></p>
+              </div>
+              <div class="ew-whatif-ctl">
+                <label>Vary <select id="ew-var"></select></label>
+              </div>
+            </header>
+            <div class="chart" id="ew-sweep-chart"></div>
+            <p class="note" id="ew-sweep-note"></p>
+          </div>
+        </div>
       </div>
       <div class="ew-whatif">
         <header class="card-head">
@@ -51,21 +61,8 @@
         <div class="chart" id="ew-dur-chart"></div>
         <p class="note" id="ew-dur-note"></p>
       </div>
-      <div class="ew-whatif">
-        <header class="card-head">
-          <div>
-            <h3>What if?</h3>
-            <p class="sub">Vary one setting for this fire, keep the rest of the current readings. Hatched = NASA never tested it: no estimate.</p>
-          </div>
-          <div class="ew-whatif-ctl">
-            <label>Vary <select id="ew-var"></select></label>
-          </div>
-        </header>
-        <div class="chart" id="ew-sweep-chart"></div>
-        <p class="note" id="ew-sweep-note"></p>
-      </div>
       <details class="ew-whatif ew-allfires">
-        <summary><h3>Every kind of fire at the current readings</h3> <span id="ew-all-level"></span></summary>
+        <summary><h3>Every kind of fire at these readings</h3> <span id="ew-all-level"></span></summary>
         <p class="sub">Droplets, gas flames and solid materials (solids: NASA evidence only, no model).</p>
         <div id="ew-all"></div>
       </details>
