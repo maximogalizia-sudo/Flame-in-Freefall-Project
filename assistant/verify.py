@@ -1,7 +1,8 @@
 """Verifier (criterion 1): an LLM draft is accepted only if it does not add anything the tools did not give.
 
 Checks: decision mark present and coherent with the evidence; every number in the text appears in the question
-or in a tool output (also accepted as % of a fraction, with rounding); every citation [Tn]/[Dn] exists; no fuel
+or in a tool output (also accepted as % of a fraction, with rounding, or as the sum, difference or percentage of two
+counts of the tools, recomputed here: DT-028); every citation [Tn]/[Dn] exists; no fuel
 or material is named that is not in the question or the tool outputs. Any problem -> the template answer is used.
 """
 from __future__ import annotations
@@ -35,6 +36,24 @@ def allowed_numbers(*sources: str) -> set[str]:
     return out
 
 
+def derived(n: str, blob: str) -> bool:
+    """DT-028: a number the LLM computed from two COUNTS of the tools (sum, difference or percentage), e.g. "272 lit"
+    from 333 tests and 61 that did not light, or "80.25 %" from 107 of 133. The verifier recomputes it; anything else
+    is still rejected. Only whole numbers from the evidence are combined (counts), to keep coincidences unlikely."""
+    try:
+        x = float(n)
+    except ValueError:
+        return False
+    counts = sorted({int(v) for v in re.findall(r'(?<![\d.])\d+(?![\d.])', blob) if 0 < int(v) < 100000})[:300]
+    for a in counts:
+        for b in counts:
+            cands = [a + b, a - b] + ([a / b * 100] if a <= b else [])
+            if any(abs(c - x) < 1e-9 or abs(round(c, 1) - x) < 1e-9 or abs(round(c, 2) - x) < 1e-9 or abs(round(c) - x) < 1e-9
+                   for c in cands if c > 0):
+                return True
+    return False
+
+
 def parse_decision(raw: str) -> tuple[str | None, str]:
     m = DECISION.match(raw or '')
     if not m:
@@ -52,6 +71,7 @@ def verify(draft: str, decision: str | None, question: str, evidence_block: str,
     elif template_decision == 'answer' and decision == 'abstain':
         problems.append('abstains although the tools answered the question')
     invented = sorted(numbers(draft) - allowed_numbers(question, evidence_block))
+    invented = [n for n in invented if not derived(n, question + ' ' + evidence_block)]
     if invented:
         problems.append(f'numbers not found in the tool outputs: {invented[:6]}')
     bad_cites = sorted({f'{a}{b}' for a, b in CITE.findall(draft)} - citable)

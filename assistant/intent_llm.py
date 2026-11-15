@@ -16,10 +16,11 @@ import re
 
 INTENT_HELP = {
     'predict': 'the outcome for ONE specific case: a given fuel or material under given conditions (does it go out, '
-               'keep burning, how long does it last)',
-    'scenario': 'what happens to a specific fire when ONE condition changes (from a value to another, more / less of it)',
+               'keep burning, how long does it last). Needs a named fuel or material',
+    'scenario': 'what happens to a specific fire when ONE condition changes (from a value to another, more / less of it). '
+                'Needs a named fire and a named condition',
     'explain_variable': 'how a condition (oxygen, CO2, helium, pressure, droplet size) affects flames in general: its '
-                        'effect, role, danger or influence',
+                        'effect, role, danger or influence. Needs the condition to be named in the question',
     'profile': 'a range, threshold or limit of a condition over ALL the data: at / above / below which level flames '
                'always or never go out, lowest or highest level where they still burned, how much of it is needed',
     'rank': 'a ranking or list of the configurations, conditions, materials or tests that most / least burned, lasted '
@@ -29,10 +30,12 @@ INTENT_HELP = {
                'at extinction, burning rate, burn time, how often cool flames or soot appeared and under which conditions',
     'count': 'how many tests or experiments, how often something happened in the data',
     'coverage': 'whether NASA has data at all about something (e.g. lunar gravity, humidity, a material)',
-    'compare': 'a direct comparison between two named fuels, materials or conditions',
-    'risk': 'whether a whole cabin or habitat atmosphere (oxygen and pressure) is safe or risky, early warning',
+    'compare': 'a direct comparison between two named fuels or materials, or two named conditions (e.g. CO2 vs helium)',
+    'risk': 'whether a whole cabin or habitat atmosphere is safe or risky, early warning. Needs the oxygen level '
+            'written in the question',
     'explain_doc': 'an explanation of a phenomenon, concept, experiment or reason, answered from the NASA reports '
-                   '(why, what is, how does it work)',
+                   '(why, what is, how does it work). Also every general question that does not meet the needs of '
+                   'the other kinds (safety practice, how the experiments were run, what a data field means, physics)',
     'off_topic': 'not about fire, combustion or these NASA experiments',
 }
 VARIABLES = {'o2_frac', 'co2_frac', 'he_frac', 'pressure_kpa', 'droplet_d0_mm'}
@@ -51,7 +54,8 @@ SYSTEM = ('You classify one question about the NASA microgravity combustion data
           '"quantity": only for measure, one of ' + '; '.join(f'{k} ({v})' for k, v in QUANTITIES.items()) + ', else null\n'
           '"family": the kind of fire if the question is limited to one, one of '
           + '; '.join(f'{k} ({v})' for k, v in FAMILIES.items()) + ', else null\n'
-          'Classify by what the person wants to know, not by single words.')
+          'Classify by what the person wants to know, not by single words. Pick a kind only if the question gives what '
+          'that kind needs; otherwise pick explain_doc.')
 
 
 def classify_llm(text: str, llm) -> dict | None:
