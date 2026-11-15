@@ -109,8 +109,8 @@ def can_run(intent: str, u, llm_read: dict) -> bool:
     """The tool behind an intent needs some inputs; switching to an intent whose tool cannot run makes things worse."""
     if intent == 'risk':
         return u.conditions.o2_frac is not None                   # a cabin atmosphere needs at least its oxygen
-    if intent == 'compare':
-        return len(u.substances) >= 2                             # two named fuels or materials
+    if intent == 'compare':                                   # two named fuels or materials, or two variables (DT-027)
+        return len(u.substances) >= 2 or len(getattr(u, 'variables', [])) >= 2
     if intent in ('scenario', 'explain_variable'):
         return bool(u.variable or llm_read.get('variable'))
     if intent == 'predict':

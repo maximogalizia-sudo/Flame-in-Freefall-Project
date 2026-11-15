@@ -119,6 +119,7 @@ class Understanding:
     analytic_family: str | None = None          # flex / cfig / solids for analytic questions (None = all)
     rank_target: str | None = None              # persistence / extinction / burn_time / fastest_out
     quantity: str | None = None                 # measure: dext / burn_rate / burn_time / cool_flame / soot (DT-025)
+    variables: list[str] = field(default_factory=list)   # every variable mentioned (DT-027)
 
 
 FAMILY_WORDS = [('flex', r"\bgotas?\b|droplets?|liquid|liquidos?|metanol|methanol|heptan\w*|\bflex\b"),
@@ -152,6 +153,16 @@ def find_quantity(t: str) -> str | None:
         if re.search(pat, t):
             return q
     return None
+
+
+def find_variables(t: str) -> list[str]:
+    """All the variables mentioned, in order of appearance, without repeats (DT-027: comparing two variables)."""
+    hits = sorted((m.start(), var) for word, var in VARIABLES.items() for m in re.finditer(rf"\b{word}\b", t))
+    out = []
+    for _, var in hits:
+        if var not in out:
+            out.append(var)
+    return out
 
 
 def find_variable(t: str) -> str | None:
@@ -283,4 +294,4 @@ def understand(text: str) -> Understanding:
     return Understanding(text=text, lang=detect_lang(text), intent=intent, conditions=Conditions(**vals),
                          substances=substances, unknown_terms=unknown, notes=notes, accessions=accessions, variable=variable,
                          analytic_family=analytic_family, rank_target=find_rank_target(t) if intent == "rank" else None,
-                         quantity=quantity)
+                         quantity=quantity, variables=find_variables(t))

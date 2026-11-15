@@ -172,6 +172,13 @@ def make_plan(u: Understanding) -> Plan:
                                                                     code if sf == 'solids' else None), label=code))
         return p
 
+    if u.intent in ('compare', 'explain_variable') and len(u.variables) >= 2 and len(u.substances) < 2:
+        u.intent = 'explain_variable'    # DT-027: e.g. "is CO2 or helium the better suppressant?" -> effects of each
+        for var in u.variables[:3]:
+            p.calls.append(ToolCall('effects', var))
+        p.calls.append(ToolCall('rag_search', RagSearchRequest(query=u.text, accessions=accessions, k=30)))
+        return p
+
     if u.intent == 'compare' and len(u.substances) >= 2:
         for sub in u.substances[:3]:
             sc = _substance_conditions(c, sub)
