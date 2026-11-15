@@ -19,6 +19,7 @@ class Settings:
     llm_timeout_s: float
     trace_path: Path
     reranker_model: str | None   # None = keep the order given by /rag/search
+    intent_policy: str = 'guarded'  # kind of question: rules / llm / unsure / guarded (DT-022, docs/DECISIONES_TECNICAS.md)
 
 
 @lru_cache
@@ -34,5 +35,6 @@ def get_settings() -> Settings:
         llm_model=e("LLM_MODEL") or "qwen/qwen3.8-27b,openai/gpt-oss-120b,openai/gpt-oss-20b",
         llm_timeout_s=float(e("LLM_TIMEOUT_S") or 30),
         trace_path=Path(e("ASSISTANT_TRACE_PATH") or "assistant_traces.jsonl"),
+        intent_policy=(e("INTENT_POLICY") or "guarded").lower(),
         reranker_model=e("RERANKER_MODEL") or None,
     )

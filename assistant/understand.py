@@ -213,6 +213,11 @@ def extract_conditions(t: str) -> tuple[dict, list[tuple[str, str, str]], list[s
     return vals, substances, notes
 
 
+def matched_intents(t: str) -> list[str]:
+    """Every intent whose keyword pattern matches (0 = the rules fell back to a default; >1 = ambiguous wording)."""
+    return [intent for intent, pattern in INTENT_RULES if re.search(pattern, t)]
+
+
 def classify(t: str, has_substance: bool, has_numbers: bool, has_variable: bool = False) -> str:
     on_topic = has_substance or has_numbers or has_variable or bool(re.search(COMBUSTION_WORDS, t))
     for intent, pattern in INTENT_RULES:

@@ -21,6 +21,7 @@ from .ml_insight import drivers, relevant_rows
 from .retrieve import passage_relevance, select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, understand
+from .intent_llm import refine as refine_intent
 from .understand_llm import llm_assist, needs_help
 
 
@@ -370,6 +371,8 @@ def answer(req: AskRequest, tools=None, drafter=None, llm=None) -> Answer:
     u = merge_history(understand(req.text), req)
     if llm is not None and needs_help(u):          # rules first; the LLM only helps to understand, validated
         u = llm_assist(u, llm)
+    if llm is not None and not req.history:        # kind of question: rules, or the LLM when the policy says so (DT-022)
+        u = refine_intent(u, llm, get_settings().intent_policy)
     if req.lang:
         u.lang = req.lang
     plan = make_plan(u)

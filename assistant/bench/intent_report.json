@@ -1,0 +1,1344 @@
+{
+ "summary": {
+  "bench50": {
+   "n": 50,
+   "rules": 50,
+   "llm": 47,
+   "unsure": 49,
+   "guarded": 48
+  },
+  "heldout_v1": {
+   "n": 20,
+   "rules": 20,
+   "llm": 16,
+   "unsure": 17,
+   "guarded": 18
+  },
+  "heldout_v2": {
+   "n": 12,
+   "rules": 7,
+   "llm": 11,
+   "unsure": 9,
+   "guarded": 12
+  },
+  "lc6": {
+   "n": 6,
+   "rules": 6,
+   "llm": 6,
+   "unsure": 6,
+   "guarded": 6
+  },
+  "ALL": {
+   "n": 88,
+   "rules": 83,
+   "llm": 80,
+   "unsure": 81,
+   "guarded": 84
+  }
+ },
+ "rows": [
+  {
+   "set": "bench50",
+   "id": "P01",
+   "q": "¿Se apaga una gota de metanol con 18 % de oxígeno y 15 % de CO2?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P02",
+   "q": "Does a heptane droplet go out in air at 21% oxygen?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P03",
+   "q": "¿Se apaga una gota de heptano de 1,5 mm con 15 % de oxígeno?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P04",
+   "q": "Probabilidad de que se apague una gota de metanol con 15 % de oxígeno y 30 % de helio",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P05",
+   "q": "Does a butane flame at 40% oxygen and 2 bar go out by itself within 30 s?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P06",
+   "q": "¿Cuánto tarda en apagarse sola una llama de propano con 21 % de oxígeno a 1 atm?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P07",
+   "q": "Heptane droplet on a fiber, 3 mm, 20% oxygen, 0.7 atm: will the flame go out?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "P08",
+   "q": "¿Se apaga una gota de metanol con 21 % de oxígeno?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O01",
+   "q": "¿Se apaga una gota de heptano con 34 % de oxígeno y 20 % de CO2 a 0,7 atm?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O02",
+   "q": "Does a methanol droplet go out at 21% oxygen with 10% CO2 and 10% helium?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O03",
+   "q": "¿Se apaga una gota de metanol con 21 % de oxígeno a 3 atm con CO2 al 20 %?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O04",
+   "q": "Does an ethane flame at 30% oxygen and 3 bar go out by itself?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O05",
+   "q": "¿Se apaga una gota de heptano en gravedad lunar con 21 % de oxígeno?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "O06",
+   "q": "¿Se apaga una gota de heptano de 6 mm con 15 % de oxígeno?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "C01",
+   "q": "¿Cuántas pruebas de Nomex no prendieron?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "C02",
+   "q": "How many FLEX tests used methanol?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "C03",
+   "q": "¿Cuántas pruebas de algodón hizo NASA?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "C04",
+   "q": "How many propane flame tests are there?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "C05",
+   "q": "¿En cuántas pruebas de heptano con 15 % de oxígeno se apagó la llama?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "C06",
+   "q": "¿Cuántas pruebas de Ultem hay?",
+   "gold": "count",
+   "rules": "count",
+   "matched": [
+    "count"
+   ],
+   "llm": "count",
+   "p_rules": "count",
+   "p_llm": "count",
+   "p_unsure": "count",
+   "p_guarded": "count"
+  },
+  {
+   "set": "bench50",
+   "id": "X01",
+   "q": "hola como estas",
+   "gold": "off_topic",
+   "rules": "off_topic",
+   "matched": [],
+   "llm": "off_topic",
+   "p_rules": "off_topic",
+   "p_llm": "off_topic",
+   "p_unsure": "off_topic",
+   "p_guarded": "off_topic"
+  },
+  {
+   "set": "bench50",
+   "id": "X02",
+   "q": "¿Y en gravedad lunar con humedad?",
+   "gold": "coverage",
+   "rules": "coverage",
+   "matched": [],
+   "llm": "coverage",
+   "p_rules": "coverage",
+   "p_llm": "coverage",
+   "p_unsure": "coverage",
+   "p_guarded": "coverage"
+  },
+  {
+   "set": "bench50",
+   "id": "X03",
+   "q": "What is the best pizza in Rosario?",
+   "gold": "off_topic",
+   "rules": "off_topic",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "off_topic",
+   "p_rules": "off_topic",
+   "p_llm": "off_topic",
+   "p_unsure": "off_topic",
+   "p_guarded": "off_topic"
+  },
+  {
+   "set": "bench50",
+   "id": "X04",
+   "q": "¿Se prende fuego el Kevlar con 30 % de oxígeno?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "X05",
+   "q": "Does Nomex burn at 34% oxygen?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "bench50",
+   "id": "X06",
+   "q": "¿Qué pasa en Marte con una gota de metanol?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [],
+   "llm": "scenario",
+   "p_rules": "predict",
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
+  },
+  {
+   "set": "bench50",
+   "id": "V01",
+   "q": "¿Cómo incide el CO2 en el fenómeno y con qué variables se relaciona?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [
+    "explain_variable"
+   ],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "bench50",
+   "id": "V02",
+   "q": "How does oxygen affect whether the flame goes out?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [
+    "explain_variable",
+    "explain_doc",
+    "predict"
+   ],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "bench50",
+   "id": "V03",
+   "q": "¿Qué efecto tiene la presión?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [
+    "explain_variable"
+   ],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "bench50",
+   "id": "S01",
+   "q": "¿Qué pasa si subo el CO2 de 10 a 30 % en una gota de heptano con 20 % de oxígeno?",
+   "gold": "scenario",
+   "rules": "scenario",
+   "matched": [
+    "scenario"
+   ],
+   "llm": "scenario",
+   "p_rules": "scenario",
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
+  },
+  {
+   "set": "bench50",
+   "id": "S02",
+   "q": "What if we increase the oxygen for a methanol droplet?",
+   "gold": "scenario",
+   "rules": "scenario",
+   "matched": [
+    "scenario"
+   ],
+   "llm": "scenario",
+   "p_rules": "scenario",
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
+  },
+  {
+   "set": "bench50",
+   "id": "R01",
+   "q": "¿Es segura una atmósfera de cabina con 34 % de oxígeno a 0,7 atm?",
+   "gold": "risk",
+   "rules": "risk",
+   "matched": [
+    "risk"
+   ],
+   "llm": "risk",
+   "p_rules": "risk",
+   "p_llm": "risk",
+   "p_unsure": "risk",
+   "p_guarded": "risk"
+  },
+  {
+   "set": "bench50",
+   "id": "R02",
+   "q": "Early warning for a cabin atmosphere at 21% oxygen and 101 kPa",
+   "gold": "risk",
+   "rules": "risk",
+   "matched": [
+    "risk"
+   ],
+   "llm": "risk",
+   "p_rules": "risk",
+   "p_llm": "risk",
+   "p_unsure": "risk",
+   "p_guarded": "risk"
+  },
+  {
+   "set": "bench50",
+   "id": "R03",
+   "q": "¿Qué riesgo tiene la atmósfera de la cabina?",
+   "gold": "risk",
+   "rules": "risk",
+   "matched": [
+    "risk",
+    "predict"
+   ],
+   "llm": "risk",
+   "p_rules": "risk",
+   "p_llm": "risk",
+   "p_unsure": "risk",
+   "p_guarded": "risk"
+  },
+  {
+   "set": "bench50",
+   "id": "D01",
+   "q": "¿Por qué se rompían las gotas en FLEX?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D02",
+   "q": "Why did FLEX droplets disrupt?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D03",
+   "q": "¿Qué es una llama fría?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D04",
+   "q": "What is a cool diffusion flame and when did CFI-G observe it?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D05",
+   "q": "¿Por qué se apagan solas las llamas de gas grandes?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc",
+    "predict"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D06",
+   "q": "What did BASS-II learn about flame spread over thick PMMA slabs?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D07",
+   "q": "¿Qué es el tejido SIBAL y por qué se usó?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "off_topic",
+   "p_rules": "explain_doc",
+   "p_llm": "off_topic",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D08",
+   "q": "How was the air flow controlled in the BASS experiments?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D09",
+   "q": "¿Qué objetivo tenía el experimento SAFFIRE?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [
+    "explain_doc"
+   ],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "D10",
+   "q": "What is radiative extinction of a droplet flame?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "I01",
+   "q": "¿Una vela aguanta más en una cabina con aire enriquecido?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "bench50",
+   "id": "I02",
+   "q": "Si meto más dióxido de carbono, ¿le cuesta más mantenerse a la gota de heptano?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "bench50",
+   "id": "I03",
+   "q": "¿Las gotas grandes de heptano se apagan más fácil que las chicas?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [
+    "predict"
+   ],
+   "llm": "scenario",
+   "p_rules": "explain_variable",
+   "p_llm": "scenario",
+   "p_unsure": "explain_variable",
+   "p_guarded": "scenario"
+  },
+  {
+   "set": "bench50",
+   "id": "I04",
+   "q": "Does lowering the pressure help put out a butane flame?",
+   "gold": "scenario",
+   "rules": "scenario",
+   "matched": [
+    "scenario"
+   ],
+   "llm": "scenario",
+   "p_rules": "scenario",
+   "p_llm": "scenario",
+   "p_unsure": "scenario",
+   "p_guarded": "scenario"
+  },
+  {
+   "set": "bench50",
+   "id": "I05",
+   "q": "¿Las roturas de las gotas eran física real o un problema del experimento?",
+   "gold": "explain_doc",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "explain_doc",
+   "p_rules": "explain_doc",
+   "p_llm": "explain_doc",
+   "p_unsure": "explain_doc",
+   "p_guarded": "explain_doc"
+  },
+  {
+   "set": "bench50",
+   "id": "I06",
+   "q": "¿Conviene usar helio en vez de nitrógeno para que se apague una gota de metanol?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H01",
+   "q": "¿A partir de qué porcentaje de CO2 se apagan siempre las gotas de metanol?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H02",
+   "q": "Is there any helium level at which heptane droplets always go out?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H03",
+   "q": "¿Cuál es el oxígeno mínimo con el que NASA vio llamas de gas encenderse?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H04",
+   "q": "What range of pressures did NASA test for gas flames?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "coverage"
+   ],
+   "llm": "coverage",
+   "p_rules": "profile",
+   "p_llm": "coverage",
+   "p_unsure": "coverage",
+   "p_guarded": "coverage"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H05",
+   "q": "¿Con qué niveles de oxígeno los materiales sólidos no lograron sostener la llama?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H06",
+   "q": "¿Hay algún tamaño de gota de heptano por debajo del cual nunca se apaga la llama?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H07",
+   "q": "Which 3 FLEX conditions most often ended with the droplet burning completely?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank",
+    "predict"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H08",
+   "q": "¿Qué atmósferas hicieron que las llamas de gas se apagaran más rápido?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank",
+    "predict"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H09",
+   "q": "Rank the solid materials from most to least flammable according to NASA tests",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H10",
+   "q": "¿Cuáles fueron las pruebas de gotas que más tiempo ardieron?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H11",
+   "q": "Which gas flame conditions kept burning the longest?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank",
+    "predict"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H12",
+   "q": "¿Qué combinaciones de gotas se apagaron siempre?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "rank",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H13",
+   "q": "¿Qué le falta a los datos de NASA para poder evaluar una cabina lunar?",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H14",
+   "q": "What are the main limitations of this dataset?",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H15",
+   "q": "¿Qué condiciones nunca se probaron con supresores?",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps",
+    "coverage"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H16",
+   "q": "Suggest new tests to better understand solid materials at high oxygen",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H17",
+   "q": "¿Qué peligro tiene subir el oxígeno en una cabina?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "risk",
+   "p_rules": "explain_variable",
+   "p_llm": "risk",
+   "p_unsure": "risk",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H18",
+   "q": "How risky is low pressure for fire?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [
+    "predict"
+   ],
+   "llm": "risk",
+   "p_rules": "explain_variable",
+   "p_llm": "risk",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H19",
+   "q": "¿En qué rango de presión se apagan solas las llamas de butano en menos de 30 segundos?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "coverage",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v1",
+   "id": "H20",
+   "q": "¿Cuál es el mejor restaurante de Rosario?",
+   "gold": "off_topic",
+   "rules": "off_topic",
+   "matched": [],
+   "llm": "off_topic",
+   "p_rules": "off_topic",
+   "p_llm": "off_topic",
+   "p_unsure": "off_topic",
+   "p_guarded": "off_topic"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V01",
+   "q": "¿Desde qué presión las llamas de propano dejan de apagarse solas?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V02",
+   "q": "What is the lowest oxygen level at which a solid material still burned in the NASA tests?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "explain_doc",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V03",
+   "q": "¿Qué porcentaje de helio hace falta para que se apaguen siempre las gotas de heptano?",
+   "gold": "profile",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "profile",
+   "p_rules": "gaps",
+   "p_llm": "profile",
+   "p_unsure": "gaps",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V04",
+   "q": "List the 4 gas-flame atmospheres where flames lasted longest",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V05",
+   "q": "¿Cuál fue el material que menos sostuvo la llama?",
+   "gold": "rank",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "rank",
+   "p_rules": "explain_doc",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V06",
+   "q": "¿Qué condiciones de gotas tienen más chances de quemarse enteras?",
+   "gold": "rank",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "rank",
+   "p_rules": "predict",
+   "p_llm": "rank",
+   "p_unsure": "predict",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V07",
+   "q": "Which droplet tests went out the fastest?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V08",
+   "q": "¿Qué datos harían falta para predecir incendios en Marte?",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V09",
+   "q": "What experiments would close the biggest holes in this data?",
+   "gold": "gaps",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "gaps",
+   "p_rules": "explain_doc",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V10",
+   "q": "¿Qué puntos débiles tienen los datos de materiales sólidos?",
+   "gold": "gaps",
+   "rules": "explain_doc",
+   "matched": [],
+   "llm": "gaps",
+   "p_rules": "explain_doc",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V11",
+   "q": "¿Es peligroso aumentar el helio?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "risk",
+   "p_rules": "explain_variable",
+   "p_llm": "risk",
+   "p_unsure": "risk",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "heldout_v2",
+   "id": "V12",
+   "q": "¿Quién ganó el mundial 2022?",
+   "gold": "off_topic",
+   "rules": "off_topic",
+   "matched": [],
+   "llm": "off_topic",
+   "p_rules": "off_topic",
+   "p_llm": "off_topic",
+   "p_unsure": "off_topic",
+   "p_guarded": "off_topic"
+  },
+  {
+   "set": "lc6",
+   "id": "LC1",
+   "q": "¿En qué rangos de oxígeno no se prende fuego bajo ninguna condición?",
+   "gold": "profile",
+   "rules": "profile",
+   "matched": [
+    "profile",
+    "coverage",
+    "predict"
+   ],
+   "llm": "profile",
+   "p_rules": "profile",
+   "p_llm": "profile",
+   "p_unsure": "profile",
+   "p_guarded": "profile"
+  },
+  {
+   "set": "lc6",
+   "id": "LC2",
+   "q": "¿Qué pasa con una llama de propano con 40 % de oxígeno a 2 bar y un caudal de 1,5 mg/s? ¿Se prende y cuánto tarda en apagarse?",
+   "gold": "predict",
+   "rules": "predict",
+   "matched": [
+    "predict"
+   ],
+   "llm": "predict",
+   "p_rules": "predict",
+   "p_llm": "predict",
+   "p_unsure": "predict",
+   "p_guarded": "predict"
+  },
+  {
+   "set": "lc6",
+   "id": "LC3",
+   "q": "¿Cuál es el peligro de la alta presión respecto a este fenómeno?",
+   "gold": "explain_variable",
+   "rules": "explain_variable",
+   "matched": [],
+   "llm": "explain_variable",
+   "p_rules": "explain_variable",
+   "p_llm": "explain_variable",
+   "p_unsure": "explain_variable",
+   "p_guarded": "explain_variable"
+  },
+  {
+   "set": "lc6",
+   "id": "LC4",
+   "q": "Mencioname 3 experimentos que se deberían realizar en el futuro para enriquecer los datos y los análisis",
+   "gold": "gaps",
+   "rules": "gaps",
+   "matched": [
+    "gaps"
+   ],
+   "llm": "gaps",
+   "p_rules": "gaps",
+   "p_llm": "gaps",
+   "p_unsure": "gaps",
+   "p_guarded": "gaps"
+  },
+  {
+   "set": "lc6",
+   "id": "LC5",
+   "q": "Dame las 5 configuraciones de variables que más tienden a incendiarse",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  },
+  {
+   "set": "lc6",
+   "id": "LC6",
+   "q": "¿Cuáles son las configuraciones de variables que más tardan en apagarse?",
+   "gold": "rank",
+   "rules": "rank",
+   "matched": [
+    "rank"
+   ],
+   "llm": "rank",
+   "p_rules": "rank",
+   "p_llm": "rank",
+   "p_unsure": "rank",
+   "p_guarded": "rank"
+  }
+ ]
+}
