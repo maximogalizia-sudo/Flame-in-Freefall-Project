@@ -17,7 +17,7 @@ from . import VERSION
 from . import templates as TP
 from .config import get_settings
 from .plan import OUTCOME_COL, Plan, make_plan
-from .ml_insight import drivers, relevant_rows
+from .ml_insight import relevant_rows
 from .retrieve import passage_relevance, select_passages, translate_query
 from .tools import ToolResult, get_tools
 from .understand import Understanding, find_family, normalize, understand
@@ -314,10 +314,9 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
             continue
         prefix = f'[{label}] ' if label and label != 'gravity_check' else ''
         s += [prefix + x for x in TP.prediction_sentences(p, lang)]
-        why = drivers(p, top=3)
-        if why and p.target != 'droplet_breakup':
-            s.append({'es': 'Por qué, según el modelo (frente a una prueba promedio de NASA): ',
-                      'en': 'Why, according to the model (vs an average NASA test): '}[lang] + '; '.join(why) + '.')
+        # DT-034 (night inspection C2): the per-case "why" (contributions vs an average NASA test) read backwards when the
+        # case had LESS of a variable than that average, and named variables the user never gave. The "why" now comes
+        # only from what the models learned about the variables the user set (effects rows, right direction + interval).
         if p.probability is not None:
             answered = True
         elif p.target == 'ignition' or (p.target == 'no_model' and not any('above 22.7' in r for r in p.out_of_domain)):

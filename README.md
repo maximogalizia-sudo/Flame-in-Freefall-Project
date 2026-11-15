@@ -6,7 +6,8 @@ Insights from Microgravity Combustion Data*.
 An **early-warning fire-risk indicator, scenario explorer and phenomenon explainer** built on
 NASA's microgravity combustion experiments (NASA PSI). For given cabin or habitat conditions
 it answers **what the evidence says, which NASA tests back it, and where NASA has no data yet** —
-through interpretable models and an assistant that never invents data.
+through interpretable models and an assistant whose numbers come only from NASA data and our models, and are checked
+automatically before they are shown (the text is written by a language model; see "Use of AI").
 
 - **Early warning**: for an atmosphere (O₂, pressure, CO₂, helium) a traffic light per scenario
   (fuel droplets, gas flames, cabin materials); **gray = never tested by NASA (unknown, not safe)**.

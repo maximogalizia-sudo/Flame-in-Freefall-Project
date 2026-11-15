@@ -36,15 +36,20 @@ def allowed_numbers(*sources: str) -> set[str]:
     return out
 
 
+COUNT_RE = re.compile(r'(\d+)\s+(?:tests|pruebas|runs|ensayos|llamas|flames|droplets|gotas)\b|"n(?:_total|_tests)?"\s*:\s*(\d+)|'
+                      r'\bn(?:_tests)?\s*=\s*(\d+)|"count"\s*:\s*(\d+)|\b(\d+)\s+(?:of|de)\s+(\d+)\b')
+
+
 def derived(n: str, blob: str) -> bool:
-    """DT-028: a number the LLM computed from two COUNTS of the tools (sum, difference or percentage), e.g. "272 lit"
-    from 333 tests and 61 that did not light, or "80.25 %" from 107 of 133. The verifier recomputes it; anything else
-    is still rejected. Only whole numbers from the evidence are combined (counts), to keep coincidences unlikely."""
+    """DT-028, tightened by DT-035 (night inspection C4): a number the LLM computed from two COUNTS of the tools (sum,
+    difference or percentage), e.g. "272 lit" from "333 tests" and "n": 61. Only labelled counts are combined (number of
+    tests, "n": .., n=.., "x of y"), never any integer of the evidence (years, pages, test ids), which had let most
+    invented numbers pass. The verifier recomputes it; anything else is rejected."""
     try:
         x = float(n)
     except ValueError:
         return False
-    counts = sorted({int(v) for v in re.findall(r'(?<![\d.])\d+(?![\d.])', blob) if 0 < int(v) < 100000})[:300]
+    counts = sorted({int(v) for m in COUNT_RE.finditer(blob) for v in m.groups() if v and 0 < int(v) < 100000})[:200]
     for a in counts:
         for b in counts:
             cands = [a + b, a - b] + ([a / b * 100] if a <= b else [])

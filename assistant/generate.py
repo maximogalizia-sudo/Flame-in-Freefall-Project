@@ -8,14 +8,14 @@ with [[DECISION:ANSWER|PARTIAL|ABSTAIN]], cite every fact, add nothing, and writ
 from __future__ import annotations
 
 from .llm import get_llm
-from .ml_insight import drivers, relevant_rows
+from .ml_insight import relevant_rows
 from .verify import dumps, parse_decision, verify
 
 SYSTEM = """You are the assistant of a NASA microgravity-combustion data tool. You write the final answer for the user.
 
 YOUR ROLE: explain what the team's MACHINE-LEARNING SYSTEM understood. When the evidence has items marked (MODEL), the
-ML models are the brain: lead with their conclusion and WHY (the 'WHY_according_to_the_model' drivers and what the models
-learned about each variable); NASA data, closest real tests [E..] and report passages [D..] are SUPPORT. When there is no
+ML models are the brain: lead with their conclusion and WHY (what the models learned about each variable the user gave,
+with its direction and interval; never say which variable "pushed" this case unless the evidence says it); NASA data, closest real tests [E..] and report passages [D..] are SUPPORT. When there is no
 (MODEL) item, answer from the NASA data and reports and do not mention the models at all.
 
 STRICT RULES
@@ -67,8 +67,7 @@ def build_evidence(u, plan, g) -> tuple[str, set[str]]:
         k += 1; labels.add(f'T{k}')
         d = {'about': label or (u.conditions.fuel or u.conditions.material), 'target': p.target, 'probability': p.probability,
              'interval_95': [p.ci_low, p.ci_high], 'sensitivity_range': p.range_sensitivity, 'in_the_data': p.in_domain,
-             'why_not_in_data': p.out_of_domain, 'assumptions': p.assumptions, 'notes': p.notes,
-             'WHY_according_to_the_model': drivers(p)}       # what the ML understood for this case, strongest first
+             'why_not_in_data': p.out_of_domain, 'assumptions': p.assumptions, 'notes': p.notes}   # DT-034: no per-case drivers
         items.append(f'[T{k}] (MODEL) ML model prediction: {dumps(d)}')
     for label, req, resp in g.counts:
         k += 1; labels.add(f'T{k}')
