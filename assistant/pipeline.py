@@ -287,6 +287,11 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
     if no_subj and doc_rel < 0.5:
         s.append(TP.t('no_subject', lang))
     answered, partial = False, False
+    if 'partial_gravity' in plan.notes:  # DT-026: always said, whatever the kind of question
+        s.append({'es': f'Atención: NASA no tiene pruebas de combustión en gravedad parcial (pediste {u.conditions.gravity_g:g} g, '
+                        'Luna o Marte). Todo lo que sigue sale de microgravedad y no se puede trasladar a esa gravedad.',
+                  'en': f'Note: NASA has no combustion tests in partial gravity (you asked {u.conditions.gravity_g:g} g, Moon or '
+                        'Mars). Everything below comes from microgravity and cannot be carried over to that gravity.'}[lang])
     for label, p in g.predictions:
         if label == 'gravity_check' and p.probability is None:
             s.append('; '.join(p.out_of_domain[:1]) + '.')
@@ -363,13 +368,18 @@ def template_draft(u: Understanding, plan: Plan, g: Gathered) -> tuple[str, str]
     for e in g.effects:
         if u.intent in ('explain_variable', 'scenario'):
             s += effects_sentences(e, lang)
-            answered = answered or bool(e.rows)
+            if u.intent == 'explain_variable':
+                answered = answered or bool(e.rows)
+            else:                        # DT-026: a general tendency does not answer this specific scenario
+                partial = partial or bool(e.rows)
         else:   # with a prediction, only what the model learned about the variables asked, for this fuel
             e2 = e.model_copy(update={'rows': relevant_rows(e, u.conditions)})
             s += effects_sentences(e2, lang)[:1 + len(e2.rows)]
     if g.failures:
         s.append(TP.t('tool_failed', lang, x=', '.join(sorted(set(g.failures)))))
     decision = 'answer' if answered else ('partial' if partial else 'abstain')
+    if decision == 'answer' and any(lbl == 'gravity_check' and p.probability is None for lbl, p in g.predictions):
+        decision = 'partial'             # DT-026: NASA has no data under partial gravity (Moon, Mars)
     return ' '.join(s), decision
 
 

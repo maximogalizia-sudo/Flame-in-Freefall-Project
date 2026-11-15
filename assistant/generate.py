@@ -55,6 +55,10 @@ LANG = {'es': 'Spanish (Rioplatense, neutral)', 'en': 'English'}
 def build_evidence(u, plan, g) -> tuple[str, set[str]]:
     items, labels = [], set()
     k = 0
+    if 'partial_gravity' in plan.notes:          # DT-026: must be said explicitly in the answer
+        labels.add('G1')
+        items.append(f'[G1] NASA has NO combustion tests in partial gravity (the question asks {u.conditions.gravity_g:g} g, Moon or '
+                     'Mars). State this explicitly; everything else comes from microgravity and cannot be carried over to that gravity.')
     for label, p in g.predictions:
         k += 1; labels.add(f'T{k}')
         d = {'about': label or (u.conditions.fuel or u.conditions.material), 'target': p.target, 'probability': p.probability,

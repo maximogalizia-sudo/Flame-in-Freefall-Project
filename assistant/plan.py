@@ -69,6 +69,11 @@ def make_plan(u: Understanding) -> Plan:
     if u.intent == 'off_topic':
         p.notes.append('off_topic')
         return p
+    if (c.gravity_g or 0) > 0 and u.intent not in ('predict', 'coverage'):
+        p.notes.append('partial_gravity')
+        p.calls.append(ToolCall('predict', Conditions(**{**c.model_dump(exclude_none=True), 'family': fam or 'flex',
+                                                          'fuel': c.fuel or ('methanol' if not fam else c.fuel),
+                                                          'o2_frac': c.o2_frac or 0.21}), label='gravity_check'))
 
     # Analytic questions over ALL the data (flame.analytics): ranges/thresholds, rankings, gaps
     if u.intent == 'profile':
